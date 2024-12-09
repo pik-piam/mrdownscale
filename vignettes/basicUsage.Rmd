@@ -1,0 +1,24 @@
+---
+title: "Basic Usage of mrdownscale"
+author: "Pascal Sauer"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Basic Usage of mrdownscale}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+The mrdownscale harmonization and downscaling can be started by running the following:
+```{r, echo = TRUE, eval = FALSE}
+library(mrdownscale)
+madrat::setConfig(mainfolder = "~/madrat_mainfolder")
+madrat::retrieveData("DOWNSCALEDMAGPIE", puc = FALSE)
+```
+mrdownscale is a madrat-package, so it is utilizing madrat's structure and data processing features and it is called via madrat wrappers. The madrat mainfolder is where madrat stores all its data like source and cache files. The output will be written to mainfolder/output in the form of a tgz archive. More information on madrat can be found [here](https://pik-piam.r-universe.dev/articles/madrat/madrat.html). retrieveData is a madrat wrapper that calls the full function according to its first argument, in this case mrdownscale:::fullDOWNSCALEDMAGPIE which triggers a full run of the pipeline, see figure 1.
+
+![figure 1](pipeline.png)
