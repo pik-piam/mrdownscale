@@ -28,6 +28,8 @@ calcResolutionMapping <- function(input, target) {
 
   if (target == "luh2mod") {
     targetGrid <- readSource("LUH2v2h", subtype = "states")
+  } else if (target == "luh3") {
+    targetGrid <- readSource("LUH3", subtype = "states")
   } else if (target == "landuseinit") {
     targetGrid <- readSource("LanduseInit")
     targetGrid <- as.SpatRaster(targetGrid)

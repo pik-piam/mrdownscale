@@ -21,6 +21,8 @@ toolLandCategoriesMapping <- function(input, target) {
       out <- toolGetMapping("luh2ref.csv", where = "mrdownscale")
     } else if (x == "luh2mod") {
       out <- toolGetMapping("luhmod2ref.csv", where = "mrdownscale")
+    } else if (x == "luh3") {
+      out <- toolGetMapping("luh3-ref.csv", where = "mrdownscale")
     } else {
       stop("Categories mapping for type \"", x, "\" not available!", call. = FALSE)
     }

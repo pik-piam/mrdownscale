@@ -28,6 +28,7 @@ readLUH3 <- function(subtype) {
     x <- toYearsAndSubset(x, years)
     # remove secma & secmb
     x <- x[[grep("secm[ab]", names(x), invert = TRUE)]]
+    x <- x[[grep("pltns", names(x), invert = TRUE)]] # TODO remove this once pltns values are available
     unit <- "1"
   } else if (subtype == "management") {
     x <- terra::rast("multiple-management_input4MIPs_landState_CMIP_UofMD-landState-3-0_gn_0850-2024.nc")
