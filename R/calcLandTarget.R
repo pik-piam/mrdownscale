@@ -8,28 +8,44 @@
 #' @return land target data
 #' @author Pascal Sauer
 calcLandTarget <- function(target) {
-  if (target %in% c("luh2", "luh2mod")) {
+  if (target %in% c("luh2", "luh2mod", "luh3")) {
     cropTypes <- c("c3ann", "c3nfx", "c3per", "c4ann", "c4per")
 
-    states <- readSource("LUH2v2h", subtype = "states")
+    if (target == "luh3") {
+      states <- readSource("LUH3", subtype = "states")
+    } else {
+      states <- readSource("LUH2v2h", subtype = "states")
+    }
     nonCropStates <- states[[grep(paste(cropTypes, collapse = "|"), names(states),
                                   value = TRUE, invert = TRUE)]]
     states <- toolSpatRasterToDataset(states)
-    man <- readSource("LUH2v2h", subtype = "management", convert = FALSE)
-    man <- toolSpatRasterToDataset(man)
-    man <- man[c(paste0("crpbf_", cropTypes), paste0("irrig_", cropTypes))]
+
+    if (target == "luh3") {
+      man <- readSource("LUH3", subtype = "management", convert = FALSE)
+      man <- toolSpatRasterToDataset(man)
+      man <- man[c(paste0("cpbf1_", cropTypes),
+                   paste0("cpbf2_", cropTypes),
+                   paste0("irrig_", cropTypes))]
+      cpbf1Category <- "cpbf1"
+    } else {
+      man <- readSource("LUH2v2h", subtype = "management", convert = FALSE)
+      man <- toolSpatRasterToDataset(man)
+      man <- man[c(paste0("crpbf_", cropTypes),
+                   paste0("irrig_", cropTypes))]
+      cpbf1Category <- "crpbf"
+    }
     stopifnot(all.equal(terra::time(states[1]), terra::time(man[1])))
 
     out <- list(nonCropStates)
     for (cropType in cropTypes) {
-      crpbf <- man[paste0("crpbf_", cropType)]
+      cpbf1 <- man[paste0(cpbf1Category, "_", cropType)]
       irrig <- man[paste0("irrig_", cropType)]
-      stopifnot(all.equal(terra::time(crpbf), terra::time(states[cropType])),
+      stopifnot(all.equal(terra::time(cpbf1), terra::time(states[cropType])),
                 all.equal(terra::time(irrig), terra::time(states[cropType])))
 
       # crpbf_<cropType> = 1st gen biofuel crop share of <cropType>
       # -> get <cropType>_biofuel_1st_gen area in Mha by multiplying with <cropType>
-      biofuel1stGen <- crpbf * states[cropType]
+      biofuel1stGen <- cpbf1 * states[cropType]
 
       irrigatedBiofuel1stGen <- irrig * biofuel1stGen
       rainfedBiofuel1stGen <- biofuel1stGen - irrigatedBiofuel1stGen
@@ -42,7 +58,16 @@ calcLandTarget <- function(target) {
 
       irrigatedBiofuel2ndGen <- NULL
       rainfedBiofuel2ndGen <- NULL
-      if (grepl("per", cropType)) {
+      if (target == "luh3") {
+        biofuel2ndGen <- man[paste0("cpbf2_", cropType)] * states[cropType]
+        irrigatedBiofuel2ndGen <- irrig * biofuel2ndGen
+        rainfedBiofuel2ndGen <- biofuel2ndGen - irrigatedBiofuel2ndGen
+        names(irrigatedBiofuel2ndGen) <- sub("\\.\\..+$", paste0("..", cropType, "_irrigated_biofuel_2nd_gen"),
+                                             names(irrigatedBiofuel2ndGen))
+        names(rainfedBiofuel2ndGen) <- sub("\\.\\..+$", paste0("..", cropType, "_rainfed_biofuel_2nd_gen"),
+                                           names(rainfedBiofuel2ndGen))
+        nonBiofuel <- nonBiofuel - irrigatedBiofuel2ndGen - rainfedBiofuel2ndGen
+      } else if (grepl("per", cropType)) {
         # 2nd gen biofuel is not part of LUH2v2h, but we need it for the harmonization, so fill with zeros
         irrigatedBiofuel2ndGen <- 0 * states[cropType]
         rainfedBiofuel2ndGen <- 0 * states[cropType]
@@ -65,7 +90,9 @@ calcLandTarget <- function(target) {
     # cannot use withr::local_tempfile because the SpatRaster is invalid as soon as the underlying file is deleted
     out <- terra::writeRaster(out, file = tempfile(fileext = ".tif"))
 
-    if (target == "luh2mod") {
+    if (target == "luh3") {
+      # TODO: once pltns are available read them here
+    } else if (target == "luh2mod") {
       # split secdf into forestry and secdf
       forestryShare <- read.magpie(system.file("extdata/forestryShare.mz", package = "mrdownscale"))
       forestryShare <- as.SpatRaster(forestryShare)
