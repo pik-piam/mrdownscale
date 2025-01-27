@@ -10,6 +10,7 @@
 calcLandTarget <- function(target) {
   if (target %in% c("luh2", "luh2mod", "luh3")) {
     cropTypes <- c("c3ann", "c3nfx", "c3per", "c4ann", "c4per")
+    per <- c("c3per", "c4per")
 
     if (target == "luh3") {
       states <- readSource("LUH3", subtype = "states")
@@ -24,7 +25,7 @@ calcLandTarget <- function(target) {
       man <- readSource("LUH3", subtype = "management", convert = FALSE)
       man <- toolSpatRasterToDataset(man)
       man <- man[c(paste0("cpbf1_", cropTypes),
-                   paste0("cpbf2_", cropTypes),
+                   paste0("cpbf2_", per),
                    paste0("irrig_", cropTypes))]
       cpbf1Category <- "cpbf1"
     } else {
@@ -43,7 +44,7 @@ calcLandTarget <- function(target) {
       stopifnot(all.equal(terra::time(cpbf1), terra::time(states[cropType])),
                 all.equal(terra::time(irrig), terra::time(states[cropType])))
 
-      # crpbf_<cropType> = 1st gen biofuel crop share of <cropType>
+      # cpbf1 is 1st gen biofuel share of <cropType>
       # -> get <cropType>_biofuel_1st_gen area in Mha by multiplying with <cropType>
       biofuel1stGen <- cpbf1 * states[cropType]
 
@@ -58,22 +59,25 @@ calcLandTarget <- function(target) {
 
       irrigatedBiofuel2ndGen <- NULL
       rainfedBiofuel2ndGen <- NULL
-      if (target == "luh3") {
-        biofuel2ndGen <- man[paste0("cpbf2_", cropType)] * states[cropType]
-        irrigatedBiofuel2ndGen <- irrig * biofuel2ndGen
-        rainfedBiofuel2ndGen <- biofuel2ndGen - irrigatedBiofuel2ndGen
-        names(irrigatedBiofuel2ndGen) <- sub("\\.\\..+$", paste0("..", cropType, "_irrigated_biofuel_2nd_gen"),
-                                             names(irrigatedBiofuel2ndGen))
-        names(rainfedBiofuel2ndGen) <- sub("\\.\\..+$", paste0("..", cropType, "_rainfed_biofuel_2nd_gen"),
-                                           names(rainfedBiofuel2ndGen))
-        nonBiofuel <- nonBiofuel - irrigatedBiofuel2ndGen - rainfedBiofuel2ndGen
-      } else if (grepl("per", cropType)) {
-        # 2nd gen biofuel is not part of LUH2v2h, but we need it for the harmonization, so fill with zeros
-        irrigatedBiofuel2ndGen <- 0 * states[cropType]
-        rainfedBiofuel2ndGen <- 0 * states[cropType]
-        names(irrigatedBiofuel2ndGen) <- paste0(names(irrigatedBiofuel2ndGen), "_irrigated_biofuel_2nd_gen")
-        names(rainfedBiofuel2ndGen) <- paste0(names(rainfedBiofuel2ndGen), "_rainfed_biofuel_2nd_gen")
-        nonBiofuel <- nonBiofuel - irrigatedBiofuel2ndGen - rainfedBiofuel2ndGen
+      if (cropType %in% per) {
+        if (target == "luh3") {
+          # TODO if cpbf1_c4per > 0.99 then cpbf1 + cpbf2 > 1 which leads to negative nonBiofuel
+          biofuel2ndGen <- man[paste0("cpbf2_", cropType)] * states[cropType]
+          irrigatedBiofuel2ndGen <- irrig * biofuel2ndGen
+          rainfedBiofuel2ndGen <- biofuel2ndGen - irrigatedBiofuel2ndGen
+          names(irrigatedBiofuel2ndGen) <- sub("\\.\\..+$", paste0("..", cropType, "_irrigated_biofuel_2nd_gen"),
+                                               names(irrigatedBiofuel2ndGen))
+          names(rainfedBiofuel2ndGen) <- sub("\\.\\..+$", paste0("..", cropType, "_rainfed_biofuel_2nd_gen"),
+                                             names(rainfedBiofuel2ndGen))
+          nonBiofuel <- nonBiofuel - biofuel2ndGen
+        } else {
+          # 2nd gen biofuel is not part of LUH2v2h, but we need it for the harmonization, so fill with zeros
+          irrigatedBiofuel2ndGen <- 0 * states[cropType]
+          rainfedBiofuel2ndGen <- 0 * states[cropType]
+          names(irrigatedBiofuel2ndGen) <- paste0(names(irrigatedBiofuel2ndGen), "_irrigated_biofuel_2nd_gen")
+          names(rainfedBiofuel2ndGen) <- paste0(names(rainfedBiofuel2ndGen), "_rainfed_biofuel_2nd_gen")
+          nonBiofuel <- nonBiofuel - irrigatedBiofuel2ndGen - rainfedBiofuel2ndGen
+        }
       }
 
       irrigatedNonBiofuel <- irrig * nonBiofuel
@@ -90,9 +94,7 @@ calcLandTarget <- function(target) {
     # cannot use withr::local_tempfile because the SpatRaster is invalid as soon as the underlying file is deleted
     out <- terra::writeRaster(out, file = tempfile(fileext = ".tif"))
 
-    if (target == "luh3") {
-      # TODO: once pltns are available read them here
-    } else if (target == "luh2mod") {
+    if (target == "luh2mod") {
       # split secdf into forestry and secdf
       forestryShare <- read.magpie(system.file("extdata/forestryShare.mz", package = "mrdownscale"))
       forestryShare <- as.SpatRaster(forestryShare)

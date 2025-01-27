@@ -28,7 +28,6 @@ readLUH3 <- function(subtype) {
     x <- toYearsAndSubset(x, years)
     # remove secma & secmb
     x <- x[[grep("secm[ab]", names(x), invert = TRUE)]]
-    x <- x[[grep("pltns", names(x), invert = TRUE)]] # TODO remove this once pltns values are available
     unit <- "1"
   } else if (subtype == "management") {
     x <- terra::rast("multiple-management_input4MIPs_landState_CMIP_UofMD-landState-3-0_gn_0850-2024.nc")
@@ -37,7 +36,10 @@ readLUH3 <- function(subtype) {
     # combf is a share of wood harvest like rndwd and fulwd, but we can ignore it as long as it is 0 everywhere
     stopifnot(identical(max(terra::values(max(x["combf"])), na.rm = TRUE), 0))
 
-    x <- x["cpbf1|cpbf2|rndwd|fulwd|fertl|irrig"]
+    # there are variables for 2nd gen biofuel c3ann, c4ann, c3nfx, but we can ignore it as long as it is 0 everywhere
+    stopifnot(identical(max(terra::values(max(x["cpbf2_(c3ann|c4ann|c3nfx)"])), na.rm = TRUE), 0))
+
+    x <- x["cpbf1|cpbf2_c3per|cpbf2_c4per|rndwd|fulwd|fertl|irrig"]
     unit <- "1, except fertl: kg ha-1 yr-1"
   } else if (subtype == "transitions") {
     x <- terra::rast("multiple-transitions_input4MIPs_landState_CMIP_UofMD-landState-3-0_gn_0850-2023.nc")
