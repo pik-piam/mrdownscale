@@ -7,13 +7,13 @@
 #' The LUH3 nc files have day-based time, which is converted to years.
 #'
 #' @param subtype one of states, management, transitions, cellArea
-readLUH3 <- function(subtype) {
-  years <- 1995:2015
-
+readLUH3 <- function(subtype, subset = 1995:2015) {
   if (subtype == "cellArea") {
     cellArea <- terra::rast("multiple-fixed_input4MIPs_landState_CMIP_UofMD-landState-3-0_gn.nc", "carea")
     return(list(x = cellArea, class = "SpatRaster", cache = FALSE, unit = "km2"))
   }
+
+  years <- subset
 
   # switch from tstep days to years and subset to years
   toYearsAndSubset <- function(x, years, offset = 0) {
@@ -24,10 +24,15 @@ readLUH3 <- function(subtype) {
   }
 
   if (subtype == "states") {
-    x <- terra::rast("multiple-states_input4MIPs_landState_CMIP_UofMD-landState-3-0_gn_0850-2024.nc")
-    x <- toYearsAndSubset(x, years)
-    # remove secma & secmb
-    x <- x[[grep("secm[ab]", names(x), invert = TRUE)]]
+    # all except secmb secma
+    variables <- c("primf", "primn", "secdf", "secdn", "urban", "c3ann", "c4ann",
+                   "c3per", "c4per", "c3nfx", "pastr", "range", "pltns")
+    firstYear <- 850
+    yearIndizes <- years - firstYear + 1
+    x <- terra::rast("multiple-states_input4MIPs_landState_CMIP_UofMD-landState-3-0_gn_0850-2024.nc",
+                     lyrs = paste0(rep(variables, each = length(yearIndizes)), "_", yearIndizes))
+    stopifnot(max(terra::minmax(x, compute = TRUE)) <= 1.0001,
+              all(terra::units(x) == "1"))
     unit <- "1"
   } else if (subtype == "management") {
     x <- terra::rast("multiple-management_input4MIPs_landState_CMIP_UofMD-landState-3-0_gn_0850-2024.nc")
