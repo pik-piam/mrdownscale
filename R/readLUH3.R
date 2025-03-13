@@ -15,45 +15,47 @@ readLUH3 <- function(subtype, subset = 1995:2015) {
 
   years <- subset
 
-  # switch from tstep days to years and subset to years
-  toYearsAndSubset <- function(x, years, offset = 0) {
-    stopifnot(years >= 1970) # handling years < 1970 is tricky with terra
-    terra::time(x, tstep = "years") <- terra::time(x, format = "years") + offset
-    x <- x[[terra::time(x) %in% years]]
-    return(x)
+  readLayers <- function(nc, variables, years, firstYear = 850) {
+    yearIndizes <- years - firstYear + 1
+    return(terra::rast(nc, lyrs = paste0(rep(variables, each = length(yearIndizes)), "_", yearIndizes)))
   }
 
   if (subtype == "states") {
     # all except secmb secma
     variables <- c("primf", "primn", "secdf", "secdn", "urban", "c3ann", "c4ann",
                    "c3per", "c4per", "c3nfx", "pastr", "range", "pltns")
-    firstYear <- 850
-    yearIndizes <- years - firstYear + 1
-    x <- terra::rast("multiple-states_input4MIPs_landState_CMIP_UofMD-landState-3-0_gn_0850-2024.nc",
-                     lyrs = paste0(rep(variables, each = length(yearIndizes)), "_", yearIndizes))
+    x <- readLayers("multiple-states_input4MIPs_landState_CMIP_UofMD-landState-3-0_gn_0850-2024.nc",
+                    variables, years)
     stopifnot(max(terra::minmax(x, compute = TRUE)) <= 1.0001,
               all(terra::units(x) == "1"))
     unit <- "1"
   } else if (subtype == "management") {
-    x <- terra::rast("multiple-management_input4MIPs_landState_CMIP_UofMD-landState-3-0_gn_0850-2024.nc")
-    x <- toYearsAndSubset(x, years)
+    cropTypes <- c("c3ann", "c4ann", "c3per", "c4per", "c3nfx")
+    variables <- c(paste0("fertl_", cropTypes),
+                   paste0("irrig_", cropTypes),
+                   paste0("cpbf1_", cropTypes),
+                   "cpbf2_c3per", "cpbf2_c4per",
+                   "flood", "rndwd", "fulwd")
+    x <- readLayers("multiple-management_input4MIPs_landState_CMIP_UofMD-landState-3-0_gn_0850-2024.nc",
+                    variables, years, firstYear = 1995)
 
     # combf is a share of wood harvest like rndwd and fulwd, but we can ignore it as long as it is 0 everywhere
-    stopifnot(identical(max(terra::values(max(x["combf"])), na.rm = TRUE), 0))
+    stopifnot(identical(max(terra::values(max(x["combf"])), na.rm = TRUE), 0)) # TODO
 
     # there are variables for 2nd gen biofuel c3ann, c4ann, c3nfx, but we can ignore it as long as it is 0 everywhere
     stopifnot(identical(max(terra::values(max(x["cpbf2_(c3ann|c4ann|c3nfx)"])), na.rm = TRUE), 0))
 
-    x <- x["cpbf1|cpbf2_c3per|cpbf2_c4per|rndwd|fulwd|fertl|irrig"]
     unit <- "1, except fertl: kg ha-1 yr-1"
   } else if (subtype == "transitions") {
-    x <- terra::rast("multiple-transitions_input4MIPs_landState_CMIP_UofMD-landState-3-0_gn_0850-2023.nc")
+    woodland <- c("primf", "primn", "secmf", "secyf", "secnf", "pltns")
+    variables <- c(paste0(woodland, "_harv"), paste0(woodland, "_bioh"))
+    x <- readLayers("multiple-transitions_input4MIPs_landState_CMIP_UofMD-landState-3-0_gn_0850-2023.nc",
+                    variables, years - 1, firstYear = 1994)
 
-    # LUH uses from-semantics for transitions (value for 1994 describes what happens from 1994 to 1995)
-    # by adding 1 to time we get to-semantics (value for 1994 describes what happens from 1993 to 1994)
-    x <- toYearsAndSubset(x, years, offset = +1)
+    # # LUH uses from-semantics for transitions (value for 1994 describes what happens from 1994 to 1995)
+    # # by adding 1 to time we get to-semantics (value for 1994 describes what happens from 1993 to 1994)
+    # x <- toYearsAndSubset(x, years, offset = +1)
 
-    x <- x["bioh|harv"]
     unit <- "*_bioh: kg C yr-1, *_harv: 1"
   } else {
     stop("subtype must be states, management, transitions or cellArea")
