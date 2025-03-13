@@ -15,11 +15,19 @@
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
+#' @param yearsSubset vector of years to keep in the output dataset
 #' @return downscaled nonland data
+#'
+#' @examples
+#' \dontrun{
+#'   calcOutput("NonlandHighRes", input = "magpie", target = "luh2mod",
+#'              harmonizationPeriod = c(2015, 2050), yearsSubset = 2015:2100)
+#' }
 #' @author Pascal Sauer
-calcNonlandHighRes <- function(input = "magpie", target = "luh2mod", harmonizationPeriod = c(2015, 2050)) {
+calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset) {
   x <- calcOutput("NonlandHarmonized", input = input, target = target,
-                  harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
+                  harmonizationPeriod = harmonizationPeriod, method = "fade", aggregate = FALSE)
+  x <- x[, getYears(x, as.integer = TRUE) %in% yearsSubset, ]
 
   futureYears <- getYears(x, as.integer = TRUE)
   futureYears <- futureYears[futureYears > harmonizationPeriod[1]]
@@ -27,8 +35,7 @@ calcNonlandHighRes <- function(input = "magpie", target = "luh2mod", harmonizati
   resmap <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
 
   landHighRes <- calcOutput("LandHighRes", input = input, target = target,
-                            harmonizationPeriod = harmonizationPeriod, yearsToKeep = seq(2015, 2100, 5),
-                            aggregate = FALSE)
+                            harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset, aggregate = FALSE)
   land <- landHighRes[, , c("urban", "pastr", "range"), invert = TRUE]
   map <- as.data.frame(rbind(c("primf", "primf"),
                              c("forestry", "forestry"),
@@ -66,9 +73,6 @@ calcNonlandHighRes <- function(input = "magpie", target = "luh2mod", harmonizati
   whaCat <- woodHarvestAreaCategories()
   harvestArea <- x[, futureYears, whaCat]
 
-  nonlandTarget <- calcOutput("NonlandTarget", target = target, aggregate = FALSE)
-  nonlandTarget <- as.magpie(nonlandTarget)
-
   harvestAreaDownscaled <- toolAggregate(harvestArea, resmap,
                                          weight = toolMaxHarvestPerYear(land) + 10^-30,
                                          from = "lowRes", to = "cell", dim = 1)
@@ -88,6 +92,9 @@ calcNonlandHighRes <- function(input = "magpie", target = "luh2mod", harmonizati
   fertilizerDownscaled <- toolAggregate(fertilizer, resmap, weight = weightFertilizer,
                                         from = "lowRes", to = "cell", dim = 1)
 
+  nonlandTarget <- calcOutput("NonlandTarget", target = target, aggregate = FALSE)
+  nonlandTarget <- as.magpie(nonlandTarget[[terra::time(nonlandTarget) <= harmonizationPeriod[1] &
+                                              terra::time(nonlandTarget) %in% yearsSubset]])
 
   harvestType <- x[, futureYears, grep("harvest_weight_type$", getItems(x, 3))]
   weightHarvestType <- nonlandTarget[, harmonizationPeriod[1], getItems(harvestType, 3)]

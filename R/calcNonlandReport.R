@@ -7,12 +7,19 @@
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
+#' @param yearsSubset vector of years to keep in the output dataset
 #' @return nonland data
+#'
+#' @examples
+#' \dontrun{
+#'   calcOutput("NonlandReport", outputFormat = "ESM",
+#'              harmonizationPeriod = c(2015, 2050), yearsSubset = 2015:2100)
+#' }
 #' @author Pascal Sauer
-calcNonlandReport <- function(outputFormat = "ESM", harmonizationPeriod = c(2015, 2050)) {
+calcNonlandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
   if (outputFormat == "ESM") {
     x <- calcOutput("NonlandHighRes", input = "magpie", target = "luh2mod",
-                    harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
+                    harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset, aggregate = FALSE)
 
     cellAreaKm2 <- readSource("LUH2v2h", subtype = "cellArea", convert = FALSE)
     cellAreaKm2 <- as.magpie(cellAreaKm2)

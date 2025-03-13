@@ -4,7 +4,7 @@
 \alias{calcNonlandInput}
 \title{calcNonlandInput}
 \usage{
-calcNonlandInput(input = "magpie")
+calcNonlandInput(input)
 }
 \arguments{
 \item{input}{name of an input dataset, currently only "magpie"}
