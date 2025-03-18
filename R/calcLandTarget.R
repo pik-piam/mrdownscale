@@ -19,19 +19,19 @@ calcLandTarget <- function(target) {
     }
     nonCropStates <- states[[grep(paste(cropTypes, collapse = "|"), names(states),
                                   value = TRUE, invert = TRUE)]]
-    states <- toolSpatRasterToDataset(states)
+    states <- spatRasterToDataset(states)
 
     if (target == "luh3") {
       man <- readSource("LUH3", subtype = "management", convert = FALSE)
       man <- man["cpbf1|cpbf2_c3per|cpbf2_c4per|rndwd|fulwd|fertl|irrig"]
-      man <- toolSpatRasterToDataset(man)
+      man <- spatRasterToDataset(man)
       man <- man[c(paste0("cpbf1_", cropTypes),
                    paste0("cpbf2_", per),
                    paste0("irrig_", cropTypes))]
       cpbf1Category <- "cpbf1"
     } else {
       man <- readSource("LUH2v2h", subtype = "management", convert = FALSE)
-      man <- toolSpatRasterToDataset(man)
+      man <- spatRasterToDataset(man)
       man <- man[c(paste0("crpbf_", cropTypes),
                    paste0("irrig_", cropTypes))]
       cpbf1Category <- "crpbf"
