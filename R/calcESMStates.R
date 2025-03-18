@@ -9,14 +9,14 @@
 #' @return ESM compatible states information
 #' @author Pascal Sauer, Jan Philipp Dietrich
 calcESMStates <- function(harmonizationPeriod, yearsSubset) {
-
   x <- calcOutput("LandReport", outputFormat = "ESM",
-                  harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
+                  harmonizationPeriod = harmonizationPeriod,
+                  yearsSubset = yearsSubset, aggregate = FALSE)
 
   statesVariables <- c("c3ann", "c3nfx", "c3per", "c4ann", "c4per", "pastr",
                        "primf", "primn", "range", "secdf", "secdn", "urban")
+  x <- x[, , statesVariables]
 
-  x <- x[, getYears(x, as.integer = TRUE) %in% yearsSubset, statesVariables]
   # account for unit "years since 1970-01-01 0:0:0"
   x <- setYears(x, getYears(x, as.integer = TRUE) - 1970)
 

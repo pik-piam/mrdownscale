@@ -18,7 +18,7 @@
 #'
 #' @author Pascal Sauer, Jan Philipp Dietrich
 fullESM <- function(rev = numeric_version("0"), ..., scenario = "", harmonizationPeriod = c(2015, 2050),
-                    yearsSubset = 2015:2100, compression = 2, progress = TRUE) {
+                    yearsSubset = 2015:2150, compression = 2, progress = TRUE) {
 
   stopifnot(...length() == 0)
 

@@ -4,12 +4,7 @@
 \alias{calcWoodHarvestAreaHarmonized}
 \title{calcWoodHarvestAreaHarmonized}
 \usage{
-calcWoodHarvestAreaHarmonized(
-  input = "magpie",
-  target = "luh2mod",
-  harmonizationPeriod = c(2015, 2050),
-  method = "fade"
-)
+calcWoodHarvestAreaHarmonized(input, target, harmonizationPeriod, method)
 }
 \arguments{
 \item{input}{name of the input dataset, currently only "magpie"}
@@ -33,6 +28,13 @@ harvest (or vice versa) to match the primary land reduction from the
 harmonized land data. If secondary harvest exceeds the available
 secondary land, the excess is shifted to the other secondary land
 (secdf to secdn and vice versa). Remaining excess harvest area is reported.
+}
+\examples{
+\dontrun{
+  calcOutput("WoodHarvestAreaHarmonized", input = "magpie",
+             target = "luh2mod", harmonizationPeriod = c(2015, 2050),
+             method = "fade")
+}
 }
 \author{
 Pascal Sauer

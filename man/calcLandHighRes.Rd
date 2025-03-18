@@ -8,7 +8,7 @@ calcLandHighRes(
   input,
   target,
   harmonizationPeriod,
-  yearsToKeep,
+  yearsSubset,
   downscaling = "magpieClassic"
 )
 }
@@ -21,7 +21,7 @@ calcLandHighRes(
 year the target dataset is used, after the second given year the input
 dataset is used, in between harmonize between the two datasets}
 
-\item{yearsToKeep}{vector of years to keep in the output dataset}
+\item{yearsSubset}{vector of years to keep in the output dataset}
 
 \item{downscaling}{name of downscaling method, currently only "magpieClassic"}
 }

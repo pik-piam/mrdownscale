@@ -9,9 +9,14 @@
 #' @param target character, name of the target data set, currently only "luh2mod"
 #' @param transitionYears years to which the target data is extrapolated
 #' @return extrapolated nonland target data
+#'
+#' @examples
+#' \dontrun{
+#'   calcOutput("NonlandTargetExtrapolated", input = "magpie",
+#'              target = "luh2mod", transitionYears = seq(2020, 2045, 5))
+#' }
 #' @author Pascal Sauer
-calcNonlandTargetExtrapolated <- function(input = "magpie", target = "luh2mod",
-                                          transitionYears = seq(2020, 2045, 5)) {
+calcNonlandTargetExtrapolated <- function(input, target, transitionYears) {
   xTarget <- calcOutput("NonlandTargetLowRes", input = input, target = target, aggregate = FALSE)
 
   exTarget <- toolExtrapolate(xTarget[, , grep("_(fertilizer|harvest_weight_type)$", getItems(xTarget, 3))],

@@ -4,7 +4,7 @@
 \alias{calcNonlandTargetLowRes}
 \title{calcNonlandTargetLowRes}
 \usage{
-calcNonlandTargetLowRes(input = "magpie", target = "luh2mod")
+calcNonlandTargetLowRes(input, target)
 }
 \arguments{
 \item{input}{name of an input dataset, currently only "magpie"}

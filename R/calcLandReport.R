@@ -7,12 +7,13 @@
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
+#' @param yearsSubset vector of years to keep in the output dataset
 #' @return land use data
 #' @author Pascal Sauer
-calcLandReport <- function(outputFormat = "ESM", harmonizationPeriod = c(2015, 2050)) {
+calcLandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
   if (outputFormat == "ESM") {
     native <- calcOutput("LandHighRes", input = "magpie", target = "luh2mod",
-                         harmonizationPeriod = harmonizationPeriod, yearsToKeep = seq(2015, 2100, 5),
+                         harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
                          aggregate = FALSE)
     cellArea <- readSource("LUH2v2h", subtype = "cellArea", convert = FALSE)
     cellArea <- collapseDim(as.magpie(cellArea), 3)

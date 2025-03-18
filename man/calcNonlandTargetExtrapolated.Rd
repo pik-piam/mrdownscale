@@ -4,11 +4,7 @@
 \alias{calcNonlandTargetExtrapolated}
 \title{calcNonlandTargetExtrapolated}
 \usage{
-calcNonlandTargetExtrapolated(
-  input = "magpie",
-  target = "luh2mod",
-  transitionYears = seq(2020, 2045, 5)
-)
+calcNonlandTargetExtrapolated(input, target, transitionYears)
 }
 \arguments{
 \item{input}{character, name of the input data set, currently only "magpie"}
@@ -25,6 +21,12 @@ Aggregated low resolution target data is extrapolated to the given years
 using toolExtrapolate. To extrapolate wood harvest weight (bioh) multiply
 wood harvest area already extrapolated by calcLandTargetExtrapolated with
 the historical wood harvest rate in kg C per Mha.
+}
+\examples{
+\dontrun{
+  calcOutput("NonlandTargetExtrapolated", input = "magpie",
+             target = "luh2mod", transitionYears = seq(2020, 2045, 5))
+}
 }
 \author{
 Pascal Sauer

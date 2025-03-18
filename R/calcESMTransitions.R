@@ -10,14 +10,16 @@
 #' @author Pascal Sauer, Jan Philipp Dietrich
 calcESMTransitions <- function(harmonizationPeriod, yearsSubset) {
   nonland <- calcOutput("NonlandReport", outputFormat = "ESM",
-                        harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
+                        harmonizationPeriod = harmonizationPeriod,
+                        yearsSubset = yearsSubset, aggregate = FALSE)
 
   woodSources <- c("primf", "secyf", "secmf", "primn", "secnf")
   woodHarvestVariables <- c(paste0(woodSources, "_bioh"), paste0(woodSources, "_harv"))
   nonland <- nonland[, , woodHarvestVariables]
 
   x <- calcOutput("LandTransitions", outputFormat = "ESM",
-                  harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
+                  harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
+                  gross = TRUE, aggregate = FALSE)
   getItems(x, raw = TRUE, dim = 3) <- sub("\\.", "_to_", getItems(x, dim = 3))
   getSets(x, fulldim = FALSE)[3] <- "transitions"
 
