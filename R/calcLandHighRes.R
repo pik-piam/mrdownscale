@@ -9,17 +9,17 @@
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
-#' @param yearsToKeep vector of years to keep in the output dataset
+#' @param yearsSubset vector of years to keep in the output dataset
 #' @param downscaling name of downscaling method, currently only "magpieClassic"
 #' @return downscaled land use data
 #' @author Jan Philipp Dietrich, Pascal Sauer
-calcLandHighRes <- function(input, target, harmonizationPeriod, yearsToKeep, downscaling = "magpieClassic") {
+calcLandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, downscaling = "magpieClassic") {
   x <- calcOutput("LandHarmonized", input = input, target = target,
                   harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
-  x <- x[, getYears(x, as.integer = TRUE) %in% yearsToKeep, ]
+  x <- x[, getYears(x, as.integer = TRUE) %in% yearsSubset, ]
 
   xTarget <- calcOutput("LandTarget", target = target, aggregate = FALSE)
-  xTarget <- as.magpie(xTarget[[terra::time(xTarget) %in% yearsToKeep]])
+  xTarget <- as.magpie(xTarget[[terra::time(xTarget) %in% yearsSubset]])
   stopifnot(harmonizationPeriod[1] %in% getYears(xTarget, as.integer = TRUE))
 
   mapping <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)

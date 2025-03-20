@@ -9,7 +9,7 @@
 #' @param input name of an input dataset, currently only "magpie"
 #' @return nonland input data
 #' @author Pascal Sauer
-calcNonlandInput <- function(input = "magpie") {
+calcNonlandInput <- function(input) {
   if (input == "magpie") {
     woodHarvestWeight <- readSource("MagpieFulldataGdx", subtype = "woodHarvestWeight")
     # convert from Pg DM yr-1 to kg C yr-1

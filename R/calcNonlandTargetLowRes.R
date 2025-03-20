@@ -7,8 +7,8 @@
 #' @param target name of a target dataset, currently only "luh2mod"
 #' @return low resolution target nonland data
 #' @author Pascal Sauer
-calcNonlandTargetLowRes <- function(input = "magpie", target = "luh2mod") {
-  xInput <- calcOutput("NonlandInputRecategorized", input = input, aggregate = FALSE)
+calcNonlandTargetLowRes <- function(input, target) {
+  xInput <- calcOutput("NonlandInputRecategorized", input = input, target = target, aggregate = FALSE)
 
   # get target data in spatial resolution of input data
   xTarget <- calcOutput("NonlandTarget", target = target, aggregate = FALSE)

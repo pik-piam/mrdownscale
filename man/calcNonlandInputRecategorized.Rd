@@ -5,8 +5,8 @@
 \title{calcNonlandInputRecategorized}
 \usage{
 calcNonlandInputRecategorized(
-  input = "magpie",
-  target = "luh2mod",
+  input,
+  target,
   youngShareWoodHarvestArea = 0.95,
   youngShareWoodHarvestWeight = 0.5
 )

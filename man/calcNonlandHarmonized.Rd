@@ -4,12 +4,7 @@
 \alias{calcNonlandHarmonized}
 \title{calcNonlandHarmonized}
 \usage{
-calcNonlandHarmonized(
-  input = "magpie",
-  target = "luh2mod",
-  harmonizationPeriod = c(2015, 2050),
-  method = "fade"
-)
+calcNonlandHarmonized(input, target, harmonizationPeriod, method)
 }
 \arguments{
 \item{input}{name of the input dataset, currently only "magpie"}

@@ -16,10 +16,14 @@
 #' @param method harmonization method, see \code{\link{toolGetHarmonizer}} for available methods
 #' @return harmonized wood harvest area data
 #'
+#' @examples
+#' \dontrun{
+#'   calcOutput("WoodHarvestAreaHarmonized", input = "magpie",
+#'              target = "luh2mod", harmonizationPeriod = c(2015, 2050),
+#'              method = "fade")
+#' }
 #' @author Pascal Sauer
-calcWoodHarvestAreaHarmonized <- function(input = "magpie", target = "luh2mod",
-                                          harmonizationPeriod = c(2015, 2050),
-                                          method = "fade") {
+calcWoodHarvestAreaHarmonized <- function(input, target, harmonizationPeriod, method) {
   landHarmonized <- calcOutput("LandHarmonized", input = input, target = target,
                                harmonizationPeriod = harmonizationPeriod,
                                method = method, aggregate = FALSE)

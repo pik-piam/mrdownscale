@@ -4,13 +4,11 @@
 \alias{readMagpieFulldataGdx}
 \title{readMagpieFulldataGdx}
 \usage{
-readMagpieFulldataGdx(subtype, subset = 1995:2100)
+readMagpieFulldataGdx(subtype)
 }
 \arguments{
 \item{subtype}{type of data to be read in. Available options are
 land, crop, woodHarvestWeight, woodHarvestArea, fertilizer, clustermap}
-
-\item{subset}{Available years (usually timestep is 5+ years) are only returned if they are in subset.}
 }
 \description{
 Read function for data coming from the MAgPIE model.

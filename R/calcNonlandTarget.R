@@ -62,7 +62,7 @@ calcNonlandTarget <- function(target) {
 
     # cannot cache SpatRaster with both in-memory and on-disk/file sources,
     # so write `out` to a tif file to get SpatRaster with a single source (the tif file)
-    out <- terra::writeRaster(out, file = tempfile(fileext = ".tif"))
+    out <- terra::writeRaster(out, filename = tempfile(fileext = ".tif"))
 
     toolExpectTrue(min(terra::minmax(out)) >= 0, "All values are >= 0")
 

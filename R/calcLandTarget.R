@@ -63,7 +63,7 @@ calcLandTarget <- function(target) {
     terra::time(out, tstep = "years") <- as.integer(substr(names(out), 2, 5))
     # need to write raster to disk to avoid memory issues
     # cannot use withr::local_tempfile because the SpatRaster is invalid as soon as the underlying file is deleted
-    out <- terra::writeRaster(out, file = tempfile(fileext = ".tif"))
+    out <- terra::writeRaster(out, filename = tempfile(fileext = ".tif"))
 
     if (target == "luh2mod") {
       # split secdf into forestry and secdf
@@ -77,7 +77,7 @@ calcLandTarget <- function(target) {
 
       # cannot cache SpatRaster with both in-memory and on-disk/file sources,
       # so write `out` to a tif file to get SpatRaster with a single source (the tif file)
-      out <- terra::writeRaster(out, file = tempfile(fileext = ".tif"))
+      out <- terra::writeRaster(out, filename = tempfile(fileext = ".tif"))
     }
     expectedCategories <- toolLandCategoriesMapping(input = "magpie", target = target)$dataOutput
   } else if (target == "landuseinit") {

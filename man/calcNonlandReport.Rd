@@ -4,7 +4,7 @@
 \alias{calcNonlandReport}
 \title{calcNonlandReport}
 \usage{
-calcNonlandReport(outputFormat = "ESM", harmonizationPeriod = c(2015, 2050))
+calcNonlandReport(outputFormat, harmonizationPeriod, yearsSubset)
 }
 \arguments{
 \item{outputFormat}{format in which the outputs should be prepared. Currently,
@@ -13,12 +13,20 @@ only "ESM" for earth system model compatible input data is available.}
 \item{harmonizationPeriod}{Two integer values, before the first given
 year the target dataset is used, after the second given year the input
 dataset is used, in between harmonize between the two datasets}
+
+\item{yearsSubset}{vector of years to keep in the output dataset}
 }
 \value{
 nonland data
 }
 \description{
 Convert the downscaled nonland data to the format required by the given project.
+}
+\examples{
+\dontrun{
+  calcOutput("NonlandReport", outputFormat = "ESM",
+             harmonizationPeriod = c(2015, 2050), yearsSubset = 2015:2100)
+}
 }
 \author{
 Pascal Sauer

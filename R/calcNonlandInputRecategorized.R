@@ -11,8 +11,7 @@
 #' @param youngShareWoodHarvestWeight analogue to youngShareWoodHarvestArea for wood harvest weight instead of area
 #' @return nonland data with target categories
 #' @author Pascal Sauer
-calcNonlandInputRecategorized <- function(input = "magpie", target = "luh2mod",
-                                          youngShareWoodHarvestArea = 0.95,
+calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestArea = 0.95,
                                           youngShareWoodHarvestWeight = 0.5) {
   x <- calcOutput("NonlandInput", input = input, aggregate = FALSE)
   resolutionMapping <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
