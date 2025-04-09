@@ -34,16 +34,22 @@ readLUH3 <- function(subtype, subset = 1995:2015) {
     variables <- c(paste0("fertl_", cropTypes),
                    paste0("irrig_", cropTypes),
                    paste0("cpbf1_", cropTypes),
-                   "cpbf2_c3per", "cpbf2_c4per",
-                   "flood", "rndwd", "fulwd")
+                   paste0("cpbf2_", cropTypes),
+                   "flood", "rndwd", "fulwd", "combf")
     x <- readLayers("multiple-management_input4MIPs_landState_CMIP_UofMD-landState-3-0_gn_0850-2024.nc",
                     variables, years, firstYear = 1995)
 
     # combf is a share of wood harvest like rndwd and fulwd, but we can ignore it as long as it is 0 everywhere
-    stopifnot(identical(max(terra::values(max(x["combf"])), na.rm = TRUE), 0)) # TODO
-
     # there are variables for 2nd gen biofuel c3ann, c4ann, c3nfx, but we can ignore it as long as it is 0 everywhere
-    stopifnot(identical(max(terra::values(max(x["cpbf2_(c3ann|c4ann|c3nfx)"])), na.rm = TRUE), 0))
+    stopifnot(all(terra::minmax(x["combf|cpbf2_(c3ann|c4ann|c3nfx)"], compute = TRUE) == 0))
+    x <- x[[grep("combf|cpbf2_(c3ann|c4ann|c3nfx)", names(x), invert = TRUE)]]
+
+    stopifnot(setequal(terra::varnames(x),
+                       c(paste0("fertl_", cropTypes),
+                         paste0("irrig_", cropTypes),
+                         paste0("cpbf1_", cropTypes),
+                         paste0("cpbf2_", c("c3per", "c4per")),
+                         "flood", "rndwd", "fulwd")))
 
     unit <- "1, except fertl: kg ha-1 yr-1"
   } else if (subtype == "transitions") {

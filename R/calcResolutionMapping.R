@@ -9,7 +9,7 @@
 #' cluster/country/region as the closest cell which is already present in the mapping.
 #'
 #' @param input character, the input dataset, currently only "magpie" is supported
-#' @param target character, the target dataset, currently only "luh2mod" is supported
+#' @param target character, the target dataset: "luh2mod" or "luh3"
 #' @return a list including a data.frame with columns x, y, lowRes, countrycode
 #'
 #' @author Pascal Sauer
@@ -36,7 +36,8 @@ calcResolutionMapping <- function(input, target) {
   } else {
     stop("Unsupported target type \"", target, "\"")
   }
-  mapping <- toolResolutionMapping(mapping, targetGrid)
+  mapping <- calcOutput("ResolutionMappingHelper", mapping = mapping,
+                        targetGrid = targetGrid, aggregate = FALSE)
 
   toolExpectTrue(setequal(colnames(mapping), c("x", "y", "lowRes", "region", "country",
                                                "global", "cellOriginal", "cell")),
@@ -48,6 +49,18 @@ calcResolutionMapping <- function(input, target) {
               description = "mapping of high to low resolution and countrycode"))
 }
 
+# separate function for caching purposes, mapping and targetGrid will change
+# much less frequently than e.g. readLUH3
+calcResolutionMappingHelper <- function(mapping, targetGrid) {
+  browser()
+  message(digest::digest(targetGrid))
+  x <- toolResolutionMapping(mapping, targetGrid)
+  message(digest::digest(targetGrid))
+  return(list(x = x,
+              class = "data.frame",
+              unit = NA,
+              description = "mapping of high to low resolution and countrycode"))
+}
 
 #' toolResolutionMapping
 #'
@@ -64,6 +77,7 @@ toolResolutionMapping <- function(mapping, targetGrid) {
   stopifnot(c("x", "y", "lowRes") %in% colnames(mapping))
 
   targetGridRes <- terra::res(targetGrid)
+  return(mapping)
   mappingRes <- guessResolution(mapping[, c("x", "y")])
   stopifnot(targetGridRes[1] == targetGridRes[2])
   if (targetGridRes[1] == mappingRes) {
