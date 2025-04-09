@@ -21,6 +21,6 @@ downscaleRunESM <- function(outputdir, revision = NULL, scenario = NULL, ...) {
     scenario <- gsub("_", "-", sub("-mag-[0-9]+$", "", basename(outputdir)))
   }
 
-  downscaleRun(outputdir, "ESM", rev = revision, puc = FALSE, scenario = scenario,
-               progress = FALSE, ...)
+  downscaleRun(outputdir, model = "ESM", rev = revision, puc = FALSE,
+               scenario = scenario, progress = FALSE, ...)
 }

@@ -17,7 +17,7 @@ fullDOWNSCALEDMAGPIE <- function(rev = numeric_version("0"), ..., harmonizationP
   stopifnot(...length() == 0)
 
   calcOutput("LandHighRes", input = "magpie", target = "landuseinit",
-             harmonizationPeriod = harmonizationPeriod, yearsToKeep = seq(1995, 2100, 5),
+             harmonizationPeriod = harmonizationPeriod, yearsSubset = seq(1995, 2100, 5),
              downscaling = "magpieClassic",
              aggregate = FALSE,
              file = "downscaledMAgPIE0.5.mz")
