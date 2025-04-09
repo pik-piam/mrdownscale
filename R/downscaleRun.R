@@ -20,5 +20,5 @@ downscaleRun <- function(outputfolder, ...) {
 
   redirectSource("MagpieFulldataGdx", c(clustermap, gdx), linkOthers = FALSE)
   stopifnot(length(getConfig("redirections")) >= 1)
-  retrieveData(..., outputfolder = outputfolder)
+  retrieveData(..., outputfolder = outputfolder, puc = FALSE)
 }
