@@ -29,7 +29,12 @@ calcResolutionMapping <- function(input, target) {
   if (target == "luh2mod") {
     targetGrid <- readSource("LUH2v2h", subtype = "states")
   } else if (target == "luh3") {
-    targetGrid <- readSource("LUH3", subtype = "states", subset = 2000)["primf"]
+    targetGridFile <- file.path(tempdir(), "targetGrid.tif")
+    withr::defer({
+      unlink(targetGridFile)
+    })
+    terra::writeRaster(readSource("LUH3", subtype = "states", subset = 2000)["primf"],
+                       targetGridFile, overwrite = FALSE)
   } else if (target == "landuseinit") {
     targetGrid <- readSource("LanduseInit")
     targetGrid <- as.SpatRaster(targetGrid)
@@ -37,7 +42,8 @@ calcResolutionMapping <- function(input, target) {
     stop("Unsupported target type \"", target, "\"")
   }
   mapping <- calcOutput("ResolutionMappingHelper", mapping = mapping,
-                        targetGrid = targetGrid, aggregate = FALSE)
+                        targetGridHash = digest::digest(targetGridFile, file = TRUE),
+                        aggregate = FALSE)
 
   toolExpectTrue(setequal(colnames(mapping), c("x", "y", "lowRes", "region", "country",
                                                "global", "cellOriginal", "cell")),
@@ -51,11 +57,10 @@ calcResolutionMapping <- function(input, target) {
 
 # separate function for caching purposes, mapping and targetGrid will change
 # much less frequently than e.g. readLUH3
-calcResolutionMappingHelper <- function(mapping, targetGrid) {
-  browser()
-  message(digest::digest(targetGrid))
-  x <- toolResolutionMapping(mapping, targetGrid)
-  message(digest::digest(targetGrid))
+calcResolutionMappingHelper <- function(mapping, targetGridHash) {
+  targetGridFile <- file.path(tempdir(), "targetGrid.tif")
+  stopifnot(digest::digest(targetGridFile, file = TRUE) == targetGridHash)
+  x <- toolResolutionMapping(mapping, terra::rast(targetGridFile))
   return(list(x = x,
               class = "data.frame",
               unit = NA,
@@ -77,7 +82,6 @@ toolResolutionMapping <- function(mapping, targetGrid) {
   stopifnot(c("x", "y", "lowRes") %in% colnames(mapping))
 
   targetGridRes <- terra::res(targetGrid)
-  return(mapping)
   mappingRes <- guessResolution(mapping[, c("x", "y")])
   stopifnot(targetGridRes[1] == targetGridRes[2])
   if (targetGridRes[1] == mappingRes) {
