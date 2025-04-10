@@ -9,7 +9,7 @@
 #' @param subtype one of states, management, transitions, cellArea
 readLUH3 <- function(subtype, subset = 1995:2015) {
   if (subtype == "cellArea") {
-    cellArea <- terra::rast("multiple-fixed_input4MIPs_landState_CMIP_UofMD-landState-3-0_gn.nc", "carea")
+    cellArea <- terra::rast("multiple-static_input4MIPs_landState_CMIP_UofMD-landState-3-1_gn.nc", "carea")
     return(list(x = cellArea, class = "SpatRaster", cache = FALSE, unit = "km2"))
   }
 
@@ -24,7 +24,7 @@ readLUH3 <- function(subtype, subset = 1995:2015) {
     # all except secmb secma
     variables <- c("primf", "primn", "secdf", "secdn", "urban", "c3ann", "c4ann",
                    "c3per", "c4per", "c3nfx", "pastr", "range", "pltns")
-    x <- readLayers("multiple-states_input4MIPs_landState_CMIP_UofMD-landState-3-0_gn_0850-2024.nc",
+    x <- readLayers("multiple-states_input4MIPs_landState_CMIP_UofMD-landState-3-1_gn_0850-2024.nc",
                     variables, years)
     stopifnot(max(terra::minmax(x, compute = TRUE)) <= 1.0001,
               all(terra::units(x) == "1"))
@@ -36,7 +36,7 @@ readLUH3 <- function(subtype, subset = 1995:2015) {
                    paste0("cpbf1_", cropTypes),
                    paste0("cpbf2_", cropTypes),
                    "flood", "rndwd", "fulwd", "combf")
-    x <- readLayers("multiple-management_input4MIPs_landState_CMIP_UofMD-landState-3-0_gn_0850-2024.nc",
+    x <- readLayers("multiple-management_input4MIPs_landState_CMIP_UofMD-landState-3-1_gn_0850-2024.nc",
                     variables, years, firstYear = 1995)
 
     # combf is a share of wood harvest like rndwd and fulwd, but we can ignore it as long as it is 0 everywhere
@@ -55,7 +55,7 @@ readLUH3 <- function(subtype, subset = 1995:2015) {
   } else if (subtype == "transitions") {
     woodland <- c("primf", "primn", "secmf", "secyf", "secnf", "pltns")
     variables <- c(paste0(woodland, "_harv"), paste0(woodland, "_bioh"))
-    x <- readLayers("multiple-transitions_input4MIPs_landState_CMIP_UofMD-landState-3-0_gn_0850-2023.nc",
+    x <- readLayers("multiple-transitions_input4MIPs_landState_CMIP_UofMD-landState-3-1_gn_0850-2023.nc",
                     variables, years - 1, firstYear = 1994)
 
     # # LUH uses from-semantics for transitions (value for 1994 describes what happens from 1994 to 1995)

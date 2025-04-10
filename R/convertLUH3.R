@@ -5,7 +5,7 @@
 #' @param x SpatRaster with LUH3 cell area shares
 #' @param subtype Only "states" is converted
 convertLUH3 <- function(x, subtype = "states") {
-  cellAreaKm2 <- terra::rast("multiple-fixed_input4MIPs_landState_CMIP_UofMD-landState-3-0_gn.nc", "carea")
+  cellAreaKm2 <- terra::rast("multiple-static_input4MIPs_landState_CMIP_UofMD-landState-3-1_gn.nc", "carea")
   stopifnot(terra::units(cellAreaKm2) == "km2")
   # convert from km2 to Mha
   cellAreaMha <- cellAreaKm2 / 10000
