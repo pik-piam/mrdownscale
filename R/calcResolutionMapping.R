@@ -15,39 +15,44 @@
 #' @author Pascal Sauer
 calcResolutionMapping <- function(input, target) {
   if (input == "magpie") {
-    mapping <- readSource("MagpieFulldataGdx", subtype = "clustermap")
-    coords <- strsplit(mapping$cell, "\\.")
+    clustermap <- readSource("MagpieFulldataGdx", subtype = "clustermap")
+    coords <- strsplit(clustermap$cell, "\\.")
     xCoords <- vapply(coords, function(x) as.double(sub("p", ".", x[1])), double(1))
     yCoords <- vapply(coords, function(x) as.double(sub("p", ".", x[2])), double(1))
-    mapping$cellOriginal <- sub("\\.[A-Z]{3}$", "", mapping$cell)
-    mapping <- cbind(x = xCoords, y = yCoords, mapping[, -which(colnames(mapping) == "cell")])
-    colnames(mapping)[colnames(mapping) == "cluster"] <- "lowRes"
+    clustermap$cellOriginal <- sub("\\.[A-Z]{3}$", "", clustermap$cell)
+    clustermap <- cbind(x = xCoords, y = yCoords, clustermap[, -which(colnames(clustermap) == "cell")])
+    colnames(clustermap)[colnames(clustermap) == "cluster"] <- "lowRes"
   } else {
     stop("Unsupported input type \"", input, "\"")
   }
 
   if (target == "luh2mod") {
+    # TODO
     targetGrid <- readSource("LUH2v2h", subtype = "states")
   } else if (target == "luh3") {
-    targetGridFile <- file.path(tempdir(), "targetGrid.tif")
-    withr::defer({
-      unlink(targetGridFile)
-    })
-    terra::writeRaster(readSource("LUH3", subtype = "states", subset = 2000)["primf"],
-                       targetGridFile, overwrite = FALSE)
+    # could use any category here, just need land sea mask (sea is NA)
+    primf <- readSource("LUH3", subtype = "states", subset = 2000)["primf"]
+    targetGrid <- terra::as.data.frame(primf, xy = TRUE)
+    attr(targetGrid, "crs") <- terra::crs(primf)
   } else if (target == "landuseinit") {
+    # TODO
     targetGrid <- readSource("LanduseInit")
     targetGrid <- as.SpatRaster(targetGrid)
   } else {
     stop("Unsupported target type \"", target, "\"")
   }
-  mapping <- calcOutput("ResolutionMappingHelper", mapping = mapping,
-                        targetGridHash = digest::digest(targetGridFile, file = TRUE),
-                        aggregate = FALSE)
+  mapping <- calcOutput("ResolutionMappingHelper", mapping = clustermap, targetGrid = targetGrid, aggregate = FALSE)
 
   toolExpectTrue(setequal(colnames(mapping), c("x", "y", "lowRes", "region", "country",
                                                "global", "cellOriginal", "cell")),
                  "resolution mapping has the expected columns")
+  allTargetCells <- paste0(sub("\\.", "p", targetGrid$x),
+                           ".",
+                           sub("\\.", "p", targetGrid$y))
+  toolExpectTrue(setequal(mapping$cell, allTargetCells),
+                 "all target cells are mapped")
+  toolExpectTrue(all(mapping$cellOriginal %in% clustermap$cellOriginal),
+                 "a subset of input cells is mapped")
 
   return(list(x = mapping,
               class = "data.frame",
@@ -57,10 +62,9 @@ calcResolutionMapping <- function(input, target) {
 
 # separate function for caching purposes, mapping and targetGrid will change
 # much less frequently than e.g. readLUH3
-calcResolutionMappingHelper <- function(mapping, targetGridHash) {
-  targetGridFile <- file.path(tempdir(), "targetGrid.tif")
-  stopifnot(digest::digest(targetGridFile, file = TRUE) == targetGridHash)
-  x <- toolResolutionMapping(mapping, terra::rast(targetGridFile))
+calcResolutionMappingHelper <- function(mapping, targetGrid) {
+  raster <- terra::rast(targetGrid, crs = attr(targetGrid, "crs"))
+  x <- toolResolutionMapping(mapping, raster)
   return(list(x = x,
               class = "data.frame",
               unit = NA,
@@ -83,12 +87,8 @@ toolResolutionMapping <- function(mapping, targetGrid) {
 
   targetGridRes <- terra::res(targetGrid)
   mappingRes <- guessResolution(mapping[, c("x", "y")])
-  stopifnot(targetGridRes[1] == targetGridRes[2])
-  if (targetGridRes[1] == mappingRes) {
-    mapping$cell <- mapping$cellOriginal
-    return(mapping)
-  }
-  stopifnot(targetGridRes[1] < mappingRes,
+  stopifnot(targetGridRes[1] == targetGridRes[2],
+            targetGridRes[1] < mappingRes,
             mappingRes %% targetGridRes[1] == 0)
 
   mappingColumns <- colnames(mapping)
