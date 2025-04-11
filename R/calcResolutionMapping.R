@@ -27,45 +27,31 @@ calcResolutionMapping <- function(input, target) {
   }
 
   if (target == "luh2mod") {
-    # TODO
     targetGrid <- readSource("LUH2v2h", subtype = "states")
   } else if (target == "luh3") {
     # could use any category here, just need land sea mask (sea is NA)
-    primf <- readSource("LUH3", subtype = "states", subset = 2000)["primf"]
-    targetGrid <- terra::as.data.frame(primf, xy = TRUE)
-    attr(targetGrid, "crs") <- terra::crs(primf)
+    targetGrid <- readSource("LUH3", subtype = "states", subset = 2000)["primf"]
   } else if (target == "landuseinit") {
-    # TODO
     targetGrid <- readSource("LanduseInit")
     targetGrid <- as.SpatRaster(targetGrid)
   } else {
     stop("Unsupported target type \"", target, "\"")
   }
-  mapping <- calcOutput("ResolutionMappingHelper", mapping = clustermap, targetGrid = targetGrid, aggregate = FALSE)
+  mapping <- toolResolutionMapping(mapping = clustermap, targetGrid = targetGrid)
 
   toolExpectTrue(setequal(colnames(mapping), c("x", "y", "lowRes", "region", "country",
                                                "global", "cellOriginal", "cell")),
                  "resolution mapping has the expected columns")
-  allTargetCells <- paste0(sub("\\.", "p", targetGrid$x),
+  coords <- terra::crds(targetGrid, df = TRUE)
+  allTargetCells <- paste0(sub("\\.", "p", coords$x),
                            ".",
-                           sub("\\.", "p", targetGrid$y))
+                           sub("\\.", "p", coords$y))
   toolExpectTrue(setequal(mapping$cell, allTargetCells),
                  "all target cells are mapped")
   toolExpectTrue(all(mapping$cellOriginal %in% clustermap$cellOriginal),
                  "a subset of input cells is mapped")
 
   return(list(x = mapping,
-              class = "data.frame",
-              unit = NA,
-              description = "mapping of high to low resolution and countrycode"))
-}
-
-# separate function for caching purposes, mapping and targetGrid will change
-# much less frequently than e.g. readLUH3
-calcResolutionMappingHelper <- function(mapping, targetGrid) {
-  raster <- terra::rast(targetGrid, crs = attr(targetGrid, "crs"))
-  x <- toolResolutionMapping(mapping, raster)
-  return(list(x = x,
               class = "data.frame",
               unit = NA,
               description = "mapping of high to low resolution and countrycode"))
@@ -126,8 +112,10 @@ toolResolutionMapping <- function(mapping, targetGrid) {
                              "% of target cells missing in mapping, ",
                              "adding those to mapping (nearest neighbor)"))
 
+    # method = "cosine" is about 12 times as fast, use for development
+    # TODO switch to method = "geo"
     near <- terra::nearest(terra::vect(missingInMapping, geom = c("x", "y"), crs = terra::crs(targetGrid)),
-                           pointsMapping)
+                           pointsMapping, method = "cosine")
     toolStatusMessage("note", paste0("nearest neighbor distances: ",
                                      "max = ", round(max(near$distance) / 1000, 1), "km",
                                      ", 90% quantile = ",
