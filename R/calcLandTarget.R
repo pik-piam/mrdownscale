@@ -90,6 +90,29 @@ calcLandTarget <- function(target) {
     out <- as.SpatRaster(out)
 
     expectedCategories <- c("crop", "past", "forestry", "primf", "secdf", "urban",  "other")
+  } else if (target == "landuseinitchina") {
+    out <- readSource("LanduseInit")
+    chinaCrops <- readSource("ChinaCrops")
+    chinaCrops <- chinaCrops[, getYears(out), ] # TODO we probably need 2020 here
+
+    out <- out[getItems(chinaCrops, 1), , ]
+    stopifnot(identical(getYears(out), getYears(chinaCrops)))
+
+    otherCrop <- out[, , "crop"] - dimSums(chinaCrops, dim = 3)
+    stopifnot(otherCrop >= 0)
+    otherCrop <- magclass::setNames(otherCrop, "other_crop")
+
+    out <- mbind(out[, , "crop", invert = TRUE], chinaCrops, otherCrop)
+
+    getItems(out, 3) <- sub("primforest", "primf", getItems(out, 3))
+    getItems(out, 3) <- sub("secdforest", "secdf", getItems(out, 3))
+
+    out <- toolScaleConstantArea(out)
+    out <- toolReplaceExpansion(out, "primf", "secdf")
+    out <- as.SpatRaster(out)
+
+    expectedCategories <- c("past", "forestry", "primforest", "secdforest", "urban", "other",
+                            "rice_pro", "tece", "maiz", "other_crop")
   } else {
     stop("Unsupported output type \"", target, "\"")
   }
