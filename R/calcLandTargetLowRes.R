@@ -12,12 +12,15 @@
 calcLandTargetLowRes <- function(input, target) {
   xInput <- calcOutput("LandInputRecategorized", input = input,
                        target = target, aggregate = FALSE)
-  xTarget <- calcOutput("LandTarget", target = target, aggregate = FALSE)
+  xTargetIn <- calcOutput("LandTarget", target = target, aggregate = FALSE)
 
   # bring target data to spatial resolution of input data
   ref    <- as.SpatVector(xInput[, 1, 1])[, c(".region", ".id")]
-  xTarget <- terra::extract(xTarget, ref, "sum", na.rm = TRUE, bind = TRUE)
+  xTarget <- terra::extract(xTargetIn, ref, "sum", na.rm = TRUE, bind = TRUE)
   xTarget <- as.magpie(xTarget)
+  if (target == "landuseinitchina") { # TODO find general implementation that does not require this check
+    xTarget <- xTarget["CHA", , ]
+  }
   stopifnot(setequal(getItems(xInput, 3), getItems(xTarget, 3)))
   out <- xTarget[, , getItems(xInput, 3)] # harmonize order of dim 3
 

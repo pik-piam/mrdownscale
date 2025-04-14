@@ -1,3 +1,4 @@
+reference;data
 alfalfa, irrigated;other_crop
 alfalfa, rainfed;other_crop
 Almonds, with shell, irrigated;other_crop
@@ -269,7 +270,6 @@ Rapeseed, irrigated;other_crop
 Rapeseed, rainfed;other_crop
 Raspberries, irrigated;other_crop
 Raspberries, rainfed;other_crop
-reference;data
 Rice, paddy, irrigated;rice_pro
 Rice, paddy, rainfed;rice_pro
 Roots and tubers nes, irrigated;other_crop

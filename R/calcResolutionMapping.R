@@ -31,6 +31,9 @@ calcResolutionMapping <- function(input, target) {
   } else if (target == "landuseinit") {
     targetGrid <- readSource("LanduseInit")
     targetGrid <- as.SpatRaster(targetGrid)
+  } else if (target == "landuseinitchina") {
+    # TODO can this be generalized? i.e. also just call calcLandTarget with target = target for other cases
+    targetGrid <- calcOutput("LandTarget", target = target, aggregate = FALSE)
   } else {
     stop("Unsupported target type \"", target, "\"")
   }

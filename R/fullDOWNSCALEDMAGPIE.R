@@ -13,10 +13,11 @@
 #' dataset is used, in between harmonize between the two datasets
 #'
 #' @author Pascal Sauer
-fullDOWNSCALEDMAGPIE <- function(rev = numeric_version("0"), ..., harmonizationPeriod = c(2015, 2050)) {
+fullDOWNSCALEDMAGPIE <- function(rev = numeric_version("0"), ...,
+                                 harmonizationPeriod = c(2015, 2050), target = "landuseinit") {
   stopifnot(...length() == 0)
 
-  calcOutput("LandHighRes", input = "magpie", target = "landuseinit",
+  calcOutput("LandHighRes", input = "magpie", target = target,
              harmonizationPeriod = harmonizationPeriod, yearsSubset = seq(1995, 2100, 5),
              downscaling = "magpieClassic",
              aggregate = FALSE,
