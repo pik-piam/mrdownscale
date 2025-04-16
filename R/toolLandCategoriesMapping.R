@@ -12,7 +12,8 @@
 #' @author Jan Philipp Dietrich
 #'
 toolLandCategoriesMapping <- function(input, target) {
-  # TODO this leads to warning, maybe move these mappings into sourcefolder?
+  # TODO turn into calcLandCategoriesMapping
+  # TODO call calcOutput(input, subtype = "refmap") which simply returns toolGetMapping ("")
   input2ref  <- toolGetMapping(paste0("referenceMappings/", input, ".csv"), where = "mrdownscale")
   target2ref <- toolGetMapping(paste0("referenceMappings/", target, ".csv"), where = "mrdownscale")
 
