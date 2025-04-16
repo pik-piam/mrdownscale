@@ -19,7 +19,7 @@ calcLandTargetLowRes <- function(input, target) {
   ref    <- as.SpatVector(xInput[, 1, 1])[, c(".region", ".id")]
   xTarget <- terra::extract(xTargetIn, ref, "sum", na.rm = TRUE, bind = TRUE)
   xTarget <- as.magpie(xTarget)
-  browser()
+
   stopifnot(setequal(getItems(xInput, 3), getItems(xTarget, 3)))
   out <- xTarget[, , getItems(xInput, 3)] # harmonize order of dim 3
 
