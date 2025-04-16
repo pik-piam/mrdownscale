@@ -12,7 +12,6 @@ toolDownscaleMagpieClassic <- function(x, xTarget, mapping) {
   mapping$cluster <- mapping$lowRes
   mapping <- mapping[, c("cell", "cluster")]
 
-  mapping <- mapping[mapping$cluster %in% getItems(x, 1), ] # TODO do we want this in general?
   stopifnot(setequal(mapping$cluster, getItems(x, 1)),
             setequal(mapping$cell, getItems(xTarget, 1)))
 

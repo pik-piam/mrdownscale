@@ -24,13 +24,14 @@ calcLandHarmonized <- function(input, target, harmonizationPeriod,
   xTarget <- calcOutput("LandTargetExtrapolated", input = input, target = target,
                         transitionYears = transitionYears, aggregate = FALSE)
 
-  droppedLowRes <- setdiff(getItems(xInput, 1), getItems(xTarget, 1))
-  if (length(droppedLowRes) > 0) {
-    toolStatusMessage("note", paste("dropped the following spatial objects from",
-                                    "input data as it is missing in reference:",
-                                    paste(droppedLowRes, collapse = ", ")))
-  }
-  xInput <- xInput[getItems(xTarget, 1), , ]
+  # TODO move this warning to resolution map?
+  # droppedLowRes <- setdiff(getItems(xInput, 1), getItems(xTarget, 1))
+  # if (length(droppedLowRes) > 0) {
+  #   toolStatusMessage("note", paste("dropped the following spatial objects from",
+  #                                   "input data as it is missing in reference:",
+  #                                   paste(droppedLowRes, collapse = ", ")))
+  # }
+  # xInput <- xInput[getItems(xTarget, 1), , ]
 
   # checks and corrections
   inSum <- dimSums(xInput, dim = 3)
@@ -39,6 +40,7 @@ calcLandHarmonized <- function(input, target, harmonizationPeriod,
   toolExpectLessDiff(tSum, tSum[, 1, ], 10^-5, "Total areas in target stay constant over time")
   toolExpectLessDiff(inSum[, 1, ], tSum[, 1, ], 10^-5,
                      "Total areas are the same in target and input data")
+  browser() # TODO way different areas in target vs input # target is wrong, input is correct
   if (max(abs(inSum[, 1, ] - tSum[, 1, ])) >= 10^-5) {
     corr <- setYears(dimSums(xTarget[, 1, ], dim = 3) / dimSums(xInput[, 1, ], dim = 3), NULL)
     stopifnot(is.finite(corr), corr >= 0)

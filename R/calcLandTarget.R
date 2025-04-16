@@ -93,7 +93,6 @@ calcLandTarget <- function(target) {
   } else if (target == "landuseinitchina") {
     out <- readSource("LanduseInit")
     chinaCrops <- readSource("ChinaCrops")
-    chinaCrops <- chinaCrops[, getYears(out), ] # TODO we probably need 2020 here
 
     out <- out[getItems(chinaCrops, 1), , ]
     stopifnot(identical(getYears(out), getYears(chinaCrops)))
