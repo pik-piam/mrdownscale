@@ -8,8 +8,8 @@
 #' added using a nearest-neighbor approach: These cells are mapped to the same low resolution
 #' cluster/country/region as the closest cell which is already present in the mapping.
 #'
-#' @param input character, the input dataset, currently only "magpie" is supported
-#' @param target character, the target dataset, currently only "luh2mod" is supported
+#' @param input character, the input dataset
+#' @param target character, the target dataset
 #' @return a list including a data.frame with columns x, y, lowRes, countrycode
 #'
 #' @author Pascal Sauer
@@ -22,7 +22,6 @@ calcResolutionMapping <- function(input, target) {
     clustermap$cellOriginal <- sub("\\.[A-Z]{3}$", "", clustermap$cell)
     clustermap <- cbind(x = xCoords, y = yCoords, clustermap[, -which(colnames(clustermap) == "cell")])
     colnames(clustermap)[colnames(clustermap) == "cluster"] <- "lowRes"
-    clustermap <- clustermap[order(clustermap$lowRes), ]
   } else {
     stop("Unsupported input type \"", input, "\"")
   }
@@ -75,10 +74,7 @@ toolResolutionMapping <- function(mapping, targetGrid) {
 
   targetGridRes <- terra::res(targetGrid)
   mappingRes <- guessResolution(mapping[, c("x", "y")])
-  # if (targetGridRes[1] == mappingRes) {
-  #   mapping$cell <- mapping$cellOriginal
-  #   return(mapping)
-  # }
+
   stopifnot(targetGridRes[1] == targetGridRes[2],
             targetGridRes[1] <= mappingRes,
             mappingRes %% targetGridRes[1] == 0)

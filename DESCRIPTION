@@ -2,7 +2,7 @@ Type: Package
 Package: mrdownscale
 Title: Downscale and harmonize land use data using high resolution
     reference data
-Version: 0.30.2.9001
+Version: 0.30.2.9002
 Date: 2025-04-09
 Authors@R: c(
     person("Pascal", "Sauer", , "pascal.sauer@pik-potsdam.de", role = c("aut", "cre"),
@@ -23,7 +23,7 @@ Depends:
     R (>= 4.0.0)
 Imports:
     luscale (>= 3.0.1),
-    magpie4 (>= 2.5.15),
+    magpie4 (>= 2.22.5),
     mip,
     ncdf4,
     terra,

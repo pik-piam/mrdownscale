@@ -24,15 +24,6 @@ calcLandHarmonized <- function(input, target, harmonizationPeriod,
   xTarget <- calcOutput("LandTargetExtrapolated", input = input, target = target,
                         transitionYears = transitionYears, aggregate = FALSE)
 
-  # TODO move this warning to resolution map?
-  # droppedLowRes <- setdiff(getItems(xInput, 1), getItems(xTarget, 1))
-  # if (length(droppedLowRes) > 0) {
-  #   toolStatusMessage("note", paste("dropped the following spatial objects from",
-  #                                   "input data as it is missing in reference:",
-  #                                   paste(droppedLowRes, collapse = ", ")))
-  # }
-  # xInput <- xInput[getItems(xTarget, 1), , ]
-
   # checks and corrections
   inSum <- dimSums(xInput, dim = 3)
   tSum <- dimSums(xTarget, dim = 3)
