@@ -11,6 +11,7 @@
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
+#' @param target Name of dataset to be used as harmonization target and downscaling reference
 #'
 #' @author Pascal Sauer
 fullDOWNSCALEDMAGPIE <- function(rev = numeric_version("0"), ...,

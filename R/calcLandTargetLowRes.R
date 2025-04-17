@@ -13,7 +13,6 @@ calcLandTargetLowRes <- function(input, target) {
   xInput <- calcOutput("LandInputRecategorized", input = input,
                        target = target, aggregate = FALSE)
   xTargetIn <- calcOutput("LandTarget", target = target, aggregate = FALSE)
-  x <- as.magpie(xTargetIn)
 
   # bring target data to spatial resolution of input data
   ref    <- as.SpatVector(xInput[, 1, 1])[, c(".region", ".id")]

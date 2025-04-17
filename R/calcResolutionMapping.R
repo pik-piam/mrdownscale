@@ -109,7 +109,7 @@ toolResolutionMapping <- function(mapping, targetGrid) {
                              "adding those to mapping (nearest neighbor)"))
 
     near <- terra::nearest(terra::vect(missingInMapping, geom = c("x", "y"), crs = terra::crs(targetGrid)),
-                           pointsMapping)
+                           pointsMapping, method = "cosine")
     toolStatusMessage("note", paste0("nearest neighbor distances: ",
                                      "max = ", round(max(near$distance) / 1000, 1), "km",
                                      ", 90% quantile = ",
