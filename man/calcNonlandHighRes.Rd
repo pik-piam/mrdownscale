@@ -4,11 +4,7 @@
 \alias{calcNonlandHighRes}
 \title{calcNonlandHighRes}
 \usage{
-calcNonlandHighRes(
-  input = "magpie",
-  target = "luh2mod",
-  harmonizationPeriod = c(2015, 2050)
-)
+calcNonlandHighRes(input, target, harmonizationPeriod, yearsSubset)
 }
 \arguments{
 \item{input}{name of an input dataset, currently only "magpie"}
@@ -18,6 +14,8 @@ calcNonlandHighRes(
 \item{harmonizationPeriod}{Two integer values, before the first given
 year the target dataset is used, after the second given year the input
 dataset is used, in between harmonize between the two datasets}
+
+\item{yearsSubset}{vector of years to keep in the output dataset}
 }
 \value{
 downscaled nonland data
@@ -33,6 +31,12 @@ is disaggregated using the just disaggregated wood harvest area as weight.
 Fertilizer is disaggregated using the downscaled land data. Harvest weight
 type is disaggregated using the nonland target data in the first year of
 the harmonization period as weight.
+}
+\examples{
+\dontrun{
+  calcOutput("NonlandHighRes", input = "magpie", target = "luh2mod",
+             harmonizationPeriod = c(2015, 2050), yearsSubset = 2015:2100)
+}
 }
 \author{
 Pascal Sauer

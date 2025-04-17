@@ -1,7 +1,7 @@
 # Downscale and harmonize land use data using high resolution
     reference data
 
-R package **mrdownscale**, version **0.28.0**
+R package **mrdownscale**, version **0.31.0**
 
 [![CRAN status](https://www.r-pkg.org/badges/version/mrdownscale)](https://cran.r-project.org/package=mrdownscale) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11244475.svg)](https://doi.org/10.5281/zenodo.11244475) [![R build status](https://github.com/pik-piam/mrdownscale/workflows/check/badge.svg)](https://github.com/pik-piam/mrdownscale/actions) [![codecov](https://codecov.io/gh/pik-piam/mrdownscale/branch/master/graph/badge.svg)](https://app.codecov.io/gh/pik-piam/mrdownscale) 
 
@@ -32,6 +32,14 @@ Package updates can be installed using `update.packages` (make sure that the add
 update.packages()
 ```
 
+## Tutorial
+
+The package comes with a vignette describing the basic functionality of the package and how to use it. You can load it with the following command (the package needs to be installed):
+
+```r
+vignette("basicUsage") # Basic Usage of mrdownscale
+```
+
 ## Questions / Problems
 
 In case of questions / problems please contact Pascal Sauer <pascal.sauer@pik-potsdam.de>.
@@ -40,18 +48,19 @@ In case of questions / problems please contact Pascal Sauer <pascal.sauer@pik-po
 
 To cite package **mrdownscale** in publications use:
 
-Sauer P, Dietrich J (2024). _mrdownscale: Downscale and harmonize land use data using high resolution reference data_. doi:10.5281/zenodo.11244475 <https://doi.org/10.5281/zenodo.11244475>, R package version 0.28.0, <https://github.com/pik-piam/mrdownscale>.
+Sauer P, Dietrich J (2025). "mrdownscale: Downscale and harmonize land use data using high resolution reference data." doi:10.5281/zenodo.11244475 <https://doi.org/10.5281/zenodo.11244475>, Version: 0.31.0, <https://github.com/pik-piam/mrdownscale>.
 
 A BibTeX entry for LaTeX users is
 
  ```latex
-@Manual{,
+@Misc{,
   title = {mrdownscale: Downscale and harmonize land use data using high resolution
-reference data},
+    reference data},
   author = {Pascal Sauer and Jan Philipp Dietrich},
-  year = {2024},
-  note = {R package version 0.28.0},
-  url = {https://github.com/pik-piam/mrdownscale},
   doi = {10.5281/zenodo.11244475},
+  date = {2025-04-17},
+  year = {2025},
+  url = {https://github.com/pik-piam/mrdownscale},
+  note = {Version: 0.31.0},
 }
 ```

@@ -7,9 +7,9 @@
 calcResolutionMapping(input, target)
 }
 \arguments{
-\item{input}{character, the input dataset, currently only "magpie" is supported}
+\item{input}{character, the input dataset}
 
-\item{target}{character, the target dataset, currently only "luh2mod" is supported}
+\item{target}{character, the target dataset}
 }
 \value{
 a list including a data.frame with columns x, y, lowRes, countrycode

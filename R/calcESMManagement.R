@@ -10,17 +10,20 @@
 #' @author Pascal Sauer, Jan Philipp Dietrich
 calcESMManagement <- function(harmonizationPeriod, yearsSubset) {
   land <- calcOutput("LandReport", outputFormat = "ESM",
-                     harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
+                     harmonizationPeriod = harmonizationPeriod,
+                     yearsSubset = yearsSubset, aggregate = FALSE)
+
   landManagementVariables <- c("irrig_c3ann", "crpbf_c3ann", "irrig_c3nfx", "crpbf_c3nfx",
                                "irrig_c3per", "crpbf_c3per", "crpbf2_c3per", "irrig_c4ann",
                                "crpbf_c4ann", "irrig_c4per", "crpbf_c4per", "crpbf2_c4per", "manaf")
-  land <- land[, getYears(land, as.integer = TRUE) %in% yearsSubset, landManagementVariables]
+  land <- land[, , landManagementVariables]
 
   nonland <- calcOutput("NonlandReport", outputFormat = "ESM",
-                        harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
+                        harmonizationPeriod = harmonizationPeriod,
+                        yearsSubset = yearsSubset, aggregate = FALSE)
   nonlandManagementVariables <- c("fertl_c3nfx", "fertl_c3per", "fertl_c3ann", "fertl_c4ann",
                                   "fertl_c4per", "rndwd", "fulwd")
-  nonland <- nonland[, getYears(nonland, as.integer = TRUE) %in% yearsSubset, nonlandManagementVariables]
+  nonland <- nonland[, , nonlandManagementVariables]
 
   x <- mbind(land, nonland)
 

@@ -8,37 +8,38 @@
 #' added using a nearest-neighbor approach: These cells are mapped to the same low resolution
 #' cluster/country/region as the closest cell which is already present in the mapping.
 #'
-#' @param input character, the input dataset, currently only "magpie" is supported
-#' @param target character, the target dataset, currently only "luh2mod" is supported
+#' @param input character, the input dataset
+#' @param target character, the target dataset
 #' @return a list including a data.frame with columns x, y, lowRes, countrycode
 #'
 #' @author Pascal Sauer
 calcResolutionMapping <- function(input, target) {
   if (input == "magpie") {
-    mapping <- readSource("MagpieFulldataGdx", subtype = "clustermap")
-    coords <- strsplit(mapping$cell, "\\.")
+    clustermap <- readSource("MagpieFulldataGdx", subtype = "clustermap")
+    coords <- strsplit(clustermap$cell, "\\.")
     xCoords <- vapply(coords, function(x) as.double(sub("p", ".", x[1])), double(1))
     yCoords <- vapply(coords, function(x) as.double(sub("p", ".", x[2])), double(1))
-    mapping$cellOriginal <- sub("\\.[A-Z]{3}$", "", mapping$cell)
-    mapping <- cbind(x = xCoords, y = yCoords, mapping[, -which(colnames(mapping) == "cell")])
-    colnames(mapping)[colnames(mapping) == "cluster"] <- "lowRes"
+    clustermap$cellOriginal <- sub("\\.[A-Z]{3}$", "", clustermap$cell)
+    clustermap <- cbind(x = xCoords, y = yCoords, clustermap[, -which(colnames(clustermap) == "cell")])
+    colnames(clustermap)[colnames(clustermap) == "cluster"] <- "lowRes"
   } else {
     stop("Unsupported input type \"", input, "\"")
   }
 
-  if (target == "luh2mod") {
-    targetGrid <- readSource("LUH2v2h", subtype = "states")
-  } else if (target == "landuseinit") {
-    targetGrid <- readSource("LanduseInit")
-    targetGrid <- as.SpatRaster(targetGrid)
-  } else {
-    stop("Unsupported target type \"", target, "\"")
-  }
-  mapping <- toolResolutionMapping(mapping, targetGrid)
+  targetGrid <- calcOutput("LandTarget", target = target, aggregate = FALSE)
+  mapping <- toolResolutionMapping(clustermap, targetGrid)
 
   toolExpectTrue(setequal(colnames(mapping), c("x", "y", "lowRes", "region", "country",
                                                "global", "cellOriginal", "cell")),
                  "resolution mapping has the expected columns")
+  coords <- terra::crds(targetGrid, df = TRUE)
+  allTargetCells <- paste0(sub("\\.", "p", coords$x),
+                           ".",
+                           sub("\\.", "p", coords$y))
+  toolExpectTrue(setequal(mapping$cell, allTargetCells),
+                 "all target cells are mapped")
+  toolExpectTrue(all(mapping$cellOriginal %in% clustermap$cellOriginal),
+                 "a subset of input cells is mapped")
 
   return(list(x = mapping,
               class = "data.frame",
@@ -63,19 +64,20 @@ toolResolutionMapping <- function(mapping, targetGrid) {
 
   targetGridRes <- terra::res(targetGrid)
   mappingRes <- guessResolution(mapping[, c("x", "y")])
-  stopifnot(targetGridRes[1] == targetGridRes[2])
-  if (targetGridRes[1] == mappingRes) {
-    mapping$cell <- mapping$cellOriginal
-    return(mapping)
-  }
-  stopifnot(targetGridRes[1] < mappingRes,
+
+  stopifnot(targetGridRes[1] == targetGridRes[2],
+            targetGridRes[1] <= mappingRes,
             mappingRes %% targetGridRes[1] == 0)
 
   mappingColumns <- colnames(mapping)
   mapping$cellId <- seq_len(nrow(mapping))
   pointsMapping <- terra::vect(mapping, geom = c("x", "y"), crs = terra::crs(targetGrid))
 
-  targetGridAggregated <- terra::aggregate(targetGrid, fact = mappingRes / targetGridRes)
+  if (targetGridRes[1] == mappingRes) {
+    targetGridAggregated <- targetGrid
+  } else {
+    targetGridAggregated <- terra::aggregate(targetGrid, fact = mappingRes / targetGridRes)
+  }
   rasterMapping <- terra::rasterize(pointsMapping, targetGridAggregated, field = "cellId")
   names(rasterMapping) <- "cellId"
   polygonsMapping <- terra::as.polygons(rasterMapping)
@@ -107,7 +109,7 @@ toolResolutionMapping <- function(mapping, targetGrid) {
                              "adding those to mapping (nearest neighbor)"))
 
     near <- terra::nearest(terra::vect(missingInMapping, geom = c("x", "y"), crs = terra::crs(targetGrid)),
-                           pointsMapping)
+                           pointsMapping, method = "cosine")
     toolStatusMessage("note", paste0("nearest neighbor distances: ",
                                      "max = ", round(max(near$distance) / 1000, 1), "km",
                                      ", 90% quantile = ",

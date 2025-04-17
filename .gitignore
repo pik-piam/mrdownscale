@@ -5,3 +5,6 @@
 .Ruserdata
 /extdata
 /data-raw/raw/
+inst/doc
+/doc/
+/Meta/

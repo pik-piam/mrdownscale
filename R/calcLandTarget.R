@@ -63,7 +63,7 @@ calcLandTarget <- function(target) {
     terra::time(out, tstep = "years") <- as.integer(substr(names(out), 2, 5))
     # need to write raster to disk to avoid memory issues
     # cannot use withr::local_tempfile because the SpatRaster is invalid as soon as the underlying file is deleted
-    out <- terra::writeRaster(out, file = tempfile(fileext = ".tif"))
+    out <- terra::writeRaster(out, filename = tempfile(fileext = ".tif"))
 
     if (target == "luh2mod") {
       # split secdf into forestry and secdf
@@ -77,7 +77,7 @@ calcLandTarget <- function(target) {
 
       # cannot cache SpatRaster with both in-memory and on-disk/file sources,
       # so write `out` to a tif file to get SpatRaster with a single source (the tif file)
-      out <- terra::writeRaster(out, file = tempfile(fileext = ".tif"))
+      out <- terra::writeRaster(out, filename = tempfile(fileext = ".tif"))
     }
     expectedCategories <- toolLandCategoriesMapping(input = "magpie", target = target)$dataOutput
   } else if (target == "landuseinit") {
@@ -90,6 +90,28 @@ calcLandTarget <- function(target) {
     out <- as.SpatRaster(out)
 
     expectedCategories <- c("crop", "past", "forestry", "primf", "secdf", "urban",  "other")
+  } else if (target == "landuseinitchina") {
+    out <- readSource("LanduseInit")
+    chinaCrops <- readSource("ChinaCrops")
+
+    out <- out[getItems(chinaCrops, 1), , ]
+    stopifnot(identical(getYears(out), getYears(chinaCrops)))
+
+    otherCrop <- out[, , "crop"] - dimSums(chinaCrops, dim = 3)
+    stopifnot(otherCrop >= 0)
+    otherCrop <- magclass::setNames(otherCrop, "other_crop")
+
+    out <- mbind(out[, , "crop", invert = TRUE], chinaCrops, otherCrop)
+
+    getItems(out, 3) <- sub("primforest", "primf", getItems(out, 3))
+    getItems(out, 3) <- sub("secdforest", "secdf", getItems(out, 3))
+
+    out <- toolScaleConstantArea(out)
+    out <- toolReplaceExpansion(out, "primf", "secdf")
+    out <- as.SpatRaster(out)
+
+    expectedCategories <- c("past", "forestry", "primforest", "secdforest", "urban", "other",
+                            "rice_pro", "tece", "maiz", "other_crop")
   } else {
     stop("Unsupported output type \"", target, "\"")
   }

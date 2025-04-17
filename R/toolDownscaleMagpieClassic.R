@@ -12,6 +12,9 @@ toolDownscaleMagpieClassic <- function(x, xTarget, mapping) {
   mapping$cluster <- mapping$lowRes
   mapping <- mapping[, c("cell", "cluster")]
 
+  stopifnot(setequal(mapping$cluster, getItems(x, 1)),
+            setequal(mapping$cell, getItems(xTarget, 1)))
+
   "!# @monitor luscale::interpolate2"
 
   # interpolate2 assumes constant total over time, but only warns if unfulfilled, convert that to error

@@ -4,7 +4,7 @@
 \alias{convertLUH2v2h}
 \title{convertLUH2v2h}
 \usage{
-convertLUH2v2h(x, subtype = "states")
+convertLUH2v2h(x, subtype)
 }
 \arguments{
 \item{x}{SpatRaster with LUH2 cell area shares}

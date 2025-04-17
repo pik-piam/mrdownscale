@@ -12,3 +12,6 @@
 ^tests/.lintr$
 ^workflow$
 ^changelog\.md$
+^doc$
+^Meta$
+^vignettes/.lintr$

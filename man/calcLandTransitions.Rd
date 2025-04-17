@@ -4,11 +4,7 @@
 \alias{calcLandTransitions}
 \title{calcLandTransitions}
 \usage{
-calcLandTransitions(
-  outputFormat = "ESM",
-  harmonizationPeriod = c(2015, 2050),
-  gross = TRUE
-)
+calcLandTransitions(outputFormat, harmonizationPeriod, yearsSubset, gross)
 }
 \arguments{
 \item{outputFormat}{format in which the outputs should be prepared. Currently,
@@ -17,6 +13,8 @@ only "ESM" for earth system model compatible input data is available.}
 \item{harmonizationPeriod}{Two integer values, before the first given
 year the target dataset is used, after the second given year the input
 dataset is used, in between harmonize between the two datasets}
+
+\item{yearsSubset}{vector of years to keep in the output dataset}
 
 \item{gross}{either boolean or a magpie object containing bidirectional
 transition shares relative to the area of the involved land pools (transition

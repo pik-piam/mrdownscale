@@ -16,8 +16,7 @@
 #' @param method harmonization method, see \code{\link{toolGetHarmonizer}} for available methods
 #' @return harmonized nonland data
 #' @author Pascal Sauer
-calcNonlandHarmonized <- function(input = "magpie", target = "luh2mod",
-                                  harmonizationPeriod = c(2015, 2050), method = "fade") {
+calcNonlandHarmonized <- function(input, target, harmonizationPeriod, method) {
   xInput <- calcOutput("NonlandInputRecategorized", input = input, target = target, aggregate = FALSE)
   geometry <- attr(xInput, "geometry")
   crs <- attr(xInput, "crs")
