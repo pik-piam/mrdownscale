@@ -31,6 +31,7 @@ calcLandHarmonized <- function(input, target, harmonizationPeriod,
   toolExpectLessDiff(tSum, tSum[, 1, ], 10^-5, "Total areas in target stay constant over time")
   toolExpectLessDiff(inSum[, 1, ], tSum[, 1, ], 10^-5,
                      "Total areas are the same in target and input data")
+
   if (max(abs(inSum[, 1, ] - tSum[, 1, ])) >= 10^-5) {
     corr <- setYears(dimSums(xTarget[, 1, ], dim = 3) / dimSums(xInput[, 1, ], dim = 3), NULL)
     stopifnot(is.finite(corr), corr >= 0)

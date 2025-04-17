@@ -9,6 +9,7 @@
 #'
 #' @author Pascal Sauer
 toolPrimExpansionCheck <- function(x) {
+  stopifnot(!anyNA(x))
   for (v in intersect(getItems(x, 3), c("primf", "primn"))) {
     maxExpansion <- toolMaxExpansion(x, v)
     toolExpectTrue(maxExpansion <= 0,

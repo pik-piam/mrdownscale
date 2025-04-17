@@ -14,25 +14,27 @@
 toolLandCategoriesMapping <- function(input, target) {
   .getMap <- function(x) {
     if (x == "magpie") {
-      out <- toolGetMapping("magpie2ref.csv", where = "mrdownscale")
+      out <- toolGetMapping("referenceMappings/magpie.csv", where = "mrdownscale")
     } else if (x == "landuseinit") {
-      out <- toolGetMapping("landuseinit2ref.csv", where = "mrdownscale")
+      out <- toolGetMapping("referenceMappings/landuseinit.csv", where = "mrdownscale")
+    } else if (x == "landuseinitchina") {
+      out <- toolGetMapping("referenceMappings/landuseinitchina.csv", where = "mrdownscale")
     } else if (x == "luh2") {
-      out <- toolGetMapping("luh2ref.csv", where = "mrdownscale")
+      out <- toolGetMapping("referenceMappings/luh2.csv", where = "mrdownscale")
     } else if (x == "luh2mod") {
-      out <- toolGetMapping("luhmod2ref.csv", where = "mrdownscale")
+      out <- toolGetMapping("referenceMappings/luh2mod.csv", where = "mrdownscale")
     } else {
       stop("Categories mapping for type \"", x, "\" not available!", call. = FALSE)
     }
     return(out)
   }
   input2ref  <- .getMap(input)
-  output2ref <- .getMap(target)
+  target2ref <- .getMap(target)
 
-  if (!setequal(input2ref$reference, output2ref$reference)) {
+  if (!setequal(input2ref$reference, target2ref$reference)) {
     warning("Input map and output map contain inconsistent reference information")
   }
-  map <- merge(input2ref, output2ref, by = "reference", suffixes = c("Input", "Output"))
+  map <- merge(input2ref, target2ref, by = "reference", suffixes = c("Input", "Output"))
   map$merge <- paste0(map$dataInput, "__", map$dataOutput)
   if (anyDuplicated(map$reference)) {
     warning("Insuficient granularity of reference categories, as a reference category is mapped more than once (\"",
