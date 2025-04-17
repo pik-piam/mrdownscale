@@ -12,10 +12,24 @@
 #' @author Jan Philipp Dietrich
 #'
 toolLandCategoriesMapping <- function(input, target) {
-  # TODO turn into calcLandCategoriesMapping
-  # TODO call calcOutput(input, subtype = "refmap") which simply returns toolGetMapping ("")
-  input2ref  <- toolGetMapping(paste0("referenceMappings/", input, ".csv"), where = "mrdownscale")
-  target2ref <- toolGetMapping(paste0("referenceMappings/", target, ".csv"), where = "mrdownscale")
+  .getMap <- function(x) {
+    if (x == "magpie") {
+      out <- toolGetMapping("referenceMappings/magpie.csv", where = "mrdownscale")
+    } else if (x == "landuseinit") {
+      out <- toolGetMapping("referenceMappings/landuseinit.csv", where = "mrdownscale")
+    } else if (x == "landuseinitchina") {
+      out <- toolGetMapping("referenceMappings/landuseinitchina.csv", where = "mrdownscale")
+    } else if (x == "luh2") {
+      out <- toolGetMapping("referenceMappings/luh2.csv", where = "mrdownscale")
+    } else if (x == "luh2mod") {
+      out <- toolGetMapping("referenceMappings/luh2mod.csv", where = "mrdownscale")
+    } else {
+      stop("Categories mapping for type \"", x, "\" not available!", call. = FALSE)
+    }
+    return(out)
+  }
+  input2ref  <- .getMap(input)
+  target2ref <- .getMap(target)
 
   if (!setequal(input2ref$reference, target2ref$reference)) {
     warning("Input map and output map contain inconsistent reference information")
