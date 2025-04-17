@@ -8,8 +8,8 @@
 #' added using a nearest-neighbor approach: These cells are mapped to the same low resolution
 #' cluster/country/region as the closest cell which is already present in the mapping.
 #'
-#' @param input character, the input dataset, currently only "magpie" is supported
-#' @param target character, the target dataset: "luh2mod" or "luh3"
+#' @param input character, the input dataset
+#' @param target character, the target dataset
 #' @return a list including a data.frame with columns x, y, lowRes, countrycode
 #'
 #' @author Pascal Sauer
@@ -26,18 +26,8 @@ calcResolutionMapping <- function(input, target) {
     stop("Unsupported input type \"", input, "\"")
   }
 
-  if (target == "luh2mod") {
-    targetGrid <- readSource("LUH2v2h", subtype = "states")
-  } else if (target == "luh3") {
-    # could use any category here, just need land sea mask (sea is NA)
-    targetGrid <- readSource("LUH3", subtype = "states", subset = 2000)["primf"]
-  } else if (target == "landuseinit") {
-    targetGrid <- readSource("LanduseInit")
-    targetGrid <- as.SpatRaster(targetGrid)
-  } else {
-    stop("Unsupported target type \"", target, "\"")
-  }
-  mapping <- toolResolutionMapping(mapping = clustermap, targetGrid = targetGrid)
+  targetGrid <- calcOutput("LandTarget", target = target, aggregate = FALSE)
+  mapping <- toolResolutionMapping(clustermap, targetGrid)
 
   toolExpectTrue(setequal(colnames(mapping), c("x", "y", "lowRes", "region", "country",
                                                "global", "cellOriginal", "cell")),
@@ -73,15 +63,20 @@ toolResolutionMapping <- function(mapping, targetGrid) {
 
   targetGridRes <- terra::res(targetGrid)
   mappingRes <- guessResolution(mapping[, c("x", "y")])
+
   stopifnot(targetGridRes[1] == targetGridRes[2],
-            targetGridRes[1] < mappingRes,
+            targetGridRes[1] <= mappingRes,
             mappingRes %% targetGridRes[1] == 0)
 
   mappingColumns <- colnames(mapping)
   mapping$cellId <- seq_len(nrow(mapping))
   pointsMapping <- terra::vect(mapping, geom = c("x", "y"), crs = terra::crs(targetGrid))
 
-  targetGridAggregated <- terra::aggregate(targetGrid, fact = mappingRes / targetGridRes)
+  if (targetGridRes[1] == mappingRes) {
+    targetGridAggregated <- targetGrid
+  } else {
+    targetGridAggregated <- terra::aggregate(targetGrid, fact = mappingRes / targetGridRes)
+  }
   rasterMapping <- terra::rasterize(pointsMapping, targetGridAggregated, field = "cellId")
   names(rasterMapping) <- "cellId"
   polygonsMapping <- terra::as.polygons(rasterMapping)
@@ -112,8 +107,7 @@ toolResolutionMapping <- function(mapping, targetGrid) {
                              "% of target cells missing in mapping, ",
                              "adding those to mapping (nearest neighbor)"))
 
-    # method = "cosine" is about 12 times as fast, use for development
-    # TODO switch to method = "geo"
+    # method = "cosine" is about 12 times as fast compared to method = "geo" (which is more precise)
     near <- terra::nearest(terra::vect(missingInMapping, geom = c("x", "y"), crs = terra::crs(targetGrid)),
                            pointsMapping, method = "cosine")
     toolStatusMessage("note", paste0("nearest neighbor distances: ",

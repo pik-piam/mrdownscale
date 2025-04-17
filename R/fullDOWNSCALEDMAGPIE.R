@@ -11,12 +11,14 @@
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
+#' @param target Name of dataset to be used as harmonization target and downscaling reference
 #'
 #' @author Pascal Sauer
-fullDOWNSCALEDMAGPIE <- function(rev = numeric_version("0"), ..., harmonizationPeriod = c(2015, 2050)) {
+fullDOWNSCALEDMAGPIE <- function(rev = numeric_version("0"), ...,
+                                 harmonizationPeriod = c(2015, 2050), target = "landuseinit") {
   stopifnot(...length() == 0)
 
-  calcOutput("LandHighRes", input = "magpie", target = "landuseinit",
+  calcOutput("LandHighRes", input = "magpie", target = target,
              harmonizationPeriod = harmonizationPeriod, yearsSubset = seq(1995, 2100, 5),
              downscaling = "magpieClassic",
              aggregate = FALSE,
