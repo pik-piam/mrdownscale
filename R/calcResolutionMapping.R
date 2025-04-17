@@ -26,17 +26,7 @@ calcResolutionMapping <- function(input, target) {
     stop("Unsupported input type \"", input, "\"")
   }
 
-  if (target == "luh2mod") {
-    targetGrid <- readSource("LUH2v2h", subtype = "states")
-  } else if (target == "landuseinit") {
-    targetGrid <- readSource("LanduseInit")
-    targetGrid <- as.SpatRaster(targetGrid)
-  } else if (target == "landuseinitchina") {
-    # TODO can this be generalized? i.e. also just call calcLandTarget with target = target for other cases
-    targetGrid <- calcOutput("LandTarget", target = target, aggregate = FALSE)
-  } else {
-    stop("Unsupported target type \"", target, "\"")
-  }
+  targetGrid <- calcOutput("LandTarget", target = target, aggregate = FALSE)
   mapping <- toolResolutionMapping(clustermap, targetGrid)
 
   toolExpectTrue(setequal(colnames(mapping), c("x", "y", "lowRes", "region", "country",
