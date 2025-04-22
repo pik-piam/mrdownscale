@@ -37,7 +37,7 @@ readLUH3 <- function(subtype, subset = 1995:2015) {
                    paste0("cpbf2_", cropTypes),
                    "flood", "rndwd", "fulwd", "combf")
     x <- readLayers("multiple-management_input4MIPs_landState_CMIP_UofMD-landState-3-1_gn_0850-2024.nc",
-                    variables, years, firstYear = 1995)
+                    variables, years)
 
     # combf is a share of wood harvest like rndwd and fulwd, but we can ignore it as long as it is 0 everywhere
     # there are variables for 2nd gen biofuel c3ann, c4ann, c3nfx, but we can ignore it as long as it is 0 everywhere
@@ -56,7 +56,8 @@ readLUH3 <- function(subtype, subset = 1995:2015) {
     woodland <- c("primf", "primn", "secmf", "secyf", "secnf", "pltns")
     variables <- c(paste0(woodland, "_harv"), paste0(woodland, "_bioh"))
     x <- readLayers("multiple-transitions_input4MIPs_landState_CMIP_UofMD-landState-3-1_gn_0850-2023.nc",
-                    variables, years - 1, firstYear = 1994)
+                    variables, years - 1, firstYear = 1994) # TODO firstYear probably wrong here
+    browser()
 
     # # LUH uses from-semantics for transitions (value for 1994 describes what happens from 1994 to 1995)
     # # by adding 1 to time we get to-semantics (value for 1994 describes what happens from 1993 to 1994)

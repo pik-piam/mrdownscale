@@ -22,7 +22,7 @@ calcLandTarget <- function(target) {
     states <- spatRasterToDataset(states)
 
     if (target == "luh3") {
-      man <- readSource("LUH3", subtype = "management", convert = FALSE)
+      man <- readSource("LUH3", subtype = "management")
       man <- man["cpbf1|cpbf2_c3per|cpbf2_c4per|rndwd|fulwd|fertl|irrig"]
       man <- spatRasterToDataset(man)
       man <- man[c(paste0("cpbf1_", cropTypes),
