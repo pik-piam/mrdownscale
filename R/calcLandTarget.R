@@ -22,12 +22,9 @@ calcLandTarget <- function(target) {
     states <- spatRasterToDataset(states)
 
     if (target == "luh3") {
-      man <- readSource("LUH3", subtype = "management")
-      man <- man["cpbf1|cpbf2_c3per|cpbf2_c4per|rndwd|fulwd|fertl|irrig"]
+      man <- readSource("LUH3", subtype = "management", convert = FALSE)
+      man <- man["irrig|cpbf1"]
       man <- spatRasterToDataset(man)
-      man <- man[c(paste0("cpbf1_", cropTypes),
-                   paste0("cpbf2_", per),
-                   paste0("irrig_", cropTypes))]
       cpbf1Category <- "cpbf1"
     } else {
       man <- readSource("LUH2v2h", subtype = "management", convert = FALSE)
@@ -61,24 +58,13 @@ calcLandTarget <- function(target) {
       irrigatedBiofuel2ndGen <- NULL
       rainfedBiofuel2ndGen <- NULL
       if (cropType %in% per) {
-        if (target == "luh3") {
-          # TODO if cpbf1_c4per > 0.99 then cpbf1 + cpbf2 > 1 which leads to negative nonBiofuel
-          biofuel2ndGen <- man[paste0("cpbf2_", cropType)] * states[cropType]
-          irrigatedBiofuel2ndGen <- irrig * biofuel2ndGen
-          rainfedBiofuel2ndGen <- biofuel2ndGen - irrigatedBiofuel2ndGen
-          names(irrigatedBiofuel2ndGen) <- sub("\\.\\..+$", paste0("..", cropType, "_irrigated_biofuel_2nd_gen"),
-                                               names(irrigatedBiofuel2ndGen))
-          names(rainfedBiofuel2ndGen) <- sub("\\.\\..+$", paste0("..", cropType, "_rainfed_biofuel_2nd_gen"),
-                                             names(rainfedBiofuel2ndGen))
-          nonBiofuel <- nonBiofuel - biofuel2ndGen
-        } else {
-          # 2nd gen biofuel is not part of LUH2v2h, but we need it for the harmonization, so fill with zeros
-          irrigatedBiofuel2ndGen <- 0 * states[cropType]
-          rainfedBiofuel2ndGen <- 0 * states[cropType]
-          names(irrigatedBiofuel2ndGen) <- paste0(names(irrigatedBiofuel2ndGen), "_irrigated_biofuel_2nd_gen")
-          names(rainfedBiofuel2ndGen) <- paste0(names(rainfedBiofuel2ndGen), "_rainfed_biofuel_2nd_gen")
-          nonBiofuel <- nonBiofuel - irrigatedBiofuel2ndGen - rainfedBiofuel2ndGen
-        }
+        # 2nd gen biofuel is not part of LUH2v2h, but we need it for the harmonization, so fill with zeros
+        # 2nd gen biofuel is part of LUH3, but it is all zeros (even over ocean), so instead of reading it...
+        irrigatedBiofuel2ndGen <- 0 * states[cropType]
+        rainfedBiofuel2ndGen <- 0 * states[cropType]
+        names(irrigatedBiofuel2ndGen) <- paste0(names(irrigatedBiofuel2ndGen), "_irrigated_biofuel_2nd_gen")
+        names(rainfedBiofuel2ndGen) <- paste0(names(rainfedBiofuel2ndGen), "_rainfed_biofuel_2nd_gen")
+        nonBiofuel <- nonBiofuel - irrigatedBiofuel2ndGen - rainfedBiofuel2ndGen
       }
 
       irrigatedNonBiofuel <- irrig * nonBiofuel

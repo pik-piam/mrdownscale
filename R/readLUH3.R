@@ -23,7 +23,7 @@ readLUH3 <- function(subtype, subset = 1995:2015) {
   if (subtype == "states") {
     # all except secmb secma
     variables <- c("primf", "primn", "secdf", "secdn", "urban", "c3ann", "c4ann",
-                   "c3per", "c4per", "c3nfx", "pastr", "range", "pltns")
+                   "c3per", "c4per", "c3nfx", "pastr", "range")
     x <- readLayers("multiple-states_input4MIPs_landState_CMIP_UofMD-landState-3-1_gn_0850-2024.nc",
                     variables, years)
     stopifnot(max(terra::minmax(x, compute = TRUE)) <= 1.0001,
@@ -31,24 +31,25 @@ readLUH3 <- function(subtype, subset = 1995:2015) {
     unit <- "1"
   } else if (subtype == "management") {
     cropTypes <- c("c3ann", "c4ann", "c3per", "c4per", "c3nfx")
-    variables <- c(paste0("fertl_", cropTypes),
+    variables <- c(paste0("cpbf1_", cropTypes),
+                   paste0("fertl_", cropTypes),
                    paste0("irrig_", cropTypes),
-                   paste0("cpbf1_", cropTypes),
-                   paste0("cpbf2_", cropTypes),
                    "flood", "rndwd", "fulwd", "combf")
+    # the following variables are present but all zeros, so no need to read those:
+    # cpbf2_*, pltns_wdprd, pltns_bfuel, addtc
+    # prtct_primf, prtct_primn, prtct_secdf, prtct_secdn, prtct_pltns
+
     x <- readLayers("multiple-management_input4MIPs_landState_CMIP_UofMD-landState-3-1_gn_0850-2024.nc",
                     variables, years)
 
     # combf is a share of wood harvest like rndwd and fulwd, but we can ignore it as long as it is 0 everywhere
-    # there are variables for 2nd gen biofuel c3ann, c4ann, c3nfx, but we can ignore it as long as it is 0 everywhere
-    stopifnot(all(terra::minmax(x["combf|cpbf2_(c3ann|c4ann|c3nfx)"], compute = TRUE) == 0))
-    x <- x[[grep("combf|cpbf2_(c3ann|c4ann|c3nfx)", names(x), invert = TRUE)]]
+    stopifnot(all(terra::minmax(x["combf"], compute = TRUE) == 0))
+    x <- x[[grep("combf", names(x), invert = TRUE)]]
 
     stopifnot(setequal(terra::varnames(x),
-                       c(paste0("fertl_", cropTypes),
+                       c(paste0("cpbf1_", cropTypes),
+                         paste0("fertl_", cropTypes),
                          paste0("irrig_", cropTypes),
-                         paste0("cpbf1_", cropTypes),
-                         paste0("cpbf2_", c("c3per", "c4per")),
                          "flood", "rndwd", "fulwd")))
 
     unit <- "1, except fertl: kg ha-1 yr-1"
@@ -68,6 +69,7 @@ readLUH3 <- function(subtype, subset = 1995:2015) {
     stop("subtype must be states, management, transitions or cellArea")
   }
 
+  terra::time(x, tstep = "years") <- as.integer(sub("-01-01$", "", terra::time(x)))
   names(x) <- paste0("y", terra::time(x), "..", sub("_[0-9]+$", "", names(x)))
 
   return(list(x = x,
