@@ -7,22 +7,27 @@
 #' @return nonland target data
 #' @author Pascal Sauer
 calcNonlandTarget <- function(target) {
-  if (target %in% c("luh2", "luh2mod")) {
-    cellAreaKm2 <- readSource("LUH2v2h", subtype = "cellArea", convert = FALSE)
+  if (target %in% c("luh2", "luh2mod", "luh3")) {
+    if (target %in% c("luh2", "luh2mod")) {
+      cellAreaKm2 <- readSource("LUH2v2h", subtype = "cellArea", convert = FALSE)
+      management <- readSource("LUH2v2h", subtype = "management", convert = FALSE)
+      transitions <- readSource("LUH2v2h", subtype = "transitions", convert = FALSE)
+    } else {
+      cellAreaKm2 <- readSource("LUH3", subtype = "cellArea", convert = FALSE)
+      management <- readSource("LUH3", subtype = "management", convert = FALSE)
+      transitions <- readSource("LUH3", subtype = "transitions", convert = FALSE)
+    }
+
     # convert from km2 to ha
     cellAreaHa <- cellAreaKm2 * 100
     # convert from km2 to Mha
     cellAreaMha <- cellAreaKm2 / 10000
-
-    management <- readSource("LUH2v2h", subtype = "management", convert = FALSE)
 
     ### fertilizer in kg yr-1
     # need absolute values for downscaling, fertl_* is in kg ha-1 yr-1, convert to kg yr-1
     fertilizer <- management["fertl"] * cellAreaHa
     names(fertilizer) <- paste0(sub("fertl_", "", names(fertilizer)), "_fertilizer")
     terra::units(fertilizer) <- "kg yr-1"
-
-    transitions <- readSource("LUH2v2h", subtype = "transitions", convert = FALSE)
 
     ### wood harvest area in Mha yr-1
     # convert from shares to Mha yr-1

@@ -15,8 +15,8 @@ readLUH3 <- function(subtype, subset = 1995:2015) {
 
   years <- subset
 
-  readLayers <- function(nc, variables, years, firstYear = 850) {
-    yearIndizes <- years - firstYear + 1
+  readLayers <- function(nc, variables, years) {
+    yearIndizes <- years - 849 # LUH data starts in 850
     return(terra::rast(nc, lyrs = paste0(rep(variables, each = length(yearIndizes)), "_", yearIndizes)))
   }
 
@@ -57,12 +57,7 @@ readLUH3 <- function(subtype, subset = 1995:2015) {
     woodland <- c("primf", "primn", "secmf", "secyf", "secnf", "pltns")
     variables <- c(paste0(woodland, "_harv"), paste0(woodland, "_bioh"))
     x <- readLayers("multiple-transitions_input4MIPs_landState_CMIP_UofMD-landState-3-1_gn_0850-2023.nc",
-                    variables, years - 1, firstYear = 1994) # TODO firstYear probably wrong here
-    browser()
-
-    # # LUH uses from-semantics for transitions (value for 1994 describes what happens from 1994 to 1995)
-    # # by adding 1 to time we get to-semantics (value for 1994 describes what happens from 1993 to 1994)
-    # x <- toYearsAndSubset(x, years, offset = +1)
+                    variables, years - 1)
 
     unit <- "*_bioh: kg C yr-1, *_harv: 1"
   } else {
@@ -70,6 +65,11 @@ readLUH3 <- function(subtype, subset = 1995:2015) {
   }
 
   terra::time(x, tstep = "years") <- as.integer(sub("-01-01$", "", terra::time(x)))
+  if (subtype == "transitions") {
+    # LUH uses from-semantics for transitions (value for 1994 describes what happens from 1994 to 1995)
+    # by adding 1 to time we get to-semantics (value for 1994 describes what happens from 1993 to 1994)
+    terra::time(x, tstep = "years") <- terra::time(x) + 1
+  }
   names(x) <- paste0("y", terra::time(x), "..", sub("_[0-9]+$", "", names(x)))
 
   return(list(x = x,
