@@ -40,7 +40,8 @@ calcNonlandTarget <- function(target) {
     terra::units(woodHarvestArea) <- "Mha yr-1"
 
     ### wood harvest weight (bioh) in kg C yr-1
-    woodHarvestWeight <- transitions["bioh"]
+    woodHarvestWeight <- transitions["(primf|primn|secmf|secyf|secnf)_bioh"]
+    # TODO add pltns_bioh
     minWoodHarvestWeight <- min(terra::minmax(woodHarvestWeight, compute = TRUE))
     if (minWoodHarvestWeight < 0) {
       # replace negative weight of wood harvest with 0
