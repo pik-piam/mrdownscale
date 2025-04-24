@@ -7,7 +7,7 @@
 #' The LUH3 nc files have day-based time, which is converted to years.
 #'
 #' @param subtype one of states, management, transitions, cellArea
-readLUH3 <- function(subtype, subset = 1995:2015) {
+readLUH3 <- function(subtype, subset = 1995:2024) {
   # TODO use years until 2020
   if (subtype == "cellArea") {
     cellArea <- terra::rast("multiple-static_input4MIPs_landState_CMIP_UofMD-landState-3-1_gn.nc", "carea")

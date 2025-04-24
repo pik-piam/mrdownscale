@@ -1,5 +1,5 @@
-library(terra) # nolint: undesirable_function_linter
-library(magclass) # nolint: undesirable_function_linter
+library(terra) # nolint: undesirable_function_linter.
+library(magclass) # nolint: undesirable_function_linter.
 
 
 extractTransitions <- function(file = "transitions.nc", years = 2014:2015, filterPrimary = TRUE) {
