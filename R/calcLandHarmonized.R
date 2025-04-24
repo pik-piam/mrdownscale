@@ -14,6 +14,8 @@
 #' @author Pascal Sauer, Jan Philipp Dietrich
 calcLandHarmonized <- function(input, target, harmonizationPeriod,
                                method = "fade") {
+  # TODO add method "none" which just uses target data until (including) harmonizationPeriod[1]
+  # and then input data, so no harmonization at all
   xInput    <- calcOutput("LandInputRecategorized", input = input,
                           target = target, aggregate = FALSE)
   geometry <- attr(xInput, "geometry")

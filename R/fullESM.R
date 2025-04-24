@@ -19,7 +19,9 @@
 #' @author Pascal Sauer, Jan Philipp Dietrich
 fullESM <- function(rev = numeric_version("0"), ..., scenario = "", harmonizationPeriod = c(2015, 2050),
                     yearsSubset = 2015:2150, compression = 2, progress = TRUE) {
-
+  # TODO for ScenarioMIP use harmonization period c(2020, 2050)
+  # TODO allow skipping harmonization altogether
+  # TODO allow setting target
   stopifnot(...length() == 0)
 
   revision <- if (identical(rev, numeric_version("0"))) format(Sys.time(), "%Y-%m-%d") else rev

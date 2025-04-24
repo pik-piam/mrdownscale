@@ -11,6 +11,8 @@
 #' @return land use data
 #' @author Pascal Sauer
 calcLandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
+  # TODO outputFormat ScenarioMIP
+  # TODO rename ESM to RESCUE?
   if (outputFormat == "ESM") {
     native <- calcOutput("LandHighRes", input = "magpie", target = "luh2mod",
                          harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
@@ -48,6 +50,7 @@ calcLandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
 
     totalSecondaryForest <- dimSums(native[, , c("forestry", "secdf")], dim = 3)
     # calculate manaf (managed forest) = forestry share of secondary forest
+    # TODO report pltns instead of manaf
     manaf <- native[, , "forestry"] / totalSecondaryForest
     manaf[totalSecondaryForest == 0] <- 0 # replace NAs introduced by 0 / 0
     getNames(manaf) <- "manaf"

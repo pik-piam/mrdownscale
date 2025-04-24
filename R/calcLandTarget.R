@@ -3,7 +3,7 @@
 #' Prepare the high resolution target land use dataset for
 #' harmonization and downscaling, checking data for consistency before returning.
 #'
-#' @param target name of the target dataset, options are: luh2, luh2mod, landuseinit
+#' @param target name of the target dataset
 #' luh2mod will split secdf into forestry and secdf
 #' @return land target data
 #' @author Pascal Sauer
@@ -82,6 +82,8 @@ calcLandTarget <- function(target) {
     out <- terra::writeRaster(out, filename = tempfile(fileext = ".tif"))
 
     if (target %in% c("luh2mod", "luh3")) {
+      # TODO rename "forestry" to "pltns" so we consistently use LUH terminology
+      # TODO for luh3 user forestry = 0 instead
       # split secdf into forestry and secdf
       forestryShare <- read.magpie(system.file("extdata/forestryShare.mz", package = "mrdownscale"))
       forestryShare <- as.SpatRaster(forestryShare)
