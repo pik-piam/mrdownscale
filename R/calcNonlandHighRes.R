@@ -73,8 +73,8 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset) 
   whaCat <- woodHarvestAreaCategories()
   harvestArea <- x[, futureYears, whaCat]
 
-  harvestAreaDownscaled <- toolAggregate(harvestArea, resmap,
-                                         weight = toolMaxHarvestPerYear(land) + 10^-30,
+  harvestAreaWeight <- toolMaxHarvestPerYear(land)[, futureYears, ] + 10^-30
+  harvestAreaDownscaled <- toolAggregate(harvestArea, resmap, weight = harvestAreaWeight,
                                          from = "lowRes", to = "cell", dim = 1)
 
 
@@ -86,9 +86,8 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset) 
 
 
   fertilizer <- x[, futureYears, grep("fertilizer$", getItems(x, 3))]
-  weightFertilizer <- land[, futureYears, sub("_fertilizer$", "", getItems(fertilizer, 3))]
+  weightFertilizer <- land[, futureYears, sub("_fertilizer$", "", getItems(fertilizer, 3))] + 10^-30
   getItems(weightFertilizer, 3) <- getItems(fertilizer, 3)
-  weightFertilizer <- weightFertilizer + 10^-30
   fertilizerDownscaled <- toolAggregate(fertilizer, resmap, weight = weightFertilizer,
                                         from = "lowRes", to = "cell", dim = 1)
 

@@ -36,7 +36,8 @@ calcNonlandTargetExtrapolated <- function(input, target, transitionYears) {
   # get wood harvest area extrapolation, then apply historical kg C per Mha
   xLand <- calcOutput("LandTargetExtrapolated", input = input, target = target,
                       transitionYears = transitionYears, aggregate = FALSE, supplementary = TRUE)
-  stopifnot(xLand$unit == "Mha")
+  stopifnot(xLand$unit == "Mha",
+            !is.null(xLand$woodHarvestArea))
   harvestMha <- xLand$woodHarvestArea[, transitionYears, ]
 
   harvestKgC <- harvestMha * kgCPerMha

@@ -43,7 +43,7 @@ calcLandTargetExtrapolated <- function(input, target, transitionYears) {
   out <- toolReplaceExpansion(out, "primn", "secdn", noteThreshold = 100, warnThreshold = 100)
 
   harvest <- NULL
-  if (target == "luh2mod") {
+  if (target %in% c("luh2mod", "luh3")) {
     # ------- calculate wood harvest shares -------
     harvestHist <- calcOutput("NonlandTargetLowRes", input = input, target = target, aggregate = FALSE)
     harvestHist <- harvestHist[, , endsWith(getItems(harvestHist, 3), "wood_harvest_area")]
