@@ -14,8 +14,6 @@
 #' @author Pascal Sauer, Jan Philipp Dietrich
 calcLandHarmonized <- function(input, target, harmonizationPeriod,
                                method = "fade") {
-  # TODO add method "none" which just uses target data until (including) harmonizationPeriod[1]
-  # and then input data, so no harmonization at all
   xInput    <- calcOutput("LandInputRecategorized", input = input,
                           target = target, aggregate = FALSE)
   geometry <- attr(xInput, "geometry")
@@ -45,12 +43,6 @@ calcLandHarmonized <- function(input, target, harmonizationPeriod,
 
   harmonizer <- toolGetHarmonizer(method)
   out <- harmonizer(xInput, xTarget, harmonizationPeriod = harmonizationPeriod)
-
-  # during harmonization primf and primn expansion might be introduced due to
-  # primf or primn differences between input and target dataset
-  # replace primf and primn expansion with secdf and secdn
-  out <- toolReplaceExpansion(out, "primf", "secdf", warnThreshold = 100)
-  out <- toolReplaceExpansion(out, "primn", "secdn", warnThreshold = 100)
 
   attr(out, "geometry") <- geometry
   attr(out, "crs")      <- crs
