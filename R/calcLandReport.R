@@ -11,7 +11,6 @@
 #' @return land use data
 #' @author Pascal Sauer
 calcLandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
-  # TODO outputFormat ScenarioMIP
   # TODO rename ESM to RESCUE?
   # TODO allow choosing harmonization method here
   if (outputFormat == "ESM") {
@@ -51,7 +50,6 @@ calcLandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
 
     totalSecondaryForest <- dimSums(native[, , c("forestry", "secdf")], dim = 3)
     # calculate manaf (managed forest) = forestry share of secondary forest
-    # TODO report pltns instead of manaf
     manaf <- native[, , "forestry"] / totalSecondaryForest
     manaf[totalSecondaryForest == 0] <- 0 # replace NAs introduced by 0 / 0
     getNames(manaf) <- "manaf"
@@ -83,7 +81,9 @@ calcLandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
                 min = 0,
                 max = 1,
                 description = paste("MAgPIE land use data downscaled to LUH2 resolution")))
+  } else if (outputFormat == "ScenarioMIP") {
+    return(calcOutput("LandReportScenarioMIP", harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset))
   } else {
-    stop("Can only report for outputFormat = 'ESM'")
+    stop("Can only report for outputFormat = ESM/ScenarioMIP")
   }
 }
