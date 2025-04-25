@@ -2,8 +2,7 @@
 #'
 #' Convert the downscaled land use data to the format required by the given project.
 #'
-#' @param outputFormat format in which the outputs should be prepared. Currently,
-#' only "ESM" for earth system model compatible input data is available.
+#' @param outputFormat format in which the outputs should be prepared. Options: ESM, ScenarioMIP
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
@@ -20,33 +19,9 @@ calcLandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
     cellArea <- readSource("LUH2v2h", subtype = "cellArea", convert = FALSE)
     cellArea <- collapseDim(as.magpie(cellArea), 3)
 
-    # calc irrigation shares
-    cropTypes <- c("c3ann", "c3nfx", "c3per", "c4ann", "c4per")
-    cropData <- do.call(mbind, lapply(cropTypes, function(cropType) {
-      x <- native[, , grep(cropType, getItems(native, 3))]
-      total <- dimSums(x, dim = 3)
-
-      irrigationShare <- dimSums(x[, , grep("irrigated", getItems(x, 3))], dim = 3) / total
-      getNames(irrigationShare) <- paste0("irrig_", cropType)
-      irrigationShare[total == 0] <- 0 # replace NAs introduced by 0 / 0
-
-      biofuel1stGenShare <- dimSums(x[, , grep("biofuel_1st_gen", getItems(x, 3))], dim = 3) / total
-      getNames(biofuel1stGenShare) <- paste0("crpbf_", cropType)
-      biofuel1stGenShare[total == 0] <- 0 # replace NAs introduced by 0 / 0
-
-      # multiply by 10000 to convert from Mha to km2, divide by cellArea to get shares
-      cellAreaShare <- total * 10000 / cellArea[getItems(cellArea, 1) %in% getItems(x, 1), , ]
-      getNames(cellAreaShare) <- cropType
-
-      combined <- mbind(irrigationShare, biofuel1stGenShare, cellAreaShare)
-      if (any(grepl("biofuel_2nd_gen", getItems(x, 3)))) {
-        biofuel2ndGenShare <- dimSums(x[, , grep("biofuel_2nd_gen", getItems(x, 3))], dim = 3) / total
-        getNames(biofuel2ndGenShare) <- paste0("crpbf2_", cropType)
-        biofuel2ndGenShare[total == 0] <- 0 # replace NAs introduced by 0 / 0
-        combined <- mbind(combined, biofuel2ndGenShare)
-      }
-      return(combined)
-    }))
+    cropData <- toolCropData(native, cellArea)
+    getNames(cropData) <- sub("^cpbf1_", "crpbf_", getNames(cropData))
+    getNames(cropData) <- sub("^cpbf2_", "crpbf2_", getNames(cropData))
 
     totalSecondaryForest <- dimSums(native[, , c("forestry", "secdf")], dim = 3)
     # calculate manaf (managed forest) = forestry share of secondary forest
@@ -82,7 +57,10 @@ calcLandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
                 max = 1,
                 description = paste("MAgPIE land use data downscaled to LUH2 resolution")))
   } else if (outputFormat == "ScenarioMIP") {
-    return(calcOutput("LandReportScenarioMIP", harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset))
+    return(calcOutput("LandReportScenarioMIP",
+                      harmonizationPeriod = harmonizationPeriod,
+                      yearsSubset = yearsSubset,
+                      aggregate = FALSE))
   } else {
     stop("Can only report for outputFormat = ESM/ScenarioMIP")
   }
