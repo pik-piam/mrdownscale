@@ -13,6 +13,7 @@
 calcLandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
   # TODO outputFormat ScenarioMIP
   # TODO rename ESM to RESCUE?
+  # TODO allow choosing harmonization method here
   if (outputFormat == "ESM") {
     native <- calcOutput("LandHighRes", input = "magpie", target = "luh2mod",
                          harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
