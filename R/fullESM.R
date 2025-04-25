@@ -36,10 +36,13 @@ fullESM <- function(rev = numeric_version("0"), ..., scenario = "", harmonizatio
                        compression = compression, harmonizationPeriod = harmonizationPeriod)
 
   file <- paste0("multiple-states", fileSuffix)
-  calcOutput("ESMStates", harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
+  calcOutput("StatesNC", outputFormat = "ESM", harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
+             statesVariables = c("c3ann", "c3nfx", "c3per", "c4ann", "c4per", "pastr",
+                                 "primf", "primn", "range", "secdf", "secdn", "urban"),
              aggregate = FALSE, file = file, writeArgs = writeArgs)
   toolAddMetadataESM(file, metadataArgs)
 
+  # TODO create calcManagementNC similar to calcStatesNC
   file <- paste0("multiple-management", fileSuffix)
   calcOutput("ESMManagement", harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
              aggregate = FALSE, file = file, writeArgs = writeArgs)
