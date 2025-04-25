@@ -57,10 +57,17 @@ calcLandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
                 max = 1,
                 description = paste("MAgPIE land use data downscaled to LUH2 resolution")))
   } else if (outputFormat == "ScenarioMIP") {
-    return(calcOutput("LandReportScenarioMIP",
-                      harmonizationPeriod = harmonizationPeriod,
-                      yearsSubset = yearsSubset,
-                      aggregate = FALSE))
+    report <- calcOutput("LandReportScenarioMIP",
+                         harmonizationPeriod = harmonizationPeriod,
+                         yearsSubset = yearsSubset,
+                         supplementary = TRUE,
+                         aggregate = FALSE)
+    return(list(x = report$x,
+                isocountries = report$isocountries,
+                unit = report$unit,
+                min = report$min,
+                max = report$max,
+                description = report$description))
   } else {
     stop("Can only report for outputFormat = ESM/ScenarioMIP")
   }
