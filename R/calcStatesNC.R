@@ -1,7 +1,7 @@
 #' calcStatesNC
 #'
-#' Prepare LandReport data to be written as .nc file. Call this via calcOutput
-#' in a full function, and set calcOutput's file argument toa .nc file path.
+#' Prepare data to be written as LUH-style states.nc file. Call this via calcOutput
+#' in a full function, and set calcOutput's file argument to a .nc file path.
 #'
 #' @param outputFormat options: ESM, ScenarioMIP
 #' @param harmonizationPeriod Two integer values, before the first given
@@ -9,7 +9,7 @@
 #' dataset is used, in between harmonize between the two datasets
 #' @param yearsSubset remove years from the returned data which are not in yearsSubset
 #' @param statesVariables which variables should be kept/written to nc file
-#' @return LandReport data prepared to be written as .nc file
+#' @return data prepared to be written as a LUH-style states.nc file
 #' @author Pascal Sauer, Jan Philipp Dietrich
 calcStatesNC <- function(outputFormat, harmonizationPeriod, yearsSubset, statesVariables) {
   x <- calcOutput("LandReport", outputFormat = outputFormat,
@@ -27,5 +27,5 @@ calcStatesNC <- function(outputFormat, harmonizationPeriod, yearsSubset, statesV
               min = 0,
               max = 1,
               cache = FALSE,
-              description = "LandReport data prepared to be written as .nc file"))
+              description = "data prepared to be written as a LUH-style states.nc file"))
 }

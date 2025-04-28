@@ -44,18 +44,22 @@ fullESM <- function(rev = numeric_version("0"), ..., scenario = "", harmonizatio
                                                "f358ccc1902da769e49c5d52e1085db6b8c797b3/changelog.md"))
 
   ncFile <- paste0("multiple-states", fileSuffix)
-  calcOutput("StatesNC", outputFormat = "ESM", harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
+  calcOutput("StatesNC", outputFormat = "ESM",
+             harmonizationPeriod = harmonizationPeriod,
+             yearsSubset = yearsSubset,
              statesVariables = c("c3ann", "c3nfx", "c3per", "c4ann", "c4per", "pastr",
                                  "primf", "primn", "range", "secdf", "secdn", "urban"),
              aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
   do.call(toolAddMetadataESM, c(ncFile = ncFile, metadataArgs))
 
-  # TODO create calcManagementNC similar to calcStatesNC
   ncFile <- paste0("multiple-management", fileSuffix)
-  calcOutput("ESMManagement", harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
+  calcOutput("ManagementNC", outputFormat = "ESM",
+             harmonizationPeriod = harmonizationPeriod,
+             yearsSubset = yearsSubset,
              aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
   do.call(toolAddMetadataESM, c(ncFile = ncFile, metadataArgs))
 
+  # TODO create calcTransitionsNC similar to calcStatesNC
   ncFile <- paste0("multiple-transitions", fileSuffix)
   calcOutput("ESMTransitions", harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
              aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
