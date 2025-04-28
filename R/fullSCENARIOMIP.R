@@ -13,11 +13,24 @@ fullSCENARIOMIP <- function(rev = numeric_version("0"), ..., scenario = "",
   writeArgs <- list(compression = compression, missval = 1e20, progress = progress,
                     gridDefinition = c(-179.875, 179.875, -89.875, 89.875, 0.25))
 
+  metadataArgs <- list(revision = revision, missingValue = 1e20, resolution = 0.25,
+                       compression = compression, harmonizationPeriod = harmonizationPeriod,
+                       activityId = "ScenarioMIP",
+                       references = paste0("https://github.com/pik-piam/mrdownscale and ",
+                                           "https://wcrp-cmip.org/mips/scenariomip/"),
+                       targetMIP = "ScenarioMIP",
+                       ncTitle = "MAgPIE Land-Use Data Harmonized and Downscaled using LUH3 historic as reference",
+                       referenceDataset = paste0("LUH3 historic from https://aims2.llnl.gov/search/input4mips/ ",
+                                                 "(institution_id = 'UofMD' and mip_era = 'CMIP7')"),
+                       furtherInfoUrl = "NA")
+
+  ncFile <- paste0("multiple-states", fileSuffix)
   calcOutput("StatesNC", outputFormat = "ScenarioMIP", harmonizationPeriod = harmonizationPeriod,
              yearsSubset = yearsSubset,
              statesVariables = c("c3ann", "c3nfx", "c3per", "c4ann", "c4per", "pastr",
                                  "primf", "primn", "range", "secdf", "secdn", "urban", "pltns"),
-             aggregate = FALSE, file = paste0("multiple-states", fileSuffix), writeArgs = writeArgs)
+             aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
+  do.call(toolAddMetadataESM, c(ncFile = ncFile, metadataArgs))
 
   toolWriteMadratLog(logPath = "consistencyCheck.log")
 }
