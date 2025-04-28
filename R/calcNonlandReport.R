@@ -81,7 +81,18 @@ calcNonlandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
                 min = 0,
                 unit = "rndwd & fulwd: 1; bioh: kg C yr-1; harv: 1; fertl: kg ha-1 yr-1",
                 description = "Downscaled nonland data report for use in ESMs"))
+  } else if (outputFormat == "ScenarioMIP") {
+    report <- calcOutput("NonlandReportScenarioMIP",
+                         harmonizationPeriod = harmonizationPeriod,
+                         yearsSubset = yearsSubset,
+                         supplementary = TRUE,
+                         aggregate = FALSE)
+    return(list(x = report$x,
+                isocountries = report$isocountries,
+                unit = report$unit,
+                min = report$min,
+                description = report$description))
   } else {
-    stop("Can only report for outputFormat = 'ESM'")
+    stop("Can only report for outputFormat = ESM/ScenarioMIP")
   }
 }
