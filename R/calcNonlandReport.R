@@ -17,11 +17,18 @@
 #' }
 #' @author Pascal Sauer
 calcNonlandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
-  if (outputFormat == "ESM") {
-    x <- calcOutput("NonlandHighRes", input = "magpie", target = "luh2mod",
+  if (outputFormat %in% c("ESM", "ScenarioMIP")) {
+    input <- "magpie"
+    if (outputFormat == "ESM") {
+      target <- "luh2mod"
+      cellAreaKm2 <- readSource("LUH2v2h", subtype = "cellArea", convert = FALSE)
+    } else {
+      target <- "luh3"
+      cellAreaKm2 <- readSource("LUH3", subtype = "cellArea", convert = FALSE)
+    }
+    x <- calcOutput("NonlandHighRes", input = input, target = target,
                     harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset, aggregate = FALSE)
 
-    cellAreaKm2 <- readSource("LUH2v2h", subtype = "cellArea", convert = FALSE)
     cellAreaKm2 <- as.magpie(cellAreaKm2)
     stopifnot(getItems(x, 1) %in% getItems(cellAreaKm2, 1))
     cellAreaKm2 <- collapseDim(cellAreaKm2[getItems(x, 1), , ], 3)
@@ -42,7 +49,7 @@ calcNonlandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
 
     # get rndwd/fulwd shares per country to replace NAs
     coords <- getCoords(woodTypeShares)
-    mapping <- calcOutput("ResolutionMapping", input = "magpie", target = "luh2mod", aggregate = FALSE)
+    mapping <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
     mapping <- mapping[, c("x", "y", "country")]
     merged <- merge(coords, mapping, sort = FALSE)
     stopifnot(identical(merged[, c("x", "y")], coords))
@@ -81,17 +88,6 @@ calcNonlandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
                 min = 0,
                 unit = "rndwd & fulwd: 1; bioh: kg C yr-1; harv: 1; fertl: kg ha-1 yr-1",
                 description = "Downscaled nonland data report for use in ESMs"))
-  } else if (outputFormat == "ScenarioMIP") {
-    report <- calcOutput("NonlandReportScenarioMIP",
-                         harmonizationPeriod = harmonizationPeriod,
-                         yearsSubset = yearsSubset,
-                         supplementary = TRUE,
-                         aggregate = FALSE)
-    return(list(x = report$x,
-                isocountries = report$isocountries,
-                unit = report$unit,
-                min = report$min,
-                description = report$description))
   } else {
     stop("Can only report for outputFormat = ESM/ScenarioMIP")
   }
