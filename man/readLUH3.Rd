@@ -4,7 +4,7 @@
 \alias{readLUH3}
 \title{readLUH3}
 \usage{
-readLUH3(subtype, subset = 1995:2015)
+readLUH3(subtype, subset = 1995:2024)
 }
 \arguments{
 \item{subtype}{one of states, management, transitions, cellArea}

@@ -4,13 +4,45 @@
 \alias{toolAddMetadataESM}
 \title{toolAddMetadataESM}
 \usage{
-toolAddMetadataESM(ncFile, cfg)
+toolAddMetadataESM(
+  ncFile,
+  activityId,
+  revision,
+  harmonizationPeriod,
+  missingValue,
+  compression,
+  resolution,
+  references,
+  targetMIP,
+  ncTitle,
+  referenceDataset,
+  furtherInfoUrl
+)
 }
 \arguments{
 \item{ncFile}{file name of the respective nc file}
 
-\item{cfg}{list of settings containing the elements "revision", "missingValue",
-"resolution", "compression" and "harmonizationPeriod"}
+\item{activityId}{the string to store in the nc attribute activityId}
+
+\item{revision}{the string to store in the nc attribute revision}
+
+\item{harmonizationPeriod}{the string to store in the nc attribute harmonizationPeriod}
+
+\item{missingValue}{the string to store in the nc attribute missingValue}
+
+\item{compression}{the string to store in the nc attribute compression}
+
+\item{resolution}{the string to store in the nc attribute resolution}
+
+\item{references}{the string to store in the nc attribute references}
+
+\item{targetMIP}{the string to store in the nc attribute targetMIP}
+
+\item{ncTitle}{the string to store in the nc attribute ncTitle}
+
+\item{referenceDataset}{the string to store in the nc attribute referenceDataset}
+
+\item{furtherInfoUrl}{the string to store in the nc attribute furtherInfoUrl}
 }
 \description{
 Add metdata to ESM compatible nc output files
