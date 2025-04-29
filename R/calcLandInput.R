@@ -25,6 +25,11 @@ calcLandInput <- function(input) {
     getItems(crop, dim = 3.1, full = TRUE) <- sub("\\.", "_", getItems(crop, dim = 3, full = TRUE))
     getItems(crop, dim = 3.2) <- NULL
 
+    cropDiff <- max(land[, , "crop"] - dimSums(crop, dim = 3))
+    if (cropDiff > 10^-4) {
+      warning("magpie4::land(...)[,,'crop'] != dimSums(magpie4::croparea(...), dim = 3), maxdiff: ", cropDiff)
+    }
+
     out <- mbind(land[, , "crop", invert = TRUE], crop)
 
     # see note in the documentation of this function

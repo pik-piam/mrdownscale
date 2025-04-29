@@ -17,13 +17,14 @@ calcManagementNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
                      yearsSubset = yearsSubset, aggregate = FALSE)
 
   if (outputFormat == "ESM") {
-    landManagementVariables <- c("irrig_c3ann", "crpbf_c3ann", "irrig_c3nfx", "crpbf_c3nfx",
-                                 "irrig_c3per", "crpbf_c3per", "crpbf2_c3per", "irrig_c4ann",
-                                 "crpbf_c4ann", "irrig_c4per", "crpbf_c4per", "crpbf2_c4per", "manaf")
+    landManagementVariables <- c("crpbf_c3ann", "crpbf_c3nfx", "crpbf_c3per", "crpbf_c4ann", "crpbf_c4per",
+                                 "crpbf2_c3per", "crpbf2_c4per",
+                                 "irrig_c3ann", "irrig_c3nfx", "irrig_c3per", "irrig_c4ann", "irrig_c4per",
+                                 "manaf")
   } else if (outputFormat == "ScenarioMIP") {
-    landManagementVariables <- c("irrig_c3ann", "cpbf1_c3ann", "irrig_c3nfx", "cpbf1_c3nfx",
-                                 "irrig_c3per", "cpbf1_c3per", "cpbf2_c3per", "irrig_c4ann",
-                                 "cpbf1_c4ann", "irrig_c4per", "cpbf1_c4per", "cpbf2_c4per")
+    landManagementVariables <- c("cpbf1_c3ann", "cpbf1_c3nfx", "cpbf1_c3per", "cpbf1_c4ann", "cpbf1_c4per",
+                                 "cpbf2_c3per", "cpbf2_c4per",
+                                 "irrig_c3ann", "irrig_c3nfx", "irrig_c3per", "irrig_c4ann", "irrig_c4per")
     # TODO still missing: addtc, pltns_wdprd, pltns_bfuel,
     # prtct_primf, prtct_primn, prtct_secdf, prtct_secdn, prtct_pltns
   }
