@@ -59,9 +59,10 @@ fullESM <- function(rev = numeric_version("0"), ..., scenario = "", harmonizatio
              aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
   do.call(toolAddMetadataESM, c(ncFile = ncFile, metadataArgs))
 
-  # TODO create calcTransitionsNC similar to calcStatesNC
   ncFile <- paste0("multiple-transitions", fileSuffix)
-  calcOutput("ESMTransitions", harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
+  calcOutput("TransitionsNC", outputFormat = "ESM",
+             harmonizationPeriod = harmonizationPeriod,
+             yearsSubset = yearsSubset,
              aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
   do.call(toolAddMetadataESM, c(ncFile = ncFile, metadataArgs))
 
