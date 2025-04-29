@@ -27,13 +27,18 @@ fullSCENARIOMIP <- function(rev = numeric_version("0"), ..., scenario = "",
   ncFile <- paste0("multiple-states", fileSuffix)
   calcOutput("StatesNC", outputFormat = "ScenarioMIP", harmonizationPeriod = harmonizationPeriod,
              yearsSubset = yearsSubset,
-             statesVariables = c("c3ann", "c3nfx", "c3per", "c4ann", "c4per", "pastr",
-                                 "primf", "primn", "range", "secdf", "secdn", "urban", "pltns"),
              aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
   do.call(toolAddMetadataESM, c(ncFile = ncFile, metadataArgs))
 
   ncFile <- paste0("multiple-management", fileSuffix)
   calcOutput("ManagementNC", outputFormat = "ScenarioMIP",
+             harmonizationPeriod = harmonizationPeriod,
+             yearsSubset = yearsSubset,
+             aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
+  do.call(toolAddMetadataESM, c(ncFile = ncFile, metadataArgs))
+
+  ncFile <- paste0("multiple-transitions", fileSuffix)
+  calcOutput("TransitionsNC", outputFormat = "ScenarioMIP",
              harmonizationPeriod = harmonizationPeriod,
              yearsSubset = yearsSubset,
              aggregate = FALSE, file = ncFile, writeArgs = writeArgs)

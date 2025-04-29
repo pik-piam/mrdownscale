@@ -45,8 +45,6 @@ fullESM <- function(rev = numeric_version("0"), ..., scenario = "", harmonizatio
   calcOutput("StatesNC", outputFormat = "ESM",
              harmonizationPeriod = harmonizationPeriod,
              yearsSubset = yearsSubset,
-             statesVariables = c("c3ann", "c3nfx", "c3per", "c4ann", "c4per", "pastr",
-                                 "primf", "primn", "range", "secdf", "secdn", "urban"),
              aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
   do.call(toolAddMetadataESM, c(ncFile = ncFile, metadataArgs))
 

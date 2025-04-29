@@ -11,11 +11,16 @@
 #' @param statesVariables which variables should be kept/written to nc file
 #' @return data prepared to be written as a LUH-style states.nc file
 #' @author Pascal Sauer, Jan Philipp Dietrich
-calcStatesNC <- function(outputFormat, harmonizationPeriod, yearsSubset, statesVariables) {
+calcStatesNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
   x <- calcOutput("LandReport", outputFormat = outputFormat,
                   harmonizationPeriod = harmonizationPeriod,
                   yearsSubset = yearsSubset, aggregate = FALSE)
 
+  statesVariables <- c("c3ann", "c3nfx", "c3per", "c4ann", "c4per", "pastr",
+                       "primf", "primn", "range", "secdf", "secdn", "urban")
+  if (outputFormat == "ScenarioMIP") {
+    statesVariables <- c(statesVariables, "pltns")
+  }
   x <- x[, , statesVariables]
 
   # account for unit "years since 1970-01-01 0:0:0"
