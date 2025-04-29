@@ -168,3 +168,11 @@ cpbf2_c4ann,C4 annual crops grown as second-generation biofuels,area_fraction,,,
 cpbf2_c3per,C3 perennial crops grown as second-generation biofuels,area_fraction,,,share of c3per
 cpbf2_c4per,C4 perennial crops grown as second-generation biofuels,area_fraction,,,share of c4per
 cpbf2_c3nfx,C3 nitrogen-fixing crops grown as second-generation biofuels,area_fraction,,,share of c3nfx
+pltns_bfuel,fraction of harvested plantations biomass used for bioenergy,,,,share of pltns
+pltns_wdprd,fraction of harvested plantations biomass used for wood products,,,,share of pltns
+prtct_pltns,protected fraction of plantation forest,,,,share of pltns
+prtct_primf,protected fraction of primary forest,,,,share of primf
+prtct_primn,protected fraction of primary non-forest,,,,share of primn
+prtct_secdf,protected fraction of secondary forest,,,,share of secdf
+prtct_secdn,protected fraction of secondary non-forest,,,,share of secdn
+addtc,added tree cover (for afforestation),,,,share of carea
