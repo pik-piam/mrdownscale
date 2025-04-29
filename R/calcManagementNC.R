@@ -25,7 +25,7 @@ calcManagementNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
     landManagementVariables <- c("cpbf1_c3ann", "cpbf1_c3nfx", "cpbf1_c3per", "cpbf1_c4ann", "cpbf1_c4per",
                                  "cpbf2_c3per", "cpbf2_c4per",
                                  "irrig_c3ann", "irrig_c3nfx", "irrig_c3per", "irrig_c4ann", "irrig_c4per")
-    # TODO still missing: addtc, pltns_wdprd, pltns_bfuel,
+    # TODO still missing: addtc,
     # prtct_primf, prtct_primn, prtct_secdf, prtct_secdn, prtct_pltns
   }
   land <- land[, , landManagementVariables]
@@ -36,6 +36,12 @@ calcManagementNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
   nonlandManagementVariables <- c("fertl_c3nfx", "fertl_c3per", "fertl_c3ann", "fertl_c4ann",
                                   "fertl_c4per", "rndwd", "fulwd")
   nonland <- nonland[, , nonlandManagementVariables]
+
+  if (outputFormat == "ScenarioMIP") {
+    # TODO how to report pltns_fulwd? Wait for response
+    nonland <- magclass::add_columns(nonland, "pltns_wdprd", fill = 1)
+    nonland <- magclass::add_columns(nonland, "pltns_bfuel", fill = 0)
+  }
 
   x <- mbind(land, nonland)
 
