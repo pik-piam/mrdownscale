@@ -10,7 +10,6 @@
 #' @return data prepared to be written as a LUH-style transitions.nc file
 #' @author Pascal Sauer, Jan Philipp Dietrich
 calcTransitionsNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
-  # TODO rename file
   nonland <- calcOutput("NonlandReport", outputFormat = outputFormat,
                         harmonizationPeriod = harmonizationPeriod,
                         yearsSubset = yearsSubset, aggregate = FALSE)

@@ -11,7 +11,6 @@
 #' @return data prepared to be written as a LUH-style management.nc file
 #' @author Pascal Sauer, Jan Philipp Dietrich
 calcManagementNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
-# TODO rename file
   land <- calcOutput("LandReport", outputFormat = outputFormat,
                      harmonizationPeriod = harmonizationPeriod,
                      yearsSubset = yearsSubset, aggregate = FALSE)
