@@ -153,12 +153,14 @@ secmf_harv,wood harvest area from secondary mature vegetation on LUH2 potential 
 secyf_harv,wood harvest area from secondary young vegetation on LUH2 potential forest land,wood harvest area from secondary young forest land,area_fraction,,share of carea
 secdf_harv,wood harvest area from secondary vegetation on LUH2 potential forest land,wood harvest area from secondary forest land,area_fraction,,share of carea
 secnf_harv,wood harvest area from secondary vegetation on LUH2 potential non-forest land,wood harvest area from secondary non forest land,area_fraction,,share of carea
+pltns_harv,wood harvest area from plantation forest vegetation,,,,share of carea
 primf_bioh,wood harvest biomass carbon from primary vegetation on LUH2 potential forest land,wood harvest biomass carbon from primary forest land,vegetation_carbon_content,,kg C yr-1
 primn_bioh,wood harvest biomass carbon from primary vegetation on LUH2 potential non-forest land,wood harvest biomass carbon from primary non forest land,vegetation_carbon_content,,kg C yr-1
 secmf_bioh,wood harvest biomass carbon from secondary mature vegetation on LUH2 potential forest land,wood harvest biomass carbon from secondary mature forest land,vegetation_carbon_content,,kg C yr-1
 secyf_bioh,wood harvest biomass carbon from secondary young vegetation on LUH2 potential forest land,wood harvest biomass carbon from secondary young forest land,vegetation_carbon_content,,kg C yr-1
 secdf_bioh,wood harvest biomass carbon from secondary vegetation on LUH2 potential forest land,wood harvest biomass carbon from secondary forest land,vegetation_carbon_content,,kg C yr-1
 secnf_bioh,wood harvest biomass carbon from secondary vegetation on LUH2 potential non-forest land,wood harvest biomass carbon from secondary non forest land,vegetation_carbon_content,,kg C yr-1
+pltns_bioh,wood harvest biomass carbon from plantation forest vegetation,,,,kg C yr-1
 pltns,plantation forests,plantation forests,,,share of carea
 cpbf1_c3ann,C3 annual crops fraction of crop type area grown as biofuels,area_fraction,,,share of c3ann
 cpbf1_c4ann,C4 annual crops fraction of crop type area grown as biofuels,area_fraction,,,share of c4ann
