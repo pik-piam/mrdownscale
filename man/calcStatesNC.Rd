@@ -4,7 +4,7 @@
 \alias{calcStatesNC}
 \title{calcStatesNC}
 \usage{
-calcStatesNC(outputFormat, harmonizationPeriod, yearsSubset, statesVariables)
+calcStatesNC(outputFormat, harmonizationPeriod, yearsSubset)
 }
 \arguments{
 \item{outputFormat}{options: ESM, ScenarioMIP}
