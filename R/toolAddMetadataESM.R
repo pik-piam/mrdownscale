@@ -88,15 +88,19 @@ toolAddMetadataESM <- function(ncFile, activityId, revision, harmonizationPeriod
     ncdf4::ncatt_put(nc, varname, "missing_value", missingValue, prec = "float")
     ncdf4::ncatt_put(nc, varname, "cell_methods", "time:mean")
 
-    varnameLuhNames <- as.vector(luhNames[luhNames$name == varname, ])
-    ncdf4::ncatt_put(nc, varname, "units", varnameLuhNames$unit)
-    ncdf4::ncatt_put(nc, varname, "long_name", varnameLuhNames$long_name)
-    ncdf4::ncatt_put(nc, varname, "standard_name", varnameLuhNames$standard_name)
-    if (varnameLuhNames$standard_name_description != "") {
-      ncdf4::ncatt_put(nc, varname, "standard_name_description", varnameLuhNames$standard_name_description)
-    }
-    if (varnameLuhNames$long_name_description != "") {
-      ncdf4::ncatt_put(nc, varname, "long_name_description", varnameLuhNames$long_name_description)
+    if (varname %in% luhNames$name) {
+      varnameLuhNames <- as.vector(luhNames[luhNames$name == varname, ])
+      ncdf4::ncatt_put(nc, varname, "units", varnameLuhNames$unit)
+      ncdf4::ncatt_put(nc, varname, "long_name", varnameLuhNames$long_name)
+      ncdf4::ncatt_put(nc, varname, "standard_name", varnameLuhNames$standard_name)
+      if (varnameLuhNames$standard_name_description != "") {
+        ncdf4::ncatt_put(nc, varname, "standard_name_description", varnameLuhNames$standard_name_description)
+      }
+      if (varnameLuhNames$long_name_description != "") {
+        ncdf4::ncatt_put(nc, varname, "long_name_description", varnameLuhNames$long_name_description)
+      }
+    } else {
+      warning("metadata for variable ", varname, " missing in luhNames.csv")
     }
   }
 

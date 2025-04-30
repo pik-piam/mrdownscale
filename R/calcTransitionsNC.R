@@ -14,9 +14,7 @@ calcTransitionsNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
                         harmonizationPeriod = harmonizationPeriod,
                         yearsSubset = yearsSubset, aggregate = FALSE)
 
-  woodSources <- c("primf", "secyf", "secmf", "primn", "secnf")
-  woodHarvestVariables <- c(paste0(woodSources, "_bioh"), paste0(woodSources, "_harv"))
-  nonland <- nonland[, , woodHarvestVariables]
+  nonland <- nonland[, , grep("_(bioh|harv)$", getItems(nonland, 3), value = TRUE)]
 
   x <- nonland[, getYears(nonland, as.integer = TRUE) %in% yearsSubset, ]
 
@@ -36,6 +34,13 @@ calcTransitionsNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
 
   # account for unit "years since 1970-01-01 0:0:0"
   x <- setYears(x, getYears(x, as.integer = TRUE) - 1970)
+
+  if (outputFormat == "ScenarioMIP") {
+    # TODO add pltns
+    expectedVariables <- c("primf_harv", "secdf_harv", "primn_harv", "secdn_harv",
+                           "primf_bioh", "secdf_bioh", "primn_bioh", "secdn_bioh")
+    toolExpectTrue(setequal(getItems(x, 3), expectedVariables), "variable names are as expected")
+  }
 
   return(list(x = x,
               isocountries = FALSE,
