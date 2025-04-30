@@ -37,8 +37,8 @@ calcTransitionsNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
 
   if (outputFormat == "ScenarioMIP") {
     # TODO add pltns
-    expectedVariables <- c("primf_harv", "secdf_harv", "primn_harv", "secdn_harv",
-                           "primf_bioh", "secdf_bioh", "primn_bioh", "secdn_bioh")
+    expectedVariables <- c("primf_harv", "secdf_harv", "primn_harv", "secnf_harv",
+                           "primf_bioh", "secdf_bioh", "primn_bioh", "secnf_bioh")
     toolExpectTrue(setequal(getItems(x, 3), expectedVariables), "variable names are as expected")
   }
 
