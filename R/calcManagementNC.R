@@ -24,20 +24,18 @@ calcManagementNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
     landManagementVariables <- c("cpbf1_c3ann", "cpbf1_c3nfx", "cpbf1_c3per", "cpbf1_c4ann", "cpbf1_c4per",
                                  "cpbf2_c3per", "cpbf2_c4per",
                                  "irrig_c3ann", "irrig_c3nfx", "irrig_c3per", "irrig_c4ann", "irrig_c4per")
-    # TODO still missing: addtc,
-    # prtct_primf, prtct_primn, prtct_secdf, prtct_secdn, prtct_pltns
   }
   land <- land[, , landManagementVariables]
 
   nonland <- calcOutput("NonlandReport", outputFormat = outputFormat,
                         harmonizationPeriod = harmonizationPeriod,
                         yearsSubset = yearsSubset, aggregate = FALSE)
-  nonlandManagementVariables <- c("fertl_c3nfx", "fertl_c3per", "fertl_c3ann", "fertl_c4ann",
-                                  "fertl_c4per", "rndwd", "fulwd")
+  nonlandManagementVariables <- c("fertl_c3nfx", "fertl_c3per", "fertl_c3ann", "fertl_c4ann", "fertl_c4per",
+                                  "rndwd", "fulwd")
   nonland <- nonland[, , nonlandManagementVariables]
 
   if (outputFormat == "ScenarioMIP") {
-    # TODO how to report pltns_fulwd? Wait for response
+    # TODO how to report pltns_fulwd?
     nonland <- magclass::add_columns(nonland, "pltns_wdprd", fill = 1)
     nonland <- magclass::add_columns(nonland, "pltns_bfuel", fill = 0)
   }
@@ -46,6 +44,20 @@ calcManagementNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
 
   # account for unit "years since 1970-01-01 0:0:0"
   x <- setYears(x, getYears(x, as.integer = TRUE) - 1970)
+
+  if (outputFormat == "ScenarioMIP") {
+    expectedVariables <- c("irrig_c3ann", "irrig_c3per", "irrig_c4ann", "irrig_c4per", "irrig_c3nfx",
+                           "fertl_c3ann", "fertl_c4ann", "fertl_c3per", "fertl_c4per", "fertl_c3nfx",
+                           "cpbf1_c3ann", "cpbf1_c4ann", "cpbf1_c3per", "cpbf1_c4per", "cpbf1_c3nfx",
+                           "cpbf2_c3per", "cpbf2_c4per",
+                           "rndwd", "fulwd",
+                           "pltns_wdprd", "pltns_bfuel",
+                           # TODO "prtct_primf", "prtct_primn", "prtct_secdf", "prtct_secdn", "prtct_pltns",
+                           # TODO "addtc",
+                           NULL)
+
+    toolExpectTrue(setequal(getItems(x, 3), expectedVariables), "variable names are as expected")
+  }
 
   return(list(x = x,
               isocountries = FALSE,

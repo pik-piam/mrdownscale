@@ -26,6 +26,12 @@ calcStatesNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
   # account for unit "years since 1970-01-01 0:0:0"
   x <- setYears(x, getYears(x, as.integer = TRUE) - 1970)
 
+  if (outputFormat == "ScenarioMIP") {
+    expectedVariables <- c("primf", "primn", "secdf", "secdn", "pastr", "range", "urban",
+                           "c3ann", "c3per", "c4ann", "c4per", "c3nfx", "pltns")
+    toolExpectTrue(setequal(getItems(x, 3), expectedVariables), "variable names are as expected")
+  }
+
   return(list(x = x,
               isocountries = FALSE,
               unit = "1",
