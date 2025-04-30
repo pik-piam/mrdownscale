@@ -1,23 +1,23 @@
-#' toolAddMetadataESM
+#' toolAddMetadataNC
 #'
-#' Add metdata to ESM compatible nc output files
+#' Add metdata nc output files
 #'
 #' @param ncFile file name of the respective nc file
-#' @param activityId the string to store in the nc attribute activityId
-#' @param revision the string to store in the nc attribute revision
-#' @param harmonizationPeriod the string to store in the nc attribute harmonizationPeriod
-#' @param missingValue the string to store in the nc attribute missingValue
-#' @param compression the string to store in the nc attribute compression
-#' @param resolution the string to store in the nc attribute resolution
-#' @param references the string to store in the nc attribute references
-#' @param targetMIP the string to store in the nc attribute targetMIP
-#' @param ncTitle the string to store in the nc attribute ncTitle
-#' @param referenceDataset the string to store in the nc attribute referenceDataset
-#' @param furtherInfoUrl the string to store in the nc attribute furtherInfoUrl
+#' @param activityId a string to store in the nc attribute activityId
+#' @param revision a string to store in the nc attribute revision
+#' @param harmonizationPeriod a string to store in the nc attribute harmonizationPeriod
+#' @param missingValue a string to store in the nc attribute missingValue
+#' @param compression a string to store in the nc attribute compression
+#' @param resolution a string to store in the nc attribute resolution
+#' @param references a string to store in the nc attribute references
+#' @param targetMIP a string to store in the nc attribute targetMIP
+#' @param ncTitle a string to store in the nc attribute ncTitle
+#' @param referenceDataset a string to store in the nc attribute referenceDataset
+#' @param furtherInfoUrl a string to store in the nc attribute furtherInfoUrl
 #' @author Pascal Sauer, Jan Philipp Dietrich
-toolAddMetadataESM <- function(ncFile, activityId, revision, harmonizationPeriod,
-                               missingValue, compression, resolution, references,
-                               targetMIP, ncTitle, referenceDataset, furtherInfoUrl) {
+toolAddMetadataNC <- function(ncFile, activityId, revision, harmonizationPeriod,
+                              missingValue, compression, resolution, references,
+                              targetMIP, ncTitle, referenceDataset, furtherInfoUrl) {
   variableId <- sub("^(multiple-[^_]+).+$", "\\1", basename(ncFile))
   stopifnot(variableId %in% c("multiple-states", "multiple-management", "multiple-transitions"))
   nc <- ncdf4::nc_open(ncFile, write = TRUE)
