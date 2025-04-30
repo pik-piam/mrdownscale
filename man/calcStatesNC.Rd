@@ -14,8 +14,6 @@ year the target dataset is used, after the second given year the input
 dataset is used, in between harmonize between the two datasets}
 
 \item{yearsSubset}{remove years from the returned data which are not in yearsSubset}
-
-\item{statesVariables}{which variables should be kept/written to nc file}
 }
 \value{
 data prepared to be written as a LUH-style states.nc file

@@ -8,7 +8,6 @@
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
 #' @param yearsSubset remove years from the returned data which are not in yearsSubset
-#' @param statesVariables which variables should be kept/written to nc file
 #' @return data prepared to be written as a LUH-style states.nc file
 #' @author Pascal Sauer, Jan Philipp Dietrich
 calcStatesNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
