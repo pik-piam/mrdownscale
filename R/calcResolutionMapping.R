@@ -47,7 +47,6 @@ calcResolutionMapping <- function(input, target) {
               description = "mapping of high to low resolution and countrycode"))
 }
 
-
 #' toolResolutionMapping
 #'
 #' See description of \code{\link{calcResolutionMapping}}. Here we are
@@ -108,6 +107,7 @@ toolResolutionMapping <- function(mapping, targetGrid) {
                              "% of target cells missing in mapping, ",
                              "adding those to mapping (nearest neighbor)"))
 
+    # method = "cosine" is about 12 times as fast compared to method = "geo" (which is more precise)
     near <- terra::nearest(terra::vect(missingInMapping, geom = c("x", "y"), crs = terra::crs(targetGrid)),
                            pointsMapping, method = "cosine")
     toolStatusMessage("note", paste0("nearest neighbor distances: ",
