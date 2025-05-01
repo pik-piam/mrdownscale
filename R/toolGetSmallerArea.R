@@ -24,6 +24,6 @@ toolGetSmallerArea <- function(states) {
   states2 <- magpie_expand(states2, states)
   states <- states[, , ii, invert = TRUE]
   states2 <- states2[, , ii, invert = TRUE]
-  out <- pmin(states, states2)
+  out <- mpmin(states, states2)
   return(out)
 }

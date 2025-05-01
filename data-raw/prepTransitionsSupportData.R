@@ -70,7 +70,8 @@ getBidirectionalTransitions <- function(b) {
   pairs$id <- NULL
 
   # compute bidirectional transitions
-  bmin <- pmin(b[, , pairs$from], setItems(b[, , pairs$to], dim = 3, pairs$from, raw = TRUE))
+  bmin <- mpmin(b[, , pairs$from],
+                setItems(b[, , pairs$to], dim = 3, pairs$from, raw = TRUE))
   return(bmin)
 }
 

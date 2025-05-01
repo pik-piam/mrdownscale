@@ -73,15 +73,16 @@ calcWoodHarvestAreaHarmonized <- function(input, target, harmonizationPeriod, me
   # check secd excess harvest, try to shift excess secdf to secdn and vice versa
   maxSecdHarv <- toolMaxHarvestPerYear(landHarmonized, disaggregate = FALSE)[, , secd]
   excessSecdHarvest <- secdHarv - maxSecdHarv
-  secdHarv <- pmin(secdHarv, maxSecdHarv)
   excessSecdHarvest[excessSecdHarvest < 0] <- 0
   excessSecdHarvest <- dimSums(excessSecdHarvest, 3)
+  secdHarv <- mpmin(secdHarv, maxSecdHarv)
 
   potentialHarvestLeft <- maxSecdHarv - secdHarv
-  smaller <- pmin(potentialHarvestLeft[, , "secdf"], potentialHarvestLeft[, , "secdn"])
+  stopifnot(potentialHarvestLeft >= 0)
+  smaller <- mpmin(potentialHarvestLeft[, , "secdf"], potentialHarvestLeft[, , "secdn"])
   stopifnot(smaller[excessSecdHarvest > 0] == 0)
 
-  secdHarv <- pmin(secdHarv + excessSecdHarvest, maxSecdHarv)
+  secdHarv <- mpmin(secdHarv + excessSecdHarvest, maxSecdHarv)
   excessSecdHarvest <- excessSecdHarvest - dimSums(potentialHarvestLeft, 3)
   excessSecdHarvest[excessSecdHarvest < 0] <- 0
 

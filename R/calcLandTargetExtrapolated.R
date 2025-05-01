@@ -86,7 +86,7 @@ calcLandTargetExtrapolated <- function(input, target, transitionYears) {
       toSecd[toSecd < 0] <- 0
       getItems(toSecd, 3) <- secdfn
       out[, i, secdfn] <- out[, i, secdfn] + toSecd
-      out[, i, primfn] <- pmin(out[, i, primfn], maxPossiblePrim)
+      out[, i, primfn] <- mpmin(out[, i, primfn], maxPossiblePrim)
 
       woodland <- toolWoodland(out)[, , getItems(harvestAgg, 3)]
       stopifnot(harvestAgg <= woodland[, i - 1, ] / timestepLength,
