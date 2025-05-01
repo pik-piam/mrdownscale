@@ -25,12 +25,23 @@ calcLandInput <- function(input) {
     getItems(crop, dim = 3.1, full = TRUE) <- sub("\\.", "_", getItems(crop, dim = 3, full = TRUE))
     getItems(crop, dim = 3.2) <- NULL
 
-    cropDiff <- max(land[, , "crop"] - dimSums(crop, dim = 3))
-    if (cropDiff > 10^-4) {
-      warning("magpie4::land(...)[,,'crop'] != dimSums(magpie4::croparea(...), dim = 3), maxdiff: ", cropDiff)
-    }
+    toolExpectLessDiff(land[, , "crop_area"],
+                       dimSums(crop, dim = 3),
+                       10^-5, "sum over all crops equals crop_area")
 
-    out <- mbind(land[, , "crop", invert = TRUE], crop)
+    # TODO figure out how to deal with the following, keep fallow + croptreecover in the pipeline, and just not report
+    # it in the very end, leading to sum of shares < 1 which usually indicates water/ice in LUH logic?
+
+    # hotfix: scale crop to take up the whole area of crop_area + crop_fallow + crop_treecover
+    totalCrop <- dimSums(land[, , c("crop_area", "crop_fallow", "crop_treecover")])
+    scalingFactors <- totalCrop / dimSums(crop, dim = 3)
+    scalingFactors[is.na(scalingFactors)] <- 1
+    crop <- crop * scalingFactors
+
+    toolExpectLessDiff(dimSums(crop, dim = 3), totalCrop, 10^-5,
+                       "after scaling, sum over all crops equals crop_area + crop_fallow + crop_treecover")
+
+    out <- mbind(land[, , c("crop_area", "crop_fallow", "crop_treecover"), invert = TRUE], crop)
 
     # see note in the documentation of this function
     out <- add_columns(out, "biofuel_1st_gen", fill = 0)
