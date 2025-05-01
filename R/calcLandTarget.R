@@ -3,33 +3,48 @@
 #' Prepare the high resolution target land use dataset for
 #' harmonization and downscaling, checking data for consistency before returning.
 #'
-#' @param target name of the target dataset, options are: luh2, luh2mod, landuseinit
+#' @param target name of the target dataset
 #' luh2mod will split secdf into forestry and secdf
 #' @return land target data
 #' @author Pascal Sauer
 calcLandTarget <- function(target) {
-  if (target %in% c("luh2", "luh2mod")) {
+  if (target %in% c("luh2", "luh2mod", "luh3")) {
     cropTypes <- c("c3ann", "c3nfx", "c3per", "c4ann", "c4per")
+    per <- c("c3per", "c4per")
 
-    states <- readSource("LUH2v2h", subtype = "states")
+    if (target == "luh3") {
+      states <- readSource("LUH3", subtype = "states", subset = 1995:2020)
+    } else {
+      states <- readSource("LUH2v2h", subtype = "states")
+    }
     nonCropStates <- states[[grep(paste(cropTypes, collapse = "|"), names(states),
                                   value = TRUE, invert = TRUE)]]
-    states <- toolSpatRasterToDataset(states)
-    man <- readSource("LUH2v2h", subtype = "management", convert = FALSE)
-    man <- toolSpatRasterToDataset(man)
-    man <- man[c(paste0("crpbf_", cropTypes), paste0("irrig_", cropTypes))]
+    states <- spatRasterToDataset(states)
+
+    if (target == "luh3") {
+      man <- readSource("LUH3", subtype = "management", subset = 1995:2020, convert = FALSE)
+      man <- man["irrig|cpbf1"]
+      man <- spatRasterToDataset(man)
+      cpbf1Category <- "cpbf1"
+    } else {
+      man <- readSource("LUH2v2h", subtype = "management", convert = FALSE)
+      man <- spatRasterToDataset(man)
+      man <- man[c(paste0("crpbf_", cropTypes),
+                   paste0("irrig_", cropTypes))]
+      cpbf1Category <- "crpbf"
+    }
     stopifnot(all.equal(terra::time(states[1]), terra::time(man[1])))
 
     out <- list(nonCropStates)
     for (cropType in cropTypes) {
-      crpbf <- man[paste0("crpbf_", cropType)]
+      cpbf1 <- man[paste0(cpbf1Category, "_", cropType)]
       irrig <- man[paste0("irrig_", cropType)]
-      stopifnot(all.equal(terra::time(crpbf), terra::time(states[cropType])),
+      stopifnot(all.equal(terra::time(cpbf1), terra::time(states[cropType])),
                 all.equal(terra::time(irrig), terra::time(states[cropType])))
 
-      # crpbf_<cropType> = 1st gen biofuel crop share of <cropType>
+      # cpbf1 is 1st gen biofuel share of <cropType>
       # -> get <cropType>_biofuel_1st_gen area in Mha by multiplying with <cropType>
-      biofuel1stGen <- crpbf * states[cropType]
+      biofuel1stGen <- cpbf1 * states[cropType]
 
       irrigatedBiofuel1stGen <- irrig * biofuel1stGen
       rainfedBiofuel1stGen <- biofuel1stGen - irrigatedBiofuel1stGen
@@ -42,8 +57,9 @@ calcLandTarget <- function(target) {
 
       irrigatedBiofuel2ndGen <- NULL
       rainfedBiofuel2ndGen <- NULL
-      if (grepl("per", cropType)) {
+      if (cropType %in% per) {
         # 2nd gen biofuel is not part of LUH2v2h, but we need it for the harmonization, so fill with zeros
+        # 2nd gen biofuel is part of LUH3, but it is all zeros (even over ocean), so instead of reading it...
         irrigatedBiofuel2ndGen <- 0 * states[cropType]
         rainfedBiofuel2ndGen <- 0 * states[cropType]
         names(irrigatedBiofuel2ndGen) <- paste0(names(irrigatedBiofuel2ndGen), "_irrigated_biofuel_2nd_gen")
@@ -65,7 +81,7 @@ calcLandTarget <- function(target) {
     # cannot use withr::local_tempfile because the SpatRaster is invalid as soon as the underlying file is deleted
     out <- terra::writeRaster(out, filename = tempfile(fileext = ".tif"))
 
-    if (target == "luh2mod") {
+    if (target %in% c("luh2mod", "luh3")) {
       # split secdf into forestry and secdf
       forestryShare <- read.magpie(system.file("extdata/forestryShare.mz", package = "mrdownscale"))
       forestryShare <- as.SpatRaster(forestryShare)
@@ -79,7 +95,7 @@ calcLandTarget <- function(target) {
       # so write `out` to a tif file to get SpatRaster with a single source (the tif file)
       out <- terra::writeRaster(out, filename = tempfile(fileext = ".tif"))
     }
-    expectedCategories <- toolLandCategoriesMapping(input = "magpie", target = target)$dataOutput
+    expectedCategories <- unique(toolLandCategoriesMapping(input = "magpie", target = target)$dataOutput)
   } else if (target == "landuseinit") {
     out <- readSource("LanduseInit")
     getItems(out, 3) <- sub("primforest", "primf", getItems(out, 3))
@@ -121,13 +137,22 @@ calcLandTarget <- function(target) {
   toolExpectTrue(setequal(sub("y[0-9]+\\.\\.", "", names(out)), expectedCategories),
                  "Land target categories match the corresponding mapping")
   toolExpectTrue(min(terra::minmax(out)) >= 0, "All values are >= 0")
-  totalAreas <- vapply(unique(terra::time(out)), function(year) {
-    sum(terra::values(out[[terra::time(out) == year]]), na.rm = TRUE)
-  }, double(1))
-  toolExpectLessDiff(max(totalAreas), min(totalAreas), 10^-4,
-                     "Total area is constant over time")
 
   years <- sort(unique(terra::time(out)))
+  totalAreas <- do.call(c, lapply(years, function(year) {
+    yearTotalArea <- terra::app(out[[terra::time(out) == year]], fun = "sum")
+    names(yearTotalArea) <- year
+    return(yearTotalArea)
+  }))
+  totalAreaDiff <- terra::app(totalAreas, fun = "max") - terra::app(totalAreas, fun = "min")
+  minmax <- terra::minmax(totalAreaDiff, compute = TRUE)
+  stopifnot(minmax["min", ] >= 0)
+  threshold <- 10^-7
+  toolExpectTrue(minmax["max", ] < threshold,
+                 paste0("Total area of each cell is constant over time ",
+                        "(maxdiff = ", signif(minmax["max", ], 3),
+                        ", threshold = ", threshold, ")"))
+
   primfn <- out["primf|primn"]
   primfnTime <- terra::time(primfn)
   primfnDiff <- primfn[[primfnTime %in% years[-1]]] - primfn[[primfnTime %in% years[-length(years)]]]
