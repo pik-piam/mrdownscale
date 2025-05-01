@@ -20,7 +20,7 @@ readMagpieFulldataGdx <- function(subtype) {
   clustermap <- readRDS(Sys.glob("clustermap_*.rds"))
 
   if (subtype == "land") {
-    x <- magpie4::land(gdx, level = "cell")
+    x <- magpie4::land(gdx, level = "cell") # TODO check subcategories arg for crop and forestry (for addtc)
     getSets(x) <- c("region", "id", "year", "data")
     unit <- "Mha"
     description <- "land use information"
