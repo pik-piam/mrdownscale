@@ -7,7 +7,10 @@
 #' The LUH3 nc files have day-based time, which is converted to years.
 #'
 #' @param subtype one of states, management, transitions, cellArea
-#' @param subset a vector of years that should be read
+#' @param subset which years to read
+#' @return data read from LUH3 historic nc files as SpatRaster
+#'
+#' @author Pascal Sauer
 readLUH3 <- function(subtype, subset) {
   if (subtype == "cellArea") {
     cellArea <- terra::rast("multiple-static_input4MIPs_landState_CMIP_UofMD-landState-3-1_gn.nc", "carea")

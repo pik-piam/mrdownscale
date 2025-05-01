@@ -82,7 +82,6 @@ calcLandTarget <- function(target) {
     out <- terra::writeRaster(out, filename = tempfile(fileext = ".tif"))
 
     if (target %in% c("luh2mod", "luh3")) {
-      # TODO rename "forestry" to "pltns" so we consistently use LUH terminology
       # split secdf into forestry and secdf
       forestryShare <- read.magpie(system.file("extdata/forestryShare.mz", package = "mrdownscale"))
       forestryShare <- as.SpatRaster(forestryShare)

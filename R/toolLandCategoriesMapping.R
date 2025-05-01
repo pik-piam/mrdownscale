@@ -21,6 +21,8 @@ toolLandCategoriesMapping <- function(input, target) {
       out <- toolGetMapping("referenceMappings/landuseinitchina.csv", where = "mrdownscale")
     } else if (x == "luh2") {
       out <- toolGetMapping("referenceMappings/luh2.csv", where = "mrdownscale")
+    } else if (x == "luh3") {
+      out <- toolGetMapping("referenceMappings/luh3.csv", where = "mrdownscale")
     } else if (x == "luh2mod") {
       out <- toolGetMapping("referenceMappings/luh2mod.csv", where = "mrdownscale")
     } else {
