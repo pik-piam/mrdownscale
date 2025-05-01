@@ -11,7 +11,7 @@
 #' @return data read from LUH3 historic nc files as SpatRaster
 #'
 #' @author Pascal Sauer
-readLUH3 <- function(subtype, subset = 1995:2024) {
+readLUH3 <- function(subtype, subset) {
   if (subtype == "cellArea") {
     cellArea <- terra::rast("multiple-static_input4MIPs_landState_CMIP_UofMD-landState-3-1_gn.nc", "carea")
     return(list(x = cellArea, class = "SpatRaster", cache = FALSE, unit = "km2"))
