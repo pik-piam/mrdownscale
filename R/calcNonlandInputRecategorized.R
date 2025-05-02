@@ -21,10 +21,12 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   crs <- attr(x, "crs")
   geometry <- attr(x, "geometry")
 
-  # aggregate secdforest and forestry, because LUH does not report wood harvest for forestry
-  x[, , "secdforest"] <- add_dimension(dimSums(x[, , c("secdforest", "forestry")], "data"),
-                                       3.2, "data", "secdforest")
-  x <- x[, , "forestry", invert = TRUE]
+  if (target %in% c("luh2", "luh2mod")) {
+    # aggregate secdforest and forestry, because LUH does not report wood harvest for forestry
+    x[, , "secdforest"] <- add_dimension(dimSums(x[, , c("secdforest", "forestry")], "data"),
+                                         3.2, "data", "secdforest")
+    x <- x[, , "forestry", invert = TRUE]
+  }
 
   # disaggregate wood harvest weight and area from secondary forest to secondary young and mature forest
   youngWeight <- youngShareWoodHarvestWeight * x[, , "wood_harvest_weight.secdforest"]
@@ -102,16 +104,22 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   # check data for consistency
   toolExpectTrue(identical(unname(getSets(x)), c("region", "id", "year", "data")),
                  "Dimensions are named correctly")
-  biohCategories <- paste0(c("primf", "primn", "secmf", "secyf", "secnf"), "_bioh")
+
+  biohCategories <- paste0(c("primf", "primn", "secmf", "secyf", "secnf", "forestry"), "_bioh")
+  if (target %in% c("luh2", "luh2mod")) {
+    biohCategories <- setdiff(biohCategories, "forestry_bioh")
+  }
+  woodHarvestAreaCategories <- sub("bioh", "wood_harvest_area", biohCategories)
+
   toolExpectTrue(setequal(getNames(x),
-                          c(woodHarvestAreaCategories(),
+                          c(woodHarvestAreaCategories,
                             biohCategories,
                             paste0(c("roundwood", "fuelwood"), "_harvest_weight_type"),
                             paste0(c("c3ann", "c4ann", "c3per", "c4per", "c3nfx"), "_fertilizer"))),
                  "Nonland categories match target definition")
   toolExpectTrue(all(x >= 0), "All values are >= 0")
 
-  harvestAreaRenamed <- x[, , woodHarvestAreaCategories()]
+  harvestAreaRenamed <- x[, , woodHarvestAreaCategories]
   getItems(harvestAreaRenamed, 3) <- sub("_wood_harvest_area", "_bioh", getItems(harvestAreaRenamed, 3))
   toolExpectTrue(all(harvestAreaRenamed > 0 | x[, , biohCategories] == 0),
                  "If bioh > 0 then wood harvest area > 0")
