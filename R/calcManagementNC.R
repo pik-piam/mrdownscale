@@ -35,7 +35,8 @@ calcManagementNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
   nonland <- nonland[, , nonlandManagementVariables]
 
   if (outputFormat == "ScenarioMIP") {
-    # TODO how to report pltns_fulwd? discuss with magpie team
+    # TODO add metadata comment: implicitly pltns_fulwd = 1 - pltns_harv - pltns_bioh
+    # TODO report actual pltns_wdprd share (< 1)
     nonland <- magclass::add_columns(nonland, "pltns_wdprd", fill = 1)
     nonland <- magclass::add_columns(nonland, "pltns_bfuel", fill = 0)
   }
