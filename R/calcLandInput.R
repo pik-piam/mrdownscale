@@ -29,10 +29,8 @@ calcLandInput <- function(input) {
                        dimSums(crop, dim = 3),
                        10^-5, "sum over all crops equals crop_area")
 
-    # TODO figure out how to deal with the following, keep fallow + croptreecover in the pipeline, and just not report
-    # it in the very end, leading to sum of shares < 1 which usually indicates water/ice in LUH logic?
-
-    # hotfix: scale crop to take up the whole area of crop_area + crop_fallow + crop_treecover
+    # scale crop to take up the whole area of crop_area + crop_fallow + crop_treecover
+    # need this to report for ScenarioMIP/LUH-format, might not want this for other applications
     totalCrop <- dimSums(land[, , c("crop_area", "crop_fallow", "crop_treecover")])
     scalingFactors <- totalCrop / dimSums(crop, dim = 3)
     scalingFactors[is.na(scalingFactors)] <- 1
