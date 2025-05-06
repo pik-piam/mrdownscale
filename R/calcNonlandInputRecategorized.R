@@ -22,7 +22,7 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   geometry <- attr(x, "geometry")
 
   if (target %in% c("luh2", "luh2mod")) {
-    # aggregate secdforest and forestry, because LUH does not report wood harvest for forestry
+    # aggregate secdforest and forestry, because LUH2 does not report wood harvest for forestry
     x[, , "secdforest"] <- add_dimension(dimSums(x[, , c("secdforest", "forestry")], "data"),
                                          3.2, "data", "secdforest")
     x <- x[, , "forestry", invert = TRUE]
@@ -95,6 +95,7 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   getNames(x) <- sub("_wood_harvest_weight", "_bioh", getNames(x))
   getNames(x) <- sub("secdn", "secnf", getNames(x))
   getNames(x) <- sub("primforest", "primf", getNames(x))
+  getNames(x) <- sub("forestry", "pltns", getNames(x))
   x <- collapseDim(x)
   getSets(x)["d3.1"] <- "data"
 
@@ -105,9 +106,9 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   toolExpectTrue(identical(unname(getSets(x)), c("region", "id", "year", "data")),
                  "Dimensions are named correctly")
 
-  biohCategories <- paste0(c("primf", "primn", "secmf", "secyf", "secnf", "forestry"), "_bioh")
+  biohCategories <- paste0(c("primf", "primn", "secmf", "secyf", "secnf", "pltns"), "_bioh")
   if (target %in% c("luh2", "luh2mod")) {
-    biohCategories <- setdiff(biohCategories, "forestry_bioh")
+    biohCategories <- setdiff(biohCategories, "pltns_bioh")
   }
   woodHarvestAreaCategories <- sub("bioh", "wood_harvest_area", biohCategories)
 

@@ -19,9 +19,8 @@ calcNonlandTargetLowRes <- function(input, target) {
   stopifnot(setequal(getItems(xInput, 3), getItems(xTarget, 3)))
   out <- xTarget[, , getItems(xInput, 3)] # harmonize order of dim 3
 
-  woody <- c("primf", "secyf", "secmf", "primn", "secnf")
   roundFuelWood <- c("roundwood_harvest_weight_type", "fuelwood_harvest_weight_type")
-  toolExpectLessDiff(dimSums(out[, , paste0(woody, "_bioh")], 3),
+  toolExpectLessDiff(dimSums(out[, , grep("_bioh$", getItems(out, 3), value = TRUE)], 3),
                      dimSums(out[, , roundFuelWood], 3),
                      10^5, "Harvest weight types are consistent")
   toolExpectTrue(min(out) >= 0, "All values are >= 0")
