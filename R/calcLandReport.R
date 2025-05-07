@@ -23,9 +23,9 @@ calcLandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
     getNames(cropData) <- sub("^cpbf1_", "crpbf_", getNames(cropData))
     getNames(cropData) <- sub("^cpbf2_", "crpbf2_", getNames(cropData))
 
-    totalSecondaryForest <- dimSums(native[, , c("forestry", "secdf")], dim = 3)
-    # calculate manaf (managed forest) = forestry share of secondary forest
-    manaf <- native[, , "forestry"] / totalSecondaryForest
+    totalSecondaryForest <- dimSums(native[, , c("pltns", "secdf")], dim = 3)
+    # calculate manaf (managed forest) = pltns share of total secondary forest
+    manaf <- native[, , "pltns"] / totalSecondaryForest
     manaf[totalSecondaryForest == 0] <- 0 # replace NAs introduced by 0 / 0
     getNames(manaf) <- "manaf"
 

@@ -4,7 +4,7 @@
 #' harmonization and downscaling, checking data for consistency before returning.
 #'
 #' @param target name of the target dataset
-#' luh2mod will split secdf into forestry and secdf
+#' luh2mod/luh3 will split secdf into pltns and secdf
 #' @return land target data
 #' @author Pascal Sauer
 calcLandTarget <- function(target) {
@@ -82,14 +82,14 @@ calcLandTarget <- function(target) {
     out <- terra::writeRaster(out, filename = tempfile(fileext = ".tif"))
 
     if (target %in% c("luh2mod", "luh3")) {
-      # split secdf into forestry and secdf
-      forestryShare <- read.magpie(system.file("extdata/forestryShare.mz", package = "mrdownscale"))
-      forestryShare <- as.SpatRaster(forestryShare)
-      forestryShare <- terra::extend(forestryShare, out)
-      forestry <- out["secdf"] * forestryShare
-      names(forestry) <- sub("secdf", "forestry", names(forestry))
-      secdf <- out["secdf"] - forestry
-      out <- c(out[[!grepl("secdf", names(out))]], forestry, secdf)
+      # split secdf into pltns and secdf
+      pltnsShare <- read.magpie(system.file("extdata/forestryShare.mz", package = "mrdownscale"))
+      pltnsShare <- as.SpatRaster(pltnsShare)
+      pltnsShare <- terra::extend(pltnsShare, out)
+      pltns <- out["secdf"] * pltnsShare
+      names(pltns) <- sub("secdf", "pltns", names(pltns))
+      secdf <- out["secdf"] - pltns
+      out <- c(out[[!grepl("secdf", names(out))]], pltns, secdf)
 
       # cannot cache SpatRaster with both in-memory and on-disk/file sources,
       # so write `out` to a tif file to get SpatRaster with a single source (the tif file)
@@ -105,7 +105,7 @@ calcLandTarget <- function(target) {
     out <- toolReplaceExpansion(out, "primf", "secdf")
     out <- as.SpatRaster(out)
 
-    expectedCategories <- c("crop", "past", "forestry", "primf", "secdf", "urban",  "other")
+    expectedCategories <- c("crop", "past", "pltns", "primf", "secdf", "urban",  "other")
   } else if (target == "landuseinitchina") {
     out <- readSource("LanduseInit")
     chinaCrops <- readSource("ChinaCrops")
@@ -126,7 +126,7 @@ calcLandTarget <- function(target) {
     out <- toolReplaceExpansion(out, "primf", "secdf")
     out <- as.SpatRaster(out)
 
-    expectedCategories <- c("past", "forestry", "primforest", "secdforest", "urban", "other",
+    expectedCategories <- c("past", "pltns", "primforest", "secdforest", "urban", "other",
                             "rice_pro", "tece", "maiz", "other_crop")
   } else {
     stop("Unsupported output type \"", target, "\"")

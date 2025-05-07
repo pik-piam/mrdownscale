@@ -6,7 +6,7 @@
 #' data other constraints apply, e.g. the total area must be constant over time.
 #'
 #' input = "magpie": includes the land use categories
-#' past (pasture, including rangeland), forestry (managed forest),
+#' past (pasture, including rangeland), forestry (managed forest plantations),
 #' primforest, secdforest, urban, other (other land) and many
 #' specific crop types. Furthermore, 1st gen biofuel is
 #' added and filled with zeros. 1st gen biofuel is only modeled implicitly in

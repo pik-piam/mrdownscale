@@ -17,8 +17,6 @@ calcLandReportScenarioMIP <- function(harmonizationPeriod, yearsSubset) {
 
   cropData <- toolCropData(landHighRes, cellArea)
 
-  dimnames(landHighRes)[[3]] <- sub("^forestry$", "pltns", dimnames(landHighRes)[[3]])
-
   nonCropData <- landHighRes[, , c("primf", "primn", "secdf", "secdn", "urban", "pastr", "range", "pltns")]
   nonCropData <- nonCropData * 10000 / cellArea[getItems(cellArea, 1) %in% getItems(nonCropData, 1), , ]
 
