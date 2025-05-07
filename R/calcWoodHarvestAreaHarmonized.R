@@ -62,8 +62,9 @@ calcWoodHarvestAreaHarmonized <- function(input, target, harmonizationPeriod, me
 
   # shift harvest from prim to secd to match prim land reduction
   primHarvDiff <- rawHarvestHarmonized[, -1, prim] - primHarv
+  secdHarv <- rawHarvestHarmonized[, -1, c("secdf", "secdn", "pltns")]
   secd <- c("secdf", "secdn")
-  secdHarv <- rawHarvestHarmonized[, -1, secd] + magclass::setNames(primHarvDiff, secd)
+  secdHarv[, , secd] <- (secdHarv[, , secd] + magclass::setNames(primHarvDiff, secd))
   secdHarv[secdHarv < 0] <- 0 # harvest from prim already overachieves harvest target
   stopifnot(primHarv[, , "primf"] + secdHarv[, , "secdf"] + 10^-10 >=
               rawHarvestHarmonized[, -1, "primf"] + rawHarvestHarmonized[, -1, "secdf"],
@@ -71,7 +72,7 @@ calcWoodHarvestAreaHarmonized <- function(input, target, harmonizationPeriod, me
               rawHarvestHarmonized[, -1, "primn"] + rawHarvestHarmonized[, -1, "secdn"])
 
   # check secd excess harvest, try to shift excess secdf to secdn and vice versa
-  maxSecdHarv <- toolMaxHarvestPerYear(landHarmonized, disaggregate = FALSE)[, , secd]
+  maxSecdHarv <- toolMaxHarvestPerYear(landHarmonized, disaggregate = FALSE)[, , c("secdf", "secdn", "pltns")]
   excessSecdHarvest <- secdHarv - maxSecdHarv
   excessSecdHarvest[excessSecdHarvest < 0] <- 0
   excessSecdHarvest <- dimSums(excessSecdHarvest, 3)
@@ -79,8 +80,10 @@ calcWoodHarvestAreaHarmonized <- function(input, target, harmonizationPeriod, me
 
   potentialHarvestLeft <- maxSecdHarv - secdHarv
   stopifnot(potentialHarvestLeft >= 0)
-  smaller <- mpmin(potentialHarvestLeft[, , "secdf"], potentialHarvestLeft[, , "secdn"])
-  stopifnot(smaller[excessSecdHarvest > 0] == 0)
+  smallest <- mpmin(mpmin(potentialHarvestLeft[, , "secdf"],
+                          potentialHarvestLeft[, , "secdn"]),
+                    potentialHarvestLeft[, , "pltns"])
+  stopifnot(smallest[excessSecdHarvest > 0] == 0)
 
   secdHarv <- mpmin(secdHarv + excessSecdHarvest, maxSecdHarv)
   excessSecdHarvest <- excessSecdHarvest - dimSums(potentialHarvestLeft, 3)

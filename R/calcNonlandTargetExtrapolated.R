@@ -23,11 +23,11 @@ calcNonlandTargetExtrapolated <- function(input, target, transitionYears) {
                               transitionYears)
   exTarget[exTarget < 0] <- 0
 
-  woody <- c("primf", "secyf", "secmf", "primn", "secnf")
+  woody <- c("primf", "secyf", "secmf", "pltns", "primn", "secnf")
 
   # calculate kg C per Mha in historical period
   histBioh <- dimSums(xTarget[, , paste0(woody, "_bioh")], 2)
-  getItems(histBioh, 3)  <- sub("_bioh$", "_wood_harvest_area", getItems(histBioh, 3))
+  getItems(histBioh, 3) <- sub("_bioh$", "_wood_harvest_area", getItems(histBioh, 3))
   histHarvestArea <- dimSums(xTarget[, , paste0(woody, "_wood_harvest_area")], 2)
   kgCPerMha <- histBioh / histHarvestArea
   kgCPerMha[is.nan(kgCPerMha)] <- 0
@@ -40,6 +40,7 @@ calcNonlandTargetExtrapolated <- function(input, target, transitionYears) {
             !is.null(xLand$woodHarvestArea))
   harvestMha <- xLand$woodHarvestArea[, transitionYears, ]
 
+  stopifnot(setequal(getItems(harvestMha, 3), getItems(kgCPerMha, 3)))
   harvestKgC <- harvestMha * kgCPerMha
   getItems(harvestKgC, 3)  <- sub("_wood_harvest_area$", "_bioh", getItems(harvestKgC, 3))
 
