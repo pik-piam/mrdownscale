@@ -91,17 +91,3 @@ toolMaxHarvestPerYear <- function(land, disaggregate = TRUE) {
 woodHarvestAreaCategories <- function() {
   return(paste0(c("primf", "secyf", "secmf", "pltns", "primn", "secnf"), "_wood_harvest_area"))
 }
-
-# extract woodland categories from land, aggregate forestry and secdf to secdf
-# useful when working with wood harvest area / bioh
-toolWoodland <- function(land) {
-  land <- land[, , c("primf", "secdf", "forestry", "primn", "secdn")]
-  map <- as.data.frame(rbind(c("secdf", "secdf"),
-                             c("forestry", "secdf"),
-                             c("secdn", "secdn"),
-                             c("primf", "primf"),
-                             c("primn", "primn")))
-  colnames(map) <- c("from", "to")
-  land <- toolAggregate(land, map, from = "from", to = "to", dim = 3)
-  return(land)
-}
