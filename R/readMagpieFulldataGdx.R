@@ -13,16 +13,13 @@ readMagpieFulldataGdx <- function(subtype) {
   "!# @monitor magpie4:::NitrogenBudget"
 
   gdx <- "fulldata.gdx"
-  # to produce these files run MAgPIE via ./scripts/start/forestry.R
   stopifnot(file.exists(gdx),
             length(Sys.glob("clustermap_*.rds")) == 1)
 
   clustermap <- readRDS(Sys.glob("clustermap_*.rds"))
 
   if (subtype == "land") {
-    x <- magpie4::land(gdx, level = "cell", subcategories = "crop")
-    # TODO check subcategories arg forestry (for addtc)
-    # x2 <- magpie4::land(gdx, level = "cell", subcategories = "forestry")
+    x <- magpie4::land(gdx, level = "cell", subcategories = c("crop", "forestry"))
     getSets(x) <- c("region", "id", "year", "data")
     unit <- "Mha"
     description <- "land use information"
