@@ -8,10 +8,10 @@ toolCheckWoodHarvestArea(harvest, land, notePrefix = "")
 }
 \arguments{
 \item{harvest}{magpie object with exactly the following categories:
-paste0(c("primf", "secyf", "secmf", "primn", "secnf"), "_wood_harvest_area")}
+paste0(c("primf", "secyf", "secmf", "pltns", "primn", "secnf"), "_wood_harvest_area")}
 
 \item{land}{magpie object with at least the following categories:
-c("primf", "secdf", "forestry", "primn", "secdn")}
+c("primf", "secdf", "pltns", "primn", "secdn")}
 
 \item{notePrefix}{character to prepend to the check's message}
 }
