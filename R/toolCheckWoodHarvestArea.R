@@ -71,6 +71,7 @@ toolAggregateWoodHarvest <- function(woodHarvest) {
   return(toolAggregate(woodHarvest, map, from = "harvest", to = "land", dim = 3))
 }
 
+# TODO move into it's own file and document
 toolMaxHarvestPerYear <- function(land, disaggregate = TRUE) {
   timestepLength <- new.magpie(years = getYears(land)[-1],
                                fill = diff(getYears(land, as.integer = TRUE)))

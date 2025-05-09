@@ -38,7 +38,8 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset) 
                             harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset, aggregate = FALSE)
   land <- landHighRes[, , c("urban", "pastr", "range"), invert = TRUE]
   map <- as.data.frame(rbind(c("primf", "primf"),
-                             c("pltns", "pltns"),
+                             c("pltns_excl_added_treecover", "pltns_excl_added_treecover"),
+                             c("pltns_added_treecover", "pltns_added_treecover"),
                              c("secdf", "secdf"),
                              c("primn", "primn"),
                              c("secdn", "secdn"),
