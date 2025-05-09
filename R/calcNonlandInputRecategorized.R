@@ -21,11 +21,7 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   crs <- attr(x, "crs")
   geometry <- attr(x, "geometry")
 
-  # rename pltns category
-  map <- toolLandCategoriesMapping(input, target)
-  pltnsInInput <- map[map$dataOutput == "pltns", "dataInput"]
-  stopifnot(length(pltnsInInput) == 1)
-  getItems(x, 3, raw = TRUE) <- sub(pltnsInInput, "pltns", getItems(x, 3))
+  getItems(x, 3, raw = TRUE) <- sub("forestry", "pltns", getItems(x, 3))
 
   if (target %in% c("luh2", "luh2mod")) {
     # aggregate secdforest and pltns, because LUH2 does not report wood harvest for pltns
@@ -50,6 +46,7 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   # map fertilizer using weights from land categorization
   fertilizer <- collapseDim(x[, , "fertilizer"])
 
+  map <- toolLandCategoriesMapping(input, target)
   ref <- calcOutput("LandCategorizationWeight", map = map, geometry = geometry, crs = crs, aggregate = FALSE)
 
   # sum up weights for irrigated/rainfed

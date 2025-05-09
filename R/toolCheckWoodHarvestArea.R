@@ -14,8 +14,8 @@
 toolCheckWoodHarvestArea <- function(harvest, land, notePrefix = "") {
   stopifnot(setequal(getItems(harvest, 1), getItems(land, 1)))
   harvest <- toolAggregateWoodHarvest(harvest)
-  stopifnot(getItems(harvest, 3) %in% getItems(land, 3),
-            identical(getYears(harvest), getYears(land)))
+
+  stopifnot(identical(getYears(harvest), getYears(land)))
   years <- getYears(land, as.integer = TRUE)
 
   maxHarvestPerYear <- toolMaxHarvestPerYear(land, disaggregate = FALSE)
@@ -75,6 +75,10 @@ toolMaxHarvestPerYear <- function(land, disaggregate = TRUE) {
   timestepLength <- new.magpie(years = getYears(land)[-1],
                                fill = diff(getYears(land, as.integer = TRUE)))
   stopifnot(timestepLength > 0)
+
+  land <- add_columns(land, "pltns")
+  land[, , "pltns"] <- dimSums(land[, , c("pltns_added_treecover", "pltns_excl_added_treecover")])
+
   land <- land[, , c("primf", "secdf", "pltns", "primn", "secdn")]
   if (disaggregate) {
     getItems(land, 3) <- sub("secdf", "secyf", getItems(land, 3))
