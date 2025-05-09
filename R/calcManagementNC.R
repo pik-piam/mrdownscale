@@ -23,7 +23,8 @@ calcManagementNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
   } else if (outputFormat == "ScenarioMIP") {
     landManagementVariables <- c("cpbf1_c3ann", "cpbf1_c3nfx", "cpbf1_c3per", "cpbf1_c4ann", "cpbf1_c4per",
                                  "cpbf2_c3per", "cpbf2_c4per",
-                                 "irrig_c3ann", "irrig_c3nfx", "irrig_c3per", "irrig_c4ann", "irrig_c4per")
+                                 "irrig_c3ann", "irrig_c3nfx", "irrig_c3per", "irrig_c4ann", "irrig_c4per",
+                                 "addtc")
   }
   land <- land[, , landManagementVariables]
 
@@ -54,7 +55,7 @@ calcManagementNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
                            "rndwd", "fulwd",
                            "pltns_wdprd", "pltns_bfuel",
                            # TODO "prtct_primf", "prtct_primn", "prtct_secdf", "prtct_secdn", "prtct_pltns",
-                           # TODO "addtc",
+                           "addtc",
                            NULL)
 
     toolExpectTrue(setequal(getItems(x, 3), expectedVariables), "variable names are as expected")

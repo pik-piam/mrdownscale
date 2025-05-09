@@ -17,7 +17,14 @@ calcLandReportScenarioMIP <- function(harmonizationPeriod, yearsSubset) {
 
   cropData <- toolCropData(landHighRes, cellArea)
 
-  nonCropData <- landHighRes[, , c("primf", "primn", "secdf", "secdn", "urban", "pastr", "range", "pltns")]
+  nonCropData <- landHighRes[, , c("primf", "primn", "secdf", "secdn", "urban", "pastr", "range")]
+  nonCropData <- mbind(nonCropData,
+                       magclass::setNames(landHighRes[, , c("pltns_added_treecover")], "addtc"))
+
+  nonCropData <- add_columns(nonCropData, "pltns")
+  nonCropData[, , "pltns"] <- dimSums(landHighRes[, , c("pltns_added_treecover", "pltns_excl_added_treecover")])
+
+  # convert from Mha to share of cell area
   nonCropData <- nonCropData * 10000 / cellArea[getItems(cellArea, 1) %in% getItems(nonCropData, 1), , ]
 
   out <- mbind(cropData, nonCropData)
