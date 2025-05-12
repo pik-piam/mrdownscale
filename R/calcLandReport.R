@@ -10,8 +10,8 @@
 #' @return land use data
 #' @author Pascal Sauer
 calcLandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
-  # TODO rename ESM to RESCUE - later!
-  # TODO allow choosing harmonization method here
+  # TODO later! rename ESM to RESCUE
+  # TODO mid allow choosing harmonization method here
   if (outputFormat == "ESM") {
     native <- calcOutput("LandHighRes", input = "magpie", target = "luh2mod",
                          harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,

@@ -15,6 +15,8 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
                                           youngShareWoodHarvestWeight = 0.5) {
   x <- calcOutput("NonlandInput", input = input, aggregate = FALSE)
   resolutionMapping <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
+  x <- x[unique(resolutionMapping$lowRes), , ]
+
   resolutionMapping$cluster <- resolutionMapping$lowRes
   "!# @monitor magpie4:::addGeometry"
   x <- magpie4::addGeometry(x, resolutionMapping)

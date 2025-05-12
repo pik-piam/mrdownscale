@@ -85,7 +85,7 @@ calcLandTarget <- function(target) {
       # split secdf into pltns and secdf
       pltnsShare <- read.magpie(system.file("extdata/forestryShare.mz", package = "mrdownscale"))
       pltnsShare <- as.SpatRaster(pltnsShare)
-      pltnsShare <- terra::extend(pltnsShare, out)
+      pltnsShare <- terra::crop(pltnsShare, out, extend = TRUE)
       pltns <- out["secdf"] * pltnsShare
       names(pltns) <- sub("secdf", "pltns_excl_added_treecover", names(pltns))
       secdf <- out["secdf"] - pltns

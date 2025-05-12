@@ -36,8 +36,8 @@ calcManagementNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
   nonland <- nonland[, , nonlandManagementVariables]
 
   if (outputFormat == "ScenarioMIP") {
-    # TODO add metadata comment: implicitly pltns_fulwd = 1 - pltns_harv - pltns_bioh
-    # TODO report actual pltns_wdprd share (< 1)
+    # TODO mid add metadata comment: implicitly pltns_fulwd = 1 - pltns_harv - pltns_bioh
+    # TODO mid report actual pltns_wdprd share (< 1)
     nonland <- magclass::add_columns(nonland, "pltns_wdprd", fill = 1)
     nonland <- magclass::add_columns(nonland, "pltns_bfuel", fill = 0)
   }
