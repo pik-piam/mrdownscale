@@ -22,7 +22,7 @@ Depends:
     mstools (>= 0.8.0),
     R (>= 4.0.0)
 Imports:
-    luscale (>= 3.0.1),
+    luscale (>= 3.1.4),
     magpie4 (>= 2.22.5),
     mip,
     ncdf4,

@@ -10,7 +10,7 @@
 #' @return downscaled land use dataset
 #' @author Pascal Sauer
 toolDownscaleAvlCropland <- function(x, xTarget, xTargetLowRes, mapping) {
-  # TODO documentation
+  # TODO documentation, caveats
   mapping$cluster <- mapping$lowRes
   mapping <- mapping[, c("cell", "cluster")]
 
@@ -62,6 +62,7 @@ toolDownscaleAvlCropland <- function(x, xTarget, xTargetLowRes, mapping) {
     browser()
   }
   out <- out * scalingFactor
+  # TODO this scaling does not solve the problem yet
   getSets(out)[1:2] <- c("x", "y")
   return(out)
 }
