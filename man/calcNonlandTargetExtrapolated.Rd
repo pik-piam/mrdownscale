@@ -4,14 +4,15 @@
 \alias{calcNonlandTargetExtrapolated}
 \title{calcNonlandTargetExtrapolated}
 \usage{
-calcNonlandTargetExtrapolated(input, target, transitionYears)
+calcNonlandTargetExtrapolated(input, target, harmonizationPeriod)
 }
 \arguments{
 \item{input}{character, name of the input data set, currently only "magpie"}
 
 \item{target}{character, name of the target data set, currently only "luh2mod"}
 
-\item{transitionYears}{years to which the target data is extrapolated}
+\item{harmonizationPeriod}{Two integer values, will extrapolate to all years
+present in input data between harmonization start and end year}
 }
 \value{
 extrapolated nonland target data

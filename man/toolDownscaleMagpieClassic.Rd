@@ -4,12 +4,14 @@
 \alias{toolDownscaleMagpieClassic}
 \title{toolDownscaleMagpieClassic}
 \usage{
-toolDownscaleMagpieClassic(x, xTarget, mapping)
+toolDownscaleMagpieClassic(x, xTarget, xTargetLowRes, mapping)
 }
 \arguments{
 \item{x}{magclass containing land to be downscaled}
 
 \item{xTarget}{magclass target land use dataset for initialization year}
+
+\item{xTargetLowRes}{magclass target land use dataset for initialization year in low resolution (like x)}
 
 \item{mapping}{mapping between \code{x} and \code{xTarget}}
 }

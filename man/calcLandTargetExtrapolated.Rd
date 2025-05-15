@@ -4,14 +4,15 @@
 \alias{calcLandTargetExtrapolated}
 \title{calcLandTargetExtrapolated}
 \usage{
-calcLandTargetExtrapolated(input, target, transitionYears)
+calcLandTargetExtrapolated(input, target, harmonizationPeriod)
 }
 \arguments{
 \item{input}{character, name of the input data set}
 
 \item{target}{character, name of the target data set}
 
-\item{transitionYears}{years to which the target data is extrapolated}
+\item{harmonizationPeriod}{Two integer values, will extrapolate to all years
+present in input data between harmonization start and end year}
 }
 \value{
 extrapolated land target data, if calcOutput is called with
