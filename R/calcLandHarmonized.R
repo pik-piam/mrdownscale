@@ -20,7 +20,7 @@ calcLandHarmonized <- function(input, target, harmonizationPeriod, method = "fad
   inputYears <- getYears(xInput, as.integer = TRUE)
   transitionYears <- inputYears[inputYears > harmonizationPeriod[1] & inputYears < harmonizationPeriod[2]]
   xTarget <- calcOutput("LandTargetExtrapolated", input = input, target = target,
-                        transitionYears = transitionYears, aggregate = FALSE)
+                        harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
 
   # checks and corrections
   inSum <- dimSums(xInput, dim = 3)

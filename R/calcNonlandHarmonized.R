@@ -34,7 +34,7 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, method) {
   inputYears <- getYears(xInput, as.integer = TRUE)
   transitionYears <- inputYears[inputYears > harmonizationPeriod[1] & inputYears < harmonizationPeriod[2]]
   xTarget <- calcOutput("NonlandTargetExtrapolated", input = input, target = target,
-                        transitionYears = transitionYears, aggregate = FALSE)
+                        harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
 
   kgCPerMhaTarget <- xTarget[, , biohMap$bioh] / magclass::setNames(xTarget[, , woodHarvestAreaCategories()],
                                                                     sub("wood_harvest_area$", "bioh",

@@ -7,7 +7,8 @@
 #'
 #' @param input character, name of the input data set, currently only "magpie"
 #' @param target character, name of the target data set, currently only "luh2mod"
-#' @param transitionYears years to which the target data is extrapolated
+#' @param harmonizationPeriod Two integer values, will extrapolate to all years
+#' present in input data between harmonization start and end year
 #' @return extrapolated nonland target data
 #'
 #' @examples
@@ -16,7 +17,11 @@
 #'              target = "luh2mod", transitionYears = seq(2020, 2045, 5))
 #' }
 #' @author Pascal Sauer
-calcNonlandTargetExtrapolated <- function(input, target, transitionYears) {
+calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
+  xInput <- calcOutput("NonlandInputRecategorized", input = input, target = target, aggregate = FALSE)
+  inputYears <- getYears(xInput, as.integer = TRUE)
+  transitionYears <- inputYears[inputYears > harmonizationPeriod[1] & inputYears < harmonizationPeriod[2]]
+
   xTarget <- calcOutput("NonlandTargetLowRes", input = input, target = target, aggregate = FALSE)
 
   exTarget <- toolExtrapolate(xTarget[, , grep("_(fertilizer|harvest_weight_type)$", getItems(xTarget, 3))],
@@ -35,7 +40,7 @@ calcNonlandTargetExtrapolated <- function(input, target, transitionYears) {
 
   # get wood harvest area extrapolation, then apply historical kg C per Mha
   xLand <- calcOutput("LandTargetExtrapolated", input = input, target = target,
-                      transitionYears = transitionYears, aggregate = FALSE, supplementary = TRUE)
+                      harmonizationPeriod = harmonizationPeriod, aggregate = FALSE, supplementary = TRUE)
   stopifnot(xLand$unit == "Mha",
             !is.null(xLand$woodHarvestArea))
   harvestMha <- xLand$woodHarvestArea[, transitionYears, ]

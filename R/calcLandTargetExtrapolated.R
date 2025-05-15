@@ -14,14 +14,18 @@
 #'
 #' @param input character, name of the input data set
 #' @param target character, name of the target data set
-#' @param transitionYears years to which the target data is extrapolated
+#' @param harmonizationPeriod Two integer values, will extrapolate to all years
+#' present in input data between harmonization start and end year
 #' @return extrapolated land target data, if calcOutput is called with
 #' supplementary = TRUE and target is luh2mod wood harvest area is also returned
 #' @author Pascal Sauer
-calcLandTargetExtrapolated <- function(input, target, transitionYears) {
+calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
   # TODO instead of linear regression for extrapolation, consider/try:
   # apply relative changes of model result (e.g. * 1.02) to history (like LUH harmonization)
-  stopifnot(identical(transitionYears, sort(transitionYears)))
+
+  xInput <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
+  inputYears <- getYears(xInput, as.integer = TRUE)
+  transitionYears <- inputYears[inputYears > harmonizationPeriod[1] & inputYears < harmonizationPeriod[2]]
 
   xTarget <- calcOutput("LandTargetLowRes", input = input, target = target, aggregate = FALSE)
   histYears <- getYears(xTarget, as.integer = TRUE)
