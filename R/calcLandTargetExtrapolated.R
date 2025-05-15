@@ -19,6 +19,8 @@
 #' supplementary = TRUE and target is luh2mod wood harvest area is also returned
 #' @author Pascal Sauer
 calcLandTargetExtrapolated <- function(input, target, transitionYears) {
+  # TODO instead of linear regression for extrapolation, consider/try:
+  # apply relative changes of model result (e.g. * 1.02) to history (like LUH harmonization)
   stopifnot(identical(transitionYears, sort(transitionYears)))
 
   xTarget <- calcOutput("LandTargetLowRes", input = input, target = target, aggregate = FALSE)

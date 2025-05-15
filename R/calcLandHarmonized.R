@@ -12,12 +12,10 @@
 #' dataset is used, in between harmonize between the two datasets
 #' @param method transitioning method
 #' @author Pascal Sauer, Jan Philipp Dietrich
-calcLandHarmonized <- function(input, target, harmonizationPeriod,
-                               method = "fade") {
-  xInput    <- calcOutput("LandInputRecategorized", input = input,
-                          target = target, aggregate = FALSE)
+calcLandHarmonized <- function(input, target, harmonizationPeriod, method = "fade") {
+  xInput <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
   geometry <- attr(xInput, "geometry")
-  crs      <- attr(xInput, "crs")
+  crs <- attr(xInput, "crs")
 
   inputYears <- getYears(xInput, as.integer = TRUE)
   transitionYears <- inputYears[inputYears > harmonizationPeriod[1] & inputYears < harmonizationPeriod[2]]
