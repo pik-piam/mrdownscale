@@ -26,5 +26,6 @@ plotHarmonization <- function(input, target, harmonizationPeriod) {
           axis.title = element_text(size = fontsize),
           plot.title = element_text(size = fontsize),
           legend.text = element_text(size = fontsize),
-          legend.title = element_text(size = fontsize))
+          legend.title = element_text(size = fontsize)) +
+    scale_y_continuous(n.breaks = 8)
 }
