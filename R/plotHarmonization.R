@@ -13,7 +13,7 @@ plotHarmonization <- function(input, target, harmonizationPeriod) {
   ltex <- dimSums(ltex[, years, crops], c(1, 3))
   lh <- dimSums(lh[, years, crops], c(1, 3))
   x <- mbind(magclass::setNames(lir, "model"),
-             magclass::setNames(ltex, "historical extrapolated"),
+            #  magclass::setNames(ltex, "historical extrapolated"),
              magclass::setNames(lh, "harmonized"))
   x <- as.data.frame(x)
   names(x)[4:5] <- c("Data", "CroplandMha")

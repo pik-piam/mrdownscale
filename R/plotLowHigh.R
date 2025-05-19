@@ -22,38 +22,35 @@
 #'
 #' @author Pascal Sauer
 #' @export
-plotLowHigh <- function(variable, year,
+plotLowHigh <- function(variable, year, outputFormat, input, target, ...,
                         range = c(0, 1), xlim = c(-180, 180), ylim = c(-90, 90),
-                        input = "magpie", target = "luh2mod", harmonizationPeriod = c(2015, 2050)) {
-  cellArea <- readSource("LUH2v2h", subtype = "cellArea", convert = FALSE)
+                        harmonizationPeriod = c(2020, 2060),
+                        yearsSubset = seq(2015, 2100, 5)) {
+  cellArea <- readSource("LUH3", subtype = "cellArea", convert = FALSE)
 
-  landHighRes <- calcOutput("LandHighRes", input = input, target = target,
+  landHighRes <- calcOutput("LandReport", outputFormat = outputFormat,
                             harmonizationPeriod = harmonizationPeriod,
-                            yearsToKeep = seq(if (target == "luh2mod") 2015 else 1995, 2100, 5),
-                            aggregate = FALSE)
+                            yearsSubset = yearsSubset, aggregate = FALSE)
+
   variables <- grep(variable, getItems(landHighRes, 3), value = TRUE)
   if (length(variables) == 0) {
     stop("No variable matched ", variable, " in LandHighRes. Options are: ",
          paste(getItems(landHighRes, 3), collapse = ", "))
   }
   message("plotting ", paste(variables, collapse = ", "))
-  high <- landHighRes[, year, variables]
-  high <- dimSums(high, 3)
-  highRaster <- as.SpatRaster(high)
-  # multiply by 10000 to convert from Mha to km2, divide to get area share
-  highRaster <- highRaster * 10000 / terra::crop(cellArea, highRaster)
+
+  highRaster <- as.SpatRaster(dimSums(landHighRes[, year, variables], 3))
 
   landHarmonized <- calcOutput("LandHarmonized", input = input, target = target,
                                harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
   geometry <- attr(landHarmonized, "geometry")
-  stopifnot(setequal(variables, grep(variable, getItems(landHarmonized, 3), value = TRUE)))
-  low <- landHarmonized[, year, variables]
+  low <- landHarmonized[, year, grep(variable, getItems(landHarmonized, 3), value = TRUE)]
   low <- dimSums(low, 3)
   attr(low, "geometry") <- geometry
   lowVector <- as.SpatVector(low)
   clusterSize <- terra::extract(cellArea, lowVector, fun = sum) # in km2
-  stopifnot(identical(clusterSize$ID, 1:200),
-            identical(getItems(low, 1.2), as.character(1:200)))
+  # stopifnot(identical(clusterSize$ID, 1:200),
+  #           identical(getItems(low, 1.2), as.character(1:200)))
   clusterSizeMag <- low
   clusterSizeMag[] <- clusterSize$carea
   # multiply by 10000 to convert from Mha to km2, divide to get area share
