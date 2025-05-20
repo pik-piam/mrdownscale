@@ -13,7 +13,7 @@
 #' @author Pascal Sauer
 readLUH3 <- function(subtype, subset) {
   if (subtype == "cellArea") {
-    cellArea <- terra::rast("multiple-static_input4MIPs_landState_CMIP_UofMD-landState-3-1_gn.nc", "carea")
+    cellArea <- terra::rast("multiple-static_input4MIPs_landState_CMIP_UofMD-landState-3-1-1_gn.nc", "carea")
     return(list(x = cellArea, class = "SpatRaster", cache = FALSE, unit = "km2"))
   }
 
@@ -28,7 +28,7 @@ readLUH3 <- function(subtype, subset) {
     # all except secmb secma
     variables <- c("primf", "primn", "secdf", "secdn", "urban", "c3ann", "c4ann",
                    "c3per", "c4per", "c3nfx", "pastr", "range")
-    x <- readLayers("multiple-states_input4MIPs_landState_CMIP_UofMD-landState-3-1_gn_0850-2024.nc",
+    x <- readLayers("multiple-states_input4MIPs_landState_CMIP_UofMD-landState-3-1-1_gn_0850-2024.nc",
                     variables, years)
     stopifnot(max(terra::minmax(x, compute = TRUE)) <= 1.0001,
               all(terra::units(x) == "1"))
@@ -43,7 +43,7 @@ readLUH3 <- function(subtype, subset) {
     # cpbf2_*, pltns_wdprd, pltns_bfuel, addtc
     # prtct_primf, prtct_primn, prtct_secdf, prtct_secdn, prtct_pltns
 
-    x <- readLayers("multiple-management_input4MIPs_landState_CMIP_UofMD-landState-3-1_gn_0850-2024.nc",
+    x <- readLayers("multiple-management_input4MIPs_landState_CMIP_UofMD-landState-3-1-1_gn_0850-2024.nc",
                     variables, years)
 
     # combf is a share of wood harvest like rndwd and fulwd, but we can ignore it as long as it is 0 everywhere
@@ -60,7 +60,7 @@ readLUH3 <- function(subtype, subset) {
   } else if (subtype == "transitions") {
     woodland <- c("primf", "primn", "secmf", "secyf", "secnf", "pltns")
     variables <- c(paste0(woodland, "_harv"), paste0(woodland, "_bioh"))
-    x <- readLayers("multiple-transitions_input4MIPs_landState_CMIP_UofMD-landState-3-1_gn_0850-2023.nc",
+    x <- readLayers("multiple-transitions_input4MIPs_landState_CMIP_UofMD-landState-3-1-1_gn_0850-2023.nc",
                     variables, years - 1)
 
     unit <- "*_bioh: kg C yr-1, *_harv: 1"
