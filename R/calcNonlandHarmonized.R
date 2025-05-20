@@ -31,8 +31,6 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, method) {
   stopifnot(is.finite(kgCPerMhaInput), kgCPerMhaInput >= 0)
   getItems(kgCPerMhaInput, 3) <- sub("bioh$", "kgC_per_Mha", getItems(kgCPerMhaInput, 3))
 
-  inputYears <- getYears(xInput, as.integer = TRUE)
-  transitionYears <- inputYears[inputYears > harmonizationPeriod[1] & inputYears < harmonizationPeriod[2]]
   xTarget <- calcOutput("NonlandTargetExtrapolated", input = input, target = target,
                         harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
 

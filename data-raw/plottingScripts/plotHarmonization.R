@@ -1,3 +1,4 @@
+# nolint start
 plotHarmonization <- function(input, target, harmonizationPeriod) {
   lir <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
   ltex <- calcOutput("LandTargetExtrapolated", input = input, target = target,
@@ -67,3 +68,4 @@ plotHistogram <- function(input, target, harmonizationPeriod, variables) {
     # + scale_x_continuous(n.breaks = 8)
   )
 }
+# nolint end

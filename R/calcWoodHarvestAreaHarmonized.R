@@ -46,8 +46,6 @@ calcWoodHarvestAreaHarmonized <- function(input, target, harmonizationPeriod, me
   xInput <- calcOutput("NonlandInputRecategorized", input = input, target = target, aggregate = FALSE)
   xInput <- xInput[, , woodHarvestAreaCategories()]
 
-  inputYears <- getYears(xInput, as.integer = TRUE)
-  transitionYears <- inputYears[inputYears > harmonizationPeriod[1] & inputYears < harmonizationPeriod[2]]
   xTarget <- calcOutput("NonlandTargetExtrapolated", input = input, target = target,
                         harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
   xTarget <- xTarget[, , woodHarvestAreaCategories()]

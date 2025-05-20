@@ -17,8 +17,6 @@ calcLandHarmonized <- function(input, target, harmonizationPeriod, method = "fad
   geometry <- attr(xInput, "geometry")
   crs <- attr(xInput, "crs")
 
-  inputYears <- getYears(xInput, as.integer = TRUE)
-  transitionYears <- inputYears[inputYears > harmonizationPeriod[1] & inputYears < harmonizationPeriod[2]]
   xTarget <- calcOutput("LandTargetExtrapolated", input = input, target = target,
                         harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
 

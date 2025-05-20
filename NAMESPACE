@@ -2,7 +2,6 @@
 
 export(downscaleRun)
 export(downscaleRunESM)
-export(plotLowHigh)
 export(toolGetSmallerArea)
 export(toolMaxExpansion)
 export(toolResolutionMapping)
