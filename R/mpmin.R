@@ -1,6 +1,6 @@
 # pmin does not care about the order of items in a magclass object's dim
 # mpmin reoders items in each dim so they are in the same order
-# TODO move this to magclass
+# this function should eventually be moved into the magclass package
 mpmin <- function(a, b) {
   stopifnot(is.magpie(a), is.magpie(b))
 
