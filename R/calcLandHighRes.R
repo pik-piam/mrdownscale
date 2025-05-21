@@ -11,32 +11,52 @@
 #' dataset is used, in between harmonize between the two datasets
 #' @param yearsSubset vector of years to keep in the output dataset
 #' @param downscaling name of downscaling method, currently only "magpieClassic"
+#' @param harmonization name of harmonization method, see \link{\code{toolGetHarmonizer}}
 #' @return downscaled land use data
 #' @author Jan Philipp Dietrich, Pascal Sauer
-calcLandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, downscaling = "magpieClassic") {
+calcLandHighRes <- function(input, target, harmonizationPeriod, yearsSubset,
+                            downscaling = "magpieClassic", harmonization = "fade") {
   x <- calcOutput("LandHarmonized", input = input, target = target,
-                  harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
+                  harmonizationPeriod = harmonizationPeriod, method = harmonization,
+                  aggregate = FALSE)
   x <- x[, getYears(x, as.integer = TRUE) %in% yearsSubset, ]
+
+  hp1 <- harmonizationPeriod[1]
 
   xTarget <- calcOutput("LandTarget", target = target, aggregate = FALSE)
   xTarget <- as.magpie(xTarget[[terra::time(xTarget) %in% yearsSubset]])
-  stopifnot(harmonizationPeriod[1] %in% getYears(xTarget, as.integer = TRUE))
+  stopifnot(hp1 %in% getYears(xTarget, as.integer = TRUE))
 
   x <- x[, , getItems(xTarget, 3)]
 
   landTargetLowRes <- calcOutput("LandTargetLowRes", input = input, target = target, aggregate = FALSE)
+  landTargetLowRes <- landTargetLowRes[, hp1, getItems(x, 3)]
+  stopifnot(setequal(getItems(landTargetLowRes, 1), getItems(x, 1)))
+
   mapping <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
 
+  if (harmonization == "none") {
+    # no harmonization means area is not equal, but that is required by downscaling functions
+    # want to preserve input as much as possible, so scale target
+
+    # if some clusters have 0 land area in target (so cannot scale) set them to input
+    totalArea <- dimSums(landTargetLowRes, 3)
+    zeroClusters <- Filter(x = getItems(totalArea, 1), f = function(cluster) totalArea[cluster, , ] == 0)
+    stopifnot(x[zeroClusters, hp1, ] < 10^-3)
+    landTargetLowRes[zeroClusters, hp1, ] <- x[zeroClusters, hp1, ]
+    landTargetLowRes <- toolEqualizeArea(landTargetLowRes, x[, hp1, ])
+  }
+
   if (downscaling == "magpieClassic") {
-    out <- toolDownscaleMagpieClassic(x[, getYears(x, as.integer = TRUE) >= harmonizationPeriod[1], ],
-                                      xTarget[, harmonizationPeriod[1], ],
-                                      xTargetLowRes = landTargetLowRes[, harmonizationPeriod[1], ],
+    out <- toolDownscaleMagpieClassic(x[, getYears(x, as.integer = TRUE) >= hp1, ],
+                                      xTarget[, hp1, ],
+                                      xTargetLowRes = landTargetLowRes,
                                       mapping = mapping)
   } else {
     stop("Unsupported downscaling method \"", downscaling, "\"")
   }
   histYears <- getYears(x, as.integer = TRUE)
-  histYears <- histYears[histYears < harmonizationPeriod[1]]
+  histYears <- histYears[histYears < hp1]
   if (length(histYears) > 0) {
     out <- mbind(xTarget[, histYears, ], out)
   }
@@ -48,8 +68,8 @@ calcLandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, dow
                  "Dimensions are named correctly")
   toolExpectTrue(setequal(getItems(out, dim = 3), getItems(x, dim = 3)),
                  "Land categories remain unchanged")
-  toolExpectLessDiff(out[, harmonizationPeriod[1], ], xTarget[, harmonizationPeriod[1], ], 10^-5,
-                     paste("In", harmonizationPeriod[1], "output equals target"))
+  toolExpectLessDiff(out[, hp1, ], xTarget[, hp1, ], 10^-5,
+                     paste("In", hp1, "output equals target"))
   toolExpectTrue(all(out >= 0), "All values are >= 0")
 
   outSum <- dimSums(out, dim = 3)

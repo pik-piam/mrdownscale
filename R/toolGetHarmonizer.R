@@ -6,9 +6,11 @@
 #' @return harmonizer function
 #' @author Pascal Sauer
 toolGetHarmonizer <- function(harmonizerName) {
-  harmonizers <- list(offset = toolHarmonizeOffset,
-                      fade = toolHarmonizeFade,
-                      none = toolHarmonizeNone)
+  # function(...) toolHarmonizeOffset(...) instead of passing
+  # toolHarmonizeOffset directly so madrat recognizes it as dependency
+  harmonizers <- list(offset = function(...) toolHarmonizeOffset(...),
+                      fade = function(...) toolHarmonizeFade(...),
+                      none = function(...) toolHarmonizeNone(...))
   stopifnot(harmonizerName %in% names(harmonizers))
   return(harmonizers[[harmonizerName]])
 }
