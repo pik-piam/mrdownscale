@@ -36,5 +36,12 @@ toolHarmonizeFade <- function(xInput, xTarget, harmonizationPeriod) {
   out <- mbind(xTarget[, targetYears < min(outYears), ],
                out,
                xInput[, inputYears > max(outYears), ])
+
+  # during harmonization primf and primn expansion might be introduced due to
+  # primf or primn differences between input and target dataset
+  # replace primf and primn expansion with secdf and secdn
+  out <- toolReplaceExpansion(out, "primf", "secdf", warnThreshold = 100)
+  out <- toolReplaceExpansion(out, "primn", "secdn", warnThreshold = 100)
+
   return(out)
 }

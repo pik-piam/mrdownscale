@@ -12,17 +12,13 @@
 #' dataset is used, in between harmonize between the two datasets
 #' @param method transitioning method
 #' @author Pascal Sauer, Jan Philipp Dietrich
-calcLandHarmonized <- function(input, target, harmonizationPeriod,
-                               method = "fade") {
-  xInput    <- calcOutput("LandInputRecategorized", input = input,
-                          target = target, aggregate = FALSE)
+calcLandHarmonized <- function(input, target, harmonizationPeriod, method = "fade") {
+  xInput <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
   geometry <- attr(xInput, "geometry")
-  crs      <- attr(xInput, "crs")
+  crs <- attr(xInput, "crs")
 
-  inputYears <- getYears(xInput, as.integer = TRUE)
-  transitionYears <- inputYears[inputYears > harmonizationPeriod[1] & inputYears < harmonizationPeriod[2]]
   xTarget <- calcOutput("LandTargetExtrapolated", input = input, target = target,
-                        transitionYears = transitionYears, aggregate = FALSE)
+                        harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
 
   # checks and corrections
   inSum <- dimSums(xInput, dim = 3)
@@ -43,12 +39,6 @@ calcLandHarmonized <- function(input, target, harmonizationPeriod,
 
   harmonizer <- toolGetHarmonizer(method)
   out <- harmonizer(xInput, xTarget, harmonizationPeriod = harmonizationPeriod)
-
-  # during harmonization primf and primn expansion might be introduced due to
-  # primf or primn differences between input and target dataset
-  # replace primf and primn expansion with secdf and secdn
-  out <- toolReplaceExpansion(out, "primf", "secdf", warnThreshold = 100)
-  out <- toolReplaceExpansion(out, "primn", "secdn", warnThreshold = 100)
 
   attr(out, "geometry") <- geometry
   attr(out, "crs")      <- crs

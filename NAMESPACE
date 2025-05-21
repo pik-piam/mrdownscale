@@ -2,11 +2,9 @@
 
 export(downscaleRun)
 export(downscaleRunESM)
-export(plotLowHigh)
 export(toolGetSmallerArea)
 export(toolMaxExpansion)
 export(toolResolutionMapping)
-export(toolSpatRasterToDataset)
 export(toolTransitionsBasic)
 import(madrat)
 import(magclass)

@@ -7,14 +7,21 @@
 #' @return nonland target data
 #' @author Pascal Sauer
 calcNonlandTarget <- function(target) {
-  if (target %in% c("luh2", "luh2mod")) {
-    cellAreaKm2 <- readSource("LUH2v2h", subtype = "cellArea", convert = FALSE)
+  if (target %in% c("luh2", "luh2mod", "luh3")) {
+    if (target %in% c("luh2", "luh2mod")) {
+      cellAreaKm2 <- readSource("LUH2v2h", subtype = "cellArea", convert = FALSE)
+      management <- readSource("LUH2v2h", subtype = "management", convert = FALSE)
+      transitions <- readSource("LUH2v2h", subtype = "transitions", convert = FALSE)
+    } else {
+      cellAreaKm2 <- readSource("LUH3", subtype = "cellArea", convert = FALSE)
+      management <- readSource("LUH3", subtype = "management", subset = 1995:2020, convert = FALSE)
+      transitions <- readSource("LUH3", subtype = "transitions", subset = 1995:2020, convert = FALSE)
+    }
+
     # convert from km2 to ha
     cellAreaHa <- cellAreaKm2 * 100
     # convert from km2 to Mha
     cellAreaMha <- cellAreaKm2 / 10000
-
-    management <- readSource("LUH2v2h", subtype = "management", convert = FALSE)
 
     ### fertilizer in kg yr-1
     # need absolute values for downscaling, fertl_* is in kg ha-1 yr-1, convert to kg yr-1
@@ -22,20 +29,34 @@ calcNonlandTarget <- function(target) {
     names(fertilizer) <- paste0(sub("fertl_", "", names(fertilizer)), "_fertilizer")
     terra::units(fertilizer) <- "kg yr-1"
 
-    transitions <- readSource("LUH2v2h", subtype = "transitions", convert = FALSE)
-
     ### wood harvest area in Mha yr-1
+    # LUH3 includes pltns_harv variable, but it's zero everywhere, so no need to read it
+    pltnsWoodHarvestArea <- transitions["primf_harv"] * 0
+    names(pltnsWoodHarvestArea) <- sub("primf", "pltns", names(pltnsWoodHarvestArea))
+    terra::varnames(pltnsWoodHarvestArea) <- "pltns_harv"
+    terra::longnames(pltnsWoodHarvestArea) <- "wood harvest area from plantation forest vegetation"
+
     # convert from shares to Mha yr-1
     woodHarvestArea <- c(transitions["primf_harv"] * cellAreaMha,
                          transitions["primn_harv"] * cellAreaMha,
                          transitions["secmf_harv"] * cellAreaMha,
                          transitions["secyf_harv"] * cellAreaMha,
-                         transitions["secnf_harv"] * cellAreaMha)
+                         transitions["secnf_harv"] * cellAreaMha,
+                         pltnsWoodHarvestArea)
     names(woodHarvestArea) <- paste0(sub("_harv", "", names(woodHarvestArea)), "_wood_harvest_area")
     terra::units(woodHarvestArea) <- "Mha yr-1"
 
     ### wood harvest weight (bioh) in kg C yr-1
-    woodHarvestWeight <- transitions["bioh"]
+    woodHarvestWeight <- c(transitions["(primf|primn|secmf|secyf|secnf)_bioh"])
+
+    # LUH3 includes pltns_bioh variable, but it's zero everywhere, so no need to read it
+    pltnsBioh <- woodHarvestWeight["primf_bioh"] * 0
+    names(pltnsBioh) <- sub("primf", "pltns", names(pltnsBioh))
+    terra::varnames(pltnsBioh) <- "pltns_bioh"
+    terra::longnames(pltnsBioh) <- "wood harvest biomass carbon from plantation forest vegetation"
+
+    woodHarvestWeight <- c(woodHarvestWeight, pltnsBioh)
+
     minWoodHarvestWeight <- min(terra::minmax(woodHarvestWeight, compute = TRUE))
     if (minWoodHarvestWeight < 0) {
       # replace negative weight of wood harvest with 0

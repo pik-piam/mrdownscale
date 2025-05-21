@@ -151,9 +151,32 @@ primf_harv,wood harvest area from primary vegetation on LUH2 potential forest la
 primn_harv,wood harvest area from primary vegetation on LUH2 potential non-forest land,wood harvest area from primary non forest land,area_fraction,,share of carea
 secmf_harv,wood harvest area from secondary mature vegetation on LUH2 potential forest land,wood harvest area from secondary mature forest land,area_fraction,,share of carea
 secyf_harv,wood harvest area from secondary young vegetation on LUH2 potential forest land,wood harvest area from secondary young forest land,area_fraction,,share of carea
+secdf_harv,wood harvest area from secondary vegetation on LUH2 potential forest land,wood harvest area from secondary forest land,area_fraction,,share of carea
 secnf_harv,wood harvest area from secondary vegetation on LUH2 potential non-forest land,wood harvest area from secondary non forest land,area_fraction,,share of carea
+pltns_harv,wood harvest area from plantation forest vegetation,,,,share of carea
 primf_bioh,wood harvest biomass carbon from primary vegetation on LUH2 potential forest land,wood harvest biomass carbon from primary forest land,vegetation_carbon_content,,kg C yr-1
 primn_bioh,wood harvest biomass carbon from primary vegetation on LUH2 potential non-forest land,wood harvest biomass carbon from primary non forest land,vegetation_carbon_content,,kg C yr-1
 secmf_bioh,wood harvest biomass carbon from secondary mature vegetation on LUH2 potential forest land,wood harvest biomass carbon from secondary mature forest land,vegetation_carbon_content,,kg C yr-1
 secyf_bioh,wood harvest biomass carbon from secondary young vegetation on LUH2 potential forest land,wood harvest biomass carbon from secondary young forest land,vegetation_carbon_content,,kg C yr-1
+secdf_bioh,wood harvest biomass carbon from secondary vegetation on LUH2 potential forest land,wood harvest biomass carbon from secondary forest land,vegetation_carbon_content,,kg C yr-1
 secnf_bioh,wood harvest biomass carbon from secondary vegetation on LUH2 potential non-forest land,wood harvest biomass carbon from secondary non forest land,vegetation_carbon_content,,kg C yr-1
+pltns_bioh,wood harvest biomass carbon from plantation forest vegetation,,,,kg C yr-1
+pltns,plantation forests,plantation forests,,,share of carea
+cpbf1_c3ann,C3 annual crops fraction of crop type area grown as biofuels,area_fraction,,,share of c3ann
+cpbf1_c4ann,C4 annual crops fraction of crop type area grown as biofuels,area_fraction,,,share of c4ann
+cpbf1_c3per,C3 perennial crops fraction of crop type area grown as biofuels,area_fraction,,,share of c3per
+cpbf1_c4per,C4 perennial crops fraction of crop type area grown as biofuels,area_fraction,,,share of c4per
+cpbf1_c3nfx,C3 nitrogen-fixing crops fraction of crop type area grown as biofuels,area_fraction,,,share of c3nfx
+cpbf2_c3ann,C3 annual crops grown as second-generation biofuels,area_fraction,,,share of c3ann
+cpbf2_c4ann,C4 annual crops grown as second-generation biofuels,area_fraction,,,share of c4ann
+cpbf2_c3per,C3 perennial crops grown as second-generation biofuels,area_fraction,,,share of c3per
+cpbf2_c4per,C4 perennial crops grown as second-generation biofuels,area_fraction,,,share of c4per
+cpbf2_c3nfx,C3 nitrogen-fixing crops grown as second-generation biofuels,area_fraction,,,share of c3nfx
+pltns_bfuel,fraction of harvested plantations biomass used for bioenergy,,,,share of pltns
+pltns_wdprd,fraction of harvested plantations biomass used for wood products,,,,share of pltns
+prtct_pltns,protected fraction of plantation forest,,,,share of pltns
+prtct_primf,protected fraction of primary forest,,,,share of primf
+prtct_primn,protected fraction of primary non-forest,,,,share of primn
+prtct_secdf,protected fraction of secondary forest,,,,share of secdf
+prtct_secdn,protected fraction of secondary non-forest,,,,share of secdn
+addtc,added tree cover (for afforestation),,,,share of carea

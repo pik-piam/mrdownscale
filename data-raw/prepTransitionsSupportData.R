@@ -1,5 +1,5 @@
-library(terra) # nolint: undesirable_function_linter
-library(magclass) # nolint: undesirable_function_linter
+library(terra) # nolint: undesirable_function_linter.
+library(magclass) # nolint: undesirable_function_linter.
 
 
 extractTransitions <- function(file = "transitions.nc", years = 2014:2015, filterPrimary = TRUE) {
@@ -70,7 +70,8 @@ getBidirectionalTransitions <- function(b) {
   pairs$id <- NULL
 
   # compute bidirectional transitions
-  bmin <- pmin(b[, , pairs$from], setItems(b[, , pairs$to], dim = 3, pairs$from, raw = TRUE))
+  bmin <- mpmin(b[, , pairs$from],
+                setItems(b[, , pairs$to], dim = 3, pairs$from, raw = TRUE))
   return(bmin)
 }
 

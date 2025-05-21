@@ -5,20 +5,20 @@
 #' are reduced by at least as much as they were harvested.
 #'
 #' @param harvest magpie object with exactly the following categories:
-#' paste0(c("primf", "secyf", "secmf", "primn", "secnf"), "_wood_harvest_area")
+#' paste0(c("primf", "secyf", "secmf", "pltns", "primn", "secnf"), "_wood_harvest_area")
 #' @param land magpie object with at least the following categories:
-#' c("primf", "secdf", "forestry", "primn", "secdn")
+#' c("primf", "secdf", "pltns", "primn", "secdn")
 #' @param notePrefix character to prepend to the check's message
 #'
 #' @author Pascal Sauer
 toolCheckWoodHarvestArea <- function(harvest, land, notePrefix = "") {
   stopifnot(setequal(getItems(harvest, 1), getItems(land, 1)))
   harvest <- toolAggregateWoodHarvest(harvest)
-  stopifnot(getItems(harvest, 3) %in% getItems(land, 3),
-            identical(getYears(harvest), getYears(land)))
+
+  stopifnot(identical(getYears(harvest), getYears(land)))
   years <- getYears(land, as.integer = TRUE)
 
-  maxHarvestPerYear <- toolMaxHarvestPerYear(land, disaggregate = FALSE)
+  maxHarvestPerYear <- toolMaxHarvestPerYear(land, split = FALSE)
   excessHarvestPerYear <- harvest[, -1, ] - maxHarvestPerYear
   stopifnot(identical(getItems(excessHarvestPerYear, 2), getItems(maxHarvestPerYear, 2)))
 
@@ -45,6 +45,7 @@ toolWoodHarvestMapping <- function() {
   map <- as.data.frame(rbind(c("primf_wood_harvest_area", "primf"),
                              c("secyf_wood_harvest_area", "secdf"),
                              c("secmf_wood_harvest_area", "secdf"),
+                             c("pltns_wood_harvest_area", "pltns"),
                              c("primn_wood_harvest_area", "primn"),
                              c("secnf_wood_harvest_area", "secdn")))
   colnames(map) <- c("harvest", "land")
@@ -55,6 +56,7 @@ toolBiohMapping <- function() {
   map <- as.data.frame(rbind(c("primf_bioh", "primf"),
                              c("secyf_bioh", "secdf"),
                              c("secmf_bioh", "secdf"),
+                             c("pltns_bioh", "pltns"),
                              c("primn_bioh", "primn"),
                              c("secnf_bioh", "secdn")))
   colnames(map) <- c("bioh", "land")
@@ -69,35 +71,6 @@ toolAggregateWoodHarvest <- function(woodHarvest) {
   return(toolAggregate(woodHarvest, map, from = "harvest", to = "land", dim = 3))
 }
 
-toolMaxHarvestPerYear <- function(land, disaggregate = TRUE) {
-  timestepLength <- new.magpie(years = getYears(land)[-1],
-                               fill = diff(getYears(land, as.integer = TRUE)))
-  stopifnot(timestepLength > 0)
-  land <- toolWoodland(land)[, , c("primf", "primn", "secdf", "secdn")]
-  if (disaggregate) {
-    getItems(land, 3) <- paste0(c("primf", "primn", "secyf", "secnf"), "_wood_harvest_area")
-    land <- add_columns(land, "secmf_wood_harvest_area")
-    land[, , "secmf_wood_harvest_area"] <- land[, , "secyf_wood_harvest_area"]
-  }
-  maxHarvest <- setYears(land[, -nyears(land), ], getYears(land)[-1])
-  maxHarvestPerYear <- maxHarvest / timestepLength
-  return(maxHarvestPerYear)
-}
-
 woodHarvestAreaCategories <- function() {
-  return(paste0(c("primf", "secyf", "secmf", "primn", "secnf"), "_wood_harvest_area"))
-}
-
-# extract woodland categories from land, aggregate forestry and secdf to secdf
-# useful when working with wood harvest area / bioh
-toolWoodland <- function(land) {
-  land <- land[, , c("primf", "secdf", "forestry", "primn", "secdn")]
-  map <- as.data.frame(rbind(c("secdf", "secdf"),
-                             c("forestry", "secdf"),
-                             c("secdn", "secdn"),
-                             c("primf", "primf"),
-                             c("primn", "primn")))
-  colnames(map) <- c("from", "to")
-  land <- toolAggregate(land, map, from = "from", to = "to", dim = 3)
-  return(land)
+  return(paste0(c("primf", "secyf", "secmf", "pltns", "primn", "secnf"), "_wood_harvest_area"))
 }

@@ -14,12 +14,15 @@
 #'
 #' @param input character, name of the input data set
 #' @param target character, name of the target data set
-#' @param transitionYears years to which the target data is extrapolated
+#' @param harmonizationPeriod Two integer values, will extrapolate to all years
+#' present in input data between harmonization start and end year
 #' @return extrapolated land target data, if calcOutput is called with
 #' supplementary = TRUE and target is luh2mod wood harvest area is also returned
 #' @author Pascal Sauer
-calcLandTargetExtrapolated <- function(input, target, transitionYears) {
-  stopifnot(identical(transitionYears, sort(transitionYears)))
+calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
+  xInput <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
+  inputYears <- getYears(xInput, as.integer = TRUE)
+  transitionYears <- inputYears[inputYears > harmonizationPeriod[1] & inputYears < harmonizationPeriod[2]]
 
   xTarget <- calcOutput("LandTargetLowRes", input = input, target = target, aggregate = FALSE)
   histYears <- getYears(xTarget, as.integer = TRUE)
@@ -43,7 +46,7 @@ calcLandTargetExtrapolated <- function(input, target, transitionYears) {
   out <- toolReplaceExpansion(out, "primn", "secdn", noteThreshold = 100, warnThreshold = 100)
 
   harvest <- NULL
-  if (target == "luh2mod") {
+  if (target %in% c("luh2mod", "luh3")) {
     # ------- calculate wood harvest shares -------
     harvestHist <- calcOutput("NonlandTargetLowRes", input = input, target = target, aggregate = FALSE)
     harvestHist <- harvestHist[, , endsWith(getItems(harvestHist, 3), "wood_harvest_area")]
@@ -86,9 +89,11 @@ calcLandTargetExtrapolated <- function(input, target, transitionYears) {
       toSecd[toSecd < 0] <- 0
       getItems(toSecd, 3) <- secdfn
       out[, i, secdfn] <- out[, i, secdfn] + toSecd
-      out[, i, primfn] <- pmin(out[, i, primfn], maxPossiblePrim)
+      out[, i, primfn] <- mpmin(out[, i, primfn], maxPossiblePrim)
 
-      woodland <- toolWoodland(out)[, , getItems(harvestAgg, 3)]
+      woodland <- out[, , c("primf", "primn", "secdf", "secdn")]
+      woodland <- add_columns(woodland, "pltns")
+      woodland[, , "pltns"] <- dimSums(out[, , c("pltns_added_treecover", "pltns_excl_added_treecover")])
       stopifnot(harvestAgg <= woodland[, i - 1, ] / timestepLength,
                 woodland[, i, primfn] <= woodland[, i - 1, primfn] - timestepLength * harvestAgg[, , primfn])
     }

@@ -19,7 +19,6 @@
 #' @author Pascal Sauer, Jan Philipp Dietrich
 fullESM <- function(rev = numeric_version("0"), ..., scenario = "", harmonizationPeriod = c(2015, 2050),
                     yearsSubset = 2015:2150, compression = 2, progress = TRUE) {
-
   stopifnot(...length() == 0)
 
   revision <- if (identical(rev, numeric_version("0"))) format(Sys.time(), "%Y-%m-%d") else rev
@@ -32,22 +31,36 @@ fullESM <- function(rev = numeric_version("0"), ..., scenario = "", harmonizatio
                     gridDefinition = c(-179.875, 179.875, -89.875, 89.875, 0.25))
 
   metadataArgs <- list(revision = revision, missingValue = 1e20, resolution = 0.25,
-                       compression = compression, harmonizationPeriod = harmonizationPeriod)
+                       compression = compression, harmonizationPeriod = harmonizationPeriod,
+                       activityId = "RESCUE/OptimESM",
+                       references = paste0("https://github.com/pik-piam/mrdownscale and ",
+                                           "https://rescue-climate.eu/ and https://optimesm-he.eu/"),
+                       targetMIP = "RESCUE/OptimESM",
+                       ncTitle = "MAgPIE Land-Use Data Harmonized and Downscaled using LUH2 v2h as reference",
+                       referenceDataset = "LUH2 v2h Release (10/14/16) from https://luh.umd.edu/data.shtml",
+                       furtherInfoUrl = paste0("https://github.com/pik-piam/mrdownscale/blob/",
+                                               "f358ccc1902da769e49c5d52e1085db6b8c797b3/changelog.md"))
 
-  file <- paste0("multiple-states", fileSuffix)
-  calcOutput("ESMStates", harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
-             aggregate = FALSE, file = file, writeArgs = writeArgs)
-  toolAddMetadataESM(file, metadataArgs)
+  ncFile <- paste0("multiple-states", fileSuffix)
+  calcOutput("StatesNC", outputFormat = "ESM",
+             harmonizationPeriod = harmonizationPeriod,
+             yearsSubset = yearsSubset,
+             aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
+  do.call(toolAddMetadataNC, c(ncFile = ncFile, metadataArgs))
 
-  file <- paste0("multiple-management", fileSuffix)
-  calcOutput("ESMManagement", harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
-             aggregate = FALSE, file = file, writeArgs = writeArgs)
-  toolAddMetadataESM(file, metadataArgs)
+  ncFile <- paste0("multiple-management", fileSuffix)
+  calcOutput("ManagementNC", outputFormat = "ESM",
+             harmonizationPeriod = harmonizationPeriod,
+             yearsSubset = yearsSubset,
+             aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
+  do.call(toolAddMetadataNC, c(ncFile = ncFile, metadataArgs))
 
-  file <- paste0("multiple-transitions", fileSuffix)
-  calcOutput("ESMTransitions", harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
-             aggregate = FALSE, file = file, writeArgs = writeArgs)
-  toolAddMetadataESM(file, metadataArgs)
+  ncFile <- paste0("multiple-transitions", fileSuffix)
+  calcOutput("TransitionsNC", outputFormat = "ESM",
+             harmonizationPeriod = harmonizationPeriod,
+             yearsSubset = yearsSubset,
+             aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
+  do.call(toolAddMetadataNC, c(ncFile = ncFile, metadataArgs))
 
   toolWriteMadratLog(logPath = "consistencyCheck.log")
 }

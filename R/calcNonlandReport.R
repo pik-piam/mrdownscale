@@ -2,8 +2,7 @@
 #'
 #' Convert the downscaled nonland data to the format required by the given project.
 #'
-#' @param outputFormat format in which the outputs should be prepared. Currently,
-#' only "ESM" for earth system model compatible input data is available.
+#' @param outputFormat options: ESM, ScenarioMIP
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
@@ -17,11 +16,31 @@
 #' }
 #' @author Pascal Sauer
 calcNonlandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
-  if (outputFormat == "ESM") {
-    x <- calcOutput("NonlandHighRes", input = "magpie", target = "luh2mod",
+  if (outputFormat %in% c("ESM", "ScenarioMIP")) {
+    input <- "magpie"
+    if (outputFormat == "ESM") {
+      target <- "luh2mod"
+      cellAreaKm2 <- readSource("LUH2v2h", subtype = "cellArea", convert = FALSE)
+    } else if (outputFormat == "ScenarioMIP") {
+      target <- "luh3"
+      cellAreaKm2 <- readSource("LUH3", subtype = "cellArea", convert = FALSE)
+    }
+    x <- calcOutput("NonlandHighRes", input = input, target = target,
                     harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset, aggregate = FALSE)
 
-    cellAreaKm2 <- readSource("LUH2v2h", subtype = "cellArea", convert = FALSE)
+    if (outputFormat == "ScenarioMIP") {
+      # combine secyf + secmf into secdf
+      secyfWha <- "secyf_wood_harvest_area"
+      secmfWha <- "secmf_wood_harvest_area"
+      x[, , secyfWha] <- dimSums(x[, , c(secyfWha, secmfWha)], dim = 3)
+      x <- x[, , secmfWha, invert = TRUE]
+      getNames(x) <- sub(secyfWha, "secdf_wood_harvest_area", getNames(x))
+
+      x[, , "secyf_bioh"] <- dimSums(x[, , c("secyf_bioh", "secmf_bioh")], dim = 3)
+      x <- x[, , "secmf_bioh", invert = TRUE]
+      getNames(x) <- sub("secyf_bioh", "secdf_bioh", getNames(x))
+    }
+
     cellAreaKm2 <- as.magpie(cellAreaKm2)
     stopifnot(getItems(x, 1) %in% getItems(cellAreaKm2, 1))
     cellAreaKm2 <- collapseDim(cellAreaKm2[getItems(x, 1), , ], 3)
@@ -42,7 +61,7 @@ calcNonlandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
 
     # get rndwd/fulwd shares per country to replace NAs
     coords <- getCoords(woodTypeShares)
-    mapping <- calcOutput("ResolutionMapping", input = "magpie", target = "luh2mod", aggregate = FALSE)
+    mapping <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
     mapping <- mapping[, c("x", "y", "country")]
     merged <- merge(coords, mapping, sort = FALSE)
     stopifnot(identical(merged[, c("x", "y")], coords))
@@ -82,6 +101,6 @@ calcNonlandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
                 unit = "rndwd & fulwd: 1; bioh: kg C yr-1; harv: 1; fertl: kg ha-1 yr-1",
                 description = "Downscaled nonland data report for use in ESMs"))
   } else {
-    stop("Can only report for outputFormat = 'ESM'")
+    stop("Can only report for outputFormat = ESM/ScenarioMIP")
   }
 }

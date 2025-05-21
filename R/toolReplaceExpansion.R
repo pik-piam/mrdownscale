@@ -31,7 +31,7 @@ toolReplaceExpansion <- function(x, from, to, ..., noteThreshold = 10^-10, warnT
     difference[difference < 0] <- 0
     maxDiff <- max(maxDiff, max(difference))
     # use pmin instead of subtracting to avoid tiny expansions due to numerical imprecision
-    x[, i, from] <- pmin(x[, i, from], x[, i - 1, from])
+    x[, i, from] <- mpmin(x[, i, from], x[, i - 1, from])
     x[, i, to] <- x[, i, to] + magclass::setNames(difference, to)
   }
 

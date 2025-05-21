@@ -22,18 +22,23 @@ calcLandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, dow
   xTarget <- as.magpie(xTarget[[terra::time(xTarget) %in% yearsSubset]])
   stopifnot(harmonizationPeriod[1] %in% getYears(xTarget, as.integer = TRUE))
 
+  x <- x[, , getItems(xTarget, 3)]
+
+  landTargetLowRes <- calcOutput("LandTargetLowRes", input = input, target = target, aggregate = FALSE)
   mapping <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
 
   if (downscaling == "magpieClassic") {
     out <- toolDownscaleMagpieClassic(x[, getYears(x, as.integer = TRUE) >= harmonizationPeriod[1], ],
-                                      xTarget[, harmonizationPeriod[1], ], mapping)
-    histYears <- getYears(x, as.integer = TRUE)
-    histYears <- histYears[histYears < harmonizationPeriod[1]]
-    if (length(histYears) > 0) {
-      out <- mbind(xTarget[, histYears, ], out)
-    }
+                                      xTarget[, harmonizationPeriod[1], ],
+                                      xTargetLowRes = landTargetLowRes[, harmonizationPeriod[1], ],
+                                      mapping = mapping)
   } else {
     stop("Unsupported downscaling method \"", downscaling, "\"")
+  }
+  histYears <- getYears(x, as.integer = TRUE)
+  histYears <- histYears[histYears < harmonizationPeriod[1]]
+  if (length(histYears) > 0) {
+    out <- mbind(xTarget[, histYears, ], out)
   }
 
   out <- toolReplaceExpansion(out, "primf", "secdf", warnThreshold = 100)

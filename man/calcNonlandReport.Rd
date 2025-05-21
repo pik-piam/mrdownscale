@@ -7,8 +7,7 @@
 calcNonlandReport(outputFormat, harmonizationPeriod, yearsSubset)
 }
 \arguments{
-\item{outputFormat}{format in which the outputs should be prepared. Currently,
-only "ESM" for earth system model compatible input data is available.}
+\item{outputFormat}{options: ESM, ScenarioMIP}
 
 \item{harmonizationPeriod}{Two integer values, before the first given
 year the target dataset is used, after the second given year the input

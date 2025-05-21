@@ -6,7 +6,7 @@
 #' data other constraints apply, e.g. the total area must be constant over time.
 #'
 #' input = "magpie": includes the land use categories
-#' past (pasture, including rangeland), forestry (managed forest),
+#' past (pasture, including rangeland), forestry (managed forest plantations),
 #' primforest, secdforest, urban, other (other land) and many
 #' specific crop types. Furthermore, 1st gen biofuel is
 #' added and filled with zeros. 1st gen biofuel is only modeled implicitly in
@@ -25,12 +25,26 @@ calcLandInput <- function(input) {
     getItems(crop, dim = 3.1, full = TRUE) <- sub("\\.", "_", getItems(crop, dim = 3, full = TRUE))
     getItems(crop, dim = 3.2) <- NULL
 
-    out <- mbind(land[, , "crop", invert = TRUE], crop)
+    toolExpectLessDiff(land[, , "crop_area"],
+                       dimSums(crop, dim = 3),
+                       10^-5, "sum over all crops equals crop_area")
+
+    # scale crop to take up the whole area of crop_area + crop_fallow + crop_treecover
+    # need this to report for ScenarioMIP/LUH-format, might not want this for other applications
+    totalCrop <- dimSums(land[, , c("crop_area", "crop_fallow", "crop_treecover")])
+    scalingFactors <- totalCrop / dimSums(crop, dim = 3)
+    scalingFactors[is.na(scalingFactors)] <- 1
+    crop <- crop * scalingFactors
+
+    toolExpectLessDiff(dimSums(crop, dim = 3), totalCrop, 10^-5,
+                       "after scaling, sum over all crops equals crop_area + crop_fallow + crop_treecover")
+
+    out <- mbind(land[, , c("crop_area", "crop_fallow", "crop_treecover"), invert = TRUE], crop)
 
     # see note in the documentation of this function
     out <- add_columns(out, "biofuel_1st_gen", fill = 0)
 
-    expectedCategories <- toolLandCategoriesMapping(input = input, target = "luh2mod")$dataInput
+    expectedCategories <- toolGetMapping("referenceMappings/magpie.csv", where = "mrdownscale")$data
   } else {
     stop("Unsupported input type \"", input, "\"")
   }
