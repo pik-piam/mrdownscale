@@ -10,13 +10,13 @@
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
 #' @param yearsSubset vector of years to keep in the output dataset
+#' @param harmonization name of harmonization method, see \code{\link{toolGetHarmonizer}}
 #' @param downscaling name of downscaling method, currently only "magpieClassic"
-#' @param harmonization name of harmonization method, see \link{\code{toolGetHarmonizer}}
 #' @return downscaled land use data
 #' @author Jan Philipp Dietrich, Pascal Sauer
-calcLandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, downscaling, harmonization) {
+calcLandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, harmonization, downscaling) {
   x <- calcOutput("LandHarmonized", input = input, target = target,
-                  harmonizationPeriod = harmonizationPeriod, method = harmonization,
+                  harmonizationPeriod = harmonizationPeriod, harmonization = harmonization,
                   aggregate = FALSE)
   x <- x[, getYears(x, as.integer = TRUE) %in% yearsSubset, ]
 

@@ -8,6 +8,8 @@
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
 #' @param yearsSubset remove years from the returned data which are not in yearsSubset
+#' @param harmonization name of harmonization method, see \code{\link{toolGetHarmonizer}}
+#' @param downscaling name of downscaling method, currently only "magpieClassic"
 #' @return data prepared to be written as a LUH-style management.nc file
 #' @author Pascal Sauer, Jan Philipp Dietrich
 calcManagementNC <- function(outputFormat, harmonizationPeriod, yearsSubset, harmonization, downscaling) {

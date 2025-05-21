@@ -12,6 +12,8 @@
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
 #' @param target Name of dataset to be used as harmonization target and downscaling reference
+#' @param harmonization name of harmonization method, see \code{\link{toolGetHarmonizer}}
+#' @param downscaling name of downscaling method, currently only "magpieClassic"
 #'
 #' @author Pascal Sauer
 fullDOWNSCALEDMAGPIE <- function(rev = numeric_version("0"), ...,

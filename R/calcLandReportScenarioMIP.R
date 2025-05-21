@@ -6,6 +6,8 @@
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
 #' @param yearsSubset vector of years to keep in the output dataset
+#' @param harmonization name of harmonization method, see \code{\link{toolGetHarmonizer}}
+#' @param downscaling name of downscaling method, currently only "magpieClassic"
 #' @return land use data
 #' @author Pascal Sauer
 calcLandReportScenarioMIP <- function(harmonizationPeriod, yearsSubset, harmonization, downscaling) {

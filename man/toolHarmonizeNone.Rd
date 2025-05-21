@@ -9,17 +9,15 @@ toolHarmonizeNone(xInput, xTarget, harmonizationPeriod)
 \arguments{
 \item{xInput}{input data as magpie object}
 
-\item{xTarget}{target data as magpie object}
+\item{xTarget}{ignored for this function}
 
-\item{harmonizationPeriod}{Two integer values, until the first given
-year xTarget is used, after that use xInput; the second value is ignored}
+\item{harmonizationPeriod}{ignored for this function}
 }
 \value{
-magpie object
+unchanged xInput
 }
 \description{
-Do not actually harmonize, but just combine xTarget and xInput,
-using xTarget until start of harmonization period, then xInput.
+Do not actually harmonize, just return xInput.
 }
 \author{
 Pascal Sauer

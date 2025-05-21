@@ -9,6 +9,8 @@
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
 #' @param yearsSubset vector of years to keep in the output dataset
+#' @param harmonization name of harmonization method, see \code{\link{toolGetHarmonizer}}
+#' @param downscaling name of downscaling method, currently only "magpieClassic"
 #' @param gross either boolean or a magpie object containing bidirectional
 #' transition shares relative to the area of the involved land pools (transition
 #' divided by the area of the land pool in the "from" sub dimension). If set to

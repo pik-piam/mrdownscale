@@ -16,6 +16,8 @@
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
 #' @param yearsSubset vector of years to keep in the output dataset
+#' @param harmonization name of harmonization method, see \code{\link{toolGetHarmonizer}}
+#' @param downscaling name of downscaling method, currently only "magpieClassic"
 #' @return downscaled nonland data
 #'
 #' @examples
@@ -27,7 +29,7 @@
 #' @author Pascal Sauer
 calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, harmonization, downscaling) {
   x <- calcOutput("NonlandHarmonized", input = input, target = target,
-                  harmonizationPeriod = harmonizationPeriod, method = harmonization, aggregate = FALSE)
+                  harmonizationPeriod = harmonizationPeriod, harmonization = harmonization, aggregate = FALSE)
   x <- x[, getYears(x, as.integer = TRUE) %in% yearsSubset, ]
 
   futureYears <- getYears(x, as.integer = TRUE)
