@@ -12,10 +12,11 @@
 #' @examples
 #' \dontrun{
 #'   calcOutput("NonlandReport", outputFormat = "ESM",
-#'              harmonizationPeriod = c(2015, 2050), yearsSubset = 2015:2100)
+#'              harmonizationPeriod = c(2015, 2050), yearsSubset = 2015:2100,
+#'              harmonization = "fade", downscaling = "magpieClassic")
 #' }
 #' @author Pascal Sauer
-calcNonlandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
+calcNonlandReport <- function(outputFormat, harmonizationPeriod, yearsSubset, harmonization, downscaling) {
   if (outputFormat %in% c("ESM", "ScenarioMIP")) {
     input <- "magpie"
     if (outputFormat == "ESM") {
@@ -26,7 +27,8 @@ calcNonlandReport <- function(outputFormat, harmonizationPeriod, yearsSubset) {
       cellAreaKm2 <- readSource("LUH3", subtype = "cellArea", convert = FALSE)
     }
     x <- calcOutput("NonlandHighRes", input = input, target = target,
-                    harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset, aggregate = FALSE)
+                    harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
+                    harmonization = harmonization, downscaling = downscaling, aggregate = FALSE)
 
     if (outputFormat == "ScenarioMIP") {
       # combine secyf + secmf into secdf

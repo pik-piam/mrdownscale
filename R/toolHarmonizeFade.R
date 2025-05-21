@@ -16,7 +16,7 @@ toolHarmonizeFade <- function(xInput, xTarget, harmonizationPeriod) {
   a <- harmonizationPeriod[1]
   b <- harmonizationPeriod[2]
 
-  xInput <- toolEqualizeArea(xInput, xTarget)
+  xInput <- toolEqualizeArea(xInput, xTarget[, a, ])
 
   inputYears <- getYears(xInput, as.integer = TRUE)
   targetYears <- getYears(xTarget, as.integer = TRUE)

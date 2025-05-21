@@ -10,10 +10,10 @@
 #' @param yearsSubset remove years from the returned data which are not in yearsSubset
 #' @return data prepared to be written as a LUH-style management.nc file
 #' @author Pascal Sauer, Jan Philipp Dietrich
-calcManagementNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
+calcManagementNC <- function(outputFormat, harmonizationPeriod, yearsSubset, harmonization, downscaling) {
   land <- calcOutput("LandReport", outputFormat = outputFormat,
-                     harmonizationPeriod = harmonizationPeriod,
-                     yearsSubset = yearsSubset, aggregate = FALSE)
+                     harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
+                     harmonization = harmonization, downscaling = downscaling, aggregate = FALSE)
 
   if (outputFormat == "ESM") {
     landManagementVariables <- c("crpbf_c3ann", "crpbf_c3nfx", "crpbf_c3per", "crpbf_c4ann", "crpbf_c4per",
@@ -30,7 +30,9 @@ calcManagementNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
 
   nonland <- calcOutput("NonlandReport", outputFormat = outputFormat,
                         harmonizationPeriod = harmonizationPeriod,
-                        yearsSubset = yearsSubset, aggregate = FALSE)
+                        yearsSubset = yearsSubset,
+                        harmonization = harmonization, downscaling = downscaling,
+                        aggregate = FALSE)
   nonlandManagementVariables <- c("fertl_c3nfx", "fertl_c3per", "fertl_c3ann", "fertl_c4ann", "fertl_c4per",
                                   "rndwd", "fulwd")
   nonland <- nonland[, , nonlandManagementVariables]

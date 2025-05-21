@@ -14,8 +14,7 @@
 #' @param harmonization name of harmonization method, see \link{\code{toolGetHarmonizer}}
 #' @return downscaled land use data
 #' @author Jan Philipp Dietrich, Pascal Sauer
-calcLandHighRes <- function(input, target, harmonizationPeriod, yearsSubset,
-                            downscaling = "magpieClassic", harmonization = "fade") {
+calcLandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, downscaling, harmonization) {
   x <- calcOutput("LandHarmonized", input = input, target = target,
                   harmonizationPeriod = harmonizationPeriod, method = harmonization,
                   aggregate = FALSE)

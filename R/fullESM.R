@@ -18,7 +18,8 @@
 #'
 #' @author Pascal Sauer, Jan Philipp Dietrich
 fullESM <- function(rev = numeric_version("0"), ..., scenario = "", harmonizationPeriod = c(2015, 2050),
-                    yearsSubset = 2015:2150, compression = 2, progress = TRUE) {
+                    yearsSubset = 2015:2150, harmonization = "fade", downscaling = "magpieClassic",
+                    compression = 2, progress = TRUE) {
   stopifnot(...length() == 0)
 
   revision <- if (identical(rev, numeric_version("0"))) format(Sys.time(), "%Y-%m-%d") else rev
@@ -45,6 +46,7 @@ fullESM <- function(rev = numeric_version("0"), ..., scenario = "", harmonizatio
   calcOutput("StatesNC", outputFormat = "ESM",
              harmonizationPeriod = harmonizationPeriod,
              yearsSubset = yearsSubset,
+             harmonization = harmonization, downscaling = downscaling,
              aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
   do.call(toolAddMetadataNC, c(ncFile = ncFile, metadataArgs))
 
@@ -52,6 +54,7 @@ fullESM <- function(rev = numeric_version("0"), ..., scenario = "", harmonizatio
   calcOutput("ManagementNC", outputFormat = "ESM",
              harmonizationPeriod = harmonizationPeriod,
              yearsSubset = yearsSubset,
+             harmonization = harmonization, downscaling = downscaling,
              aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
   do.call(toolAddMetadataNC, c(ncFile = ncFile, metadataArgs))
 
@@ -59,6 +62,7 @@ fullESM <- function(rev = numeric_version("0"), ..., scenario = "", harmonizatio
   calcOutput("TransitionsNC", outputFormat = "ESM",
              harmonizationPeriod = harmonizationPeriod,
              yearsSubset = yearsSubset,
+             harmonization = harmonization, downscaling = downscaling,
              aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
   do.call(toolAddMetadataNC, c(ncFile = ncFile, metadataArgs))
 

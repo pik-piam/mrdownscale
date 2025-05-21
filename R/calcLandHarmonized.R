@@ -12,7 +12,7 @@
 #' dataset is used, in between harmonize between the two datasets
 #' @param method transitioning method
 #' @author Pascal Sauer, Jan Philipp Dietrich
-calcLandHarmonized <- function(input, target, harmonizationPeriod, method = "fade") {
+calcLandHarmonized <- function(input, target, harmonizationPeriod, method) {
   xInput <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
   geometry <- attr(xInput, "geometry")
   crs <- attr(xInput, "crs")

@@ -17,14 +17,15 @@
 #' period from 1995 to 2015 will be used.
 #' @return land use transition data
 #' @author Jan Philipp Dietrich, Pascal Sauer
-calcLandTransitions <- function(outputFormat, harmonizationPeriod, yearsSubset, gross) {
+calcLandTransitions <- function(outputFormat, harmonizationPeriod, yearsSubset,
+                                harmonization, downscaling, gross) {
   if (outputFormat != "ESM") {
     stop("Can only report for outputFormat = 'ESM'")
   }
 
   land <- calcOutput("LandReport", outputFormat = "ESM",
-                     harmonizationPeriod = harmonizationPeriod,
-                     yearsSubset = yearsSubset, aggregate = FALSE)
+                     harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
+                     harmonization = harmonization, downscaling = downscaling, aggregate = FALSE)
   land <- land[, , grep("(_|manaf)", getItems(land, dim = 3), invert = TRUE, value = TRUE)]
 
   # add extra year as copy of last year to get gross transitions (net zero) for

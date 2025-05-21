@@ -10,10 +10,10 @@
 #' @param yearsSubset remove years from the returned data which are not in yearsSubset
 #' @return data prepared to be written as a LUH-style states.nc file
 #' @author Pascal Sauer, Jan Philipp Dietrich
-calcStatesNC <- function(outputFormat, harmonizationPeriod, yearsSubset) {
+calcStatesNC <- function(outputFormat, harmonizationPeriod, yearsSubset, harmonization, downscaling) {
   x <- calcOutput("LandReport", outputFormat = outputFormat,
-                  harmonizationPeriod = harmonizationPeriod,
-                  yearsSubset = yearsSubset, aggregate = FALSE)
+                  harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
+                  harmonization = harmonization, downscaling = downscaling, aggregate = FALSE)
 
   statesVariables <- c("c3ann", "c3nfx", "c3per", "c4ann", "c4per", "pastr",
                        "primf", "primn", "range", "secdf", "secdn", "urban")
