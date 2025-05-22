@@ -75,6 +75,8 @@ calcLandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, har
   toolExpectLessDiff(outSum, outSum[, 1, ], 10^-5,
                      "Total land area per cell in output stays constant over time")
 
+  # TODO the following checks fail
+  # maybe due to tinkering with landTargetLowRes, but not xTarget?
   globalSumIn <- dimSums(x[, getYears(out), ], dim = 1)
   globalSumOut <- dimSums(out, dim = 1)
   toolExpectLessDiff(dimSums(globalSumIn, 3), dimSums(globalSumOut, 3), 10^-5,

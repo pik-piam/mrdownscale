@@ -5,7 +5,7 @@ toolEqualizeArea <- function(x, y, level = 1) {
   if (max(abs(xSum - ySum)) >= 10^-5) {
     corr <- setYears(ySum / xSum, NULL)
     stopifnot(is.finite(corr), corr >= 0)
-    toolStatusMessage("note", paste0("input data multiplied with correction factors to match target areas ",
+    toolStatusMessage("note", paste0("correction factors were applied to equalize area ",
                                      "(max ratio = ", round(max(corr), 2),
                                      ", min ratio = ", round(min(corr), 2),  ")"),
                       level = level)
