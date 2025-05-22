@@ -28,6 +28,10 @@ calcLandHarmonized <- function(input, target, harmonizationPeriod, harmonization
   toolExpectLessDiff(inSum[, 1, ], tSum[, 1, ], 10^-5,
                      "Total areas are the same in target and input data")
 
+  if (harmonization != "none") {
+    xInput <- toolEqualizeArea(xInput, xTarget[, harmonizationPeriod[1], ])
+  }
+
   harmonizer <- toolGetHarmonizer(harmonization)
   out <- harmonizer(xInput, xTarget, harmonizationPeriod = harmonizationPeriod)
 
