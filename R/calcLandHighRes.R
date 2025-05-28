@@ -34,39 +34,11 @@ calcLandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, har
 
   mapping <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
 
-  if (harmonization == "none") {
-    # no harmonization means area is not equal, but that is required by downscaling functions
-
-    # if some clusters have 0 land area in target we cannot scale
-    # totalArea <- dimSums(landTargetLowRes, 3)
-    # zeroClusters <- Filter(x = getItems(totalArea, 1), f = function(cluster) totalArea[cluster, , ] == 0)
-
-    # # make sure only small area of non-forest is present, then set to 0
-    # stopifnot(x[zeroClusters, hp1, ][, , c("primn", "secdn"), invert = TRUE] == 0,
-    #           x[zeroClusters, hp1, c("primn", "secdn")] < 10^-3)
-    # x[zeroClusters, hp1, ] <- 0
-
-    # # total area is not constant over time now, so need to scale
-    # x <- toolEqualizeArea(x, x[, hp1, ])
-
-    # # want to preserve input as much as possible, so scale target
-    # landTargetLowRes <- toolEqualizeArea(landTargetLowRes, x[, hp1, ])
-
-    disaggregated <- toolAggregate(x[, hp1, ],
-                                   mapping,
-                                   weight = collapseDim(xTarget[, hp1, ]) + 10^-30, # TODO clean up 10^-30
-                                   from = "lowRes", to = "cell")
-    out <- toolDownscaleMagpieClassic(x[, getYears(x, as.integer = TRUE) >= hp1, ],
-                                      disaggregated,
-                                      xTargetLowRes = x[, hp1, ],
-                                      mapping = mapping)
-  }
-
   if (downscaling == "magpieClassic") {
-    # out <- toolDownscaleMagpieClassic(x[, getYears(x, as.integer = TRUE) >= hp1, ],
-    #                                   xTarget[, hp1, ],
-    #                                   # xTargetLowRes = landTargetLowRes,
-    #                                   mapping = mapping)
+    out <- toolDownscaleMagpieClassic(x[, getYears(x, as.integer = TRUE) >= hp1, ],
+                                      xTarget[, hp1, ],
+                                      xTargetLowRes = landTargetLowRes,
+                                      mapping = mapping)
   } else {
     stop("Unsupported downscaling method \"", downscaling, "\"")
   }
@@ -91,8 +63,6 @@ calcLandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, har
   toolExpectLessDiff(outSum, outSum[, 1, ], 10^-5,
                      "Total land area per cell in output stays constant over time")
 
-  # TODO the following checks fail
-  # maybe due to tinkering with landTargetLowRes, but not xTarget?
   globalSumIn <- dimSums(x[, getYears(out), ], dim = 1)
   globalSumOut <- dimSums(out, dim = 1)
   toolExpectLessDiff(dimSums(globalSumIn, 3), dimSums(globalSumOut, 3), 10^-5,
