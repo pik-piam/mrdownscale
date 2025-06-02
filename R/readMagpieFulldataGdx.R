@@ -13,7 +13,6 @@ readMagpieFulldataGdx <- function(subtype) {
   "!# @monitor magpie4:::NitrogenBudget"
 
   gdx <- "fulldata.gdx"
-  # to produce these files run MAgPIE via ./scripts/start/forestry.R
   stopifnot(file.exists(gdx),
             length(Sys.glob("clustermap_*.rds")) == 1)
 

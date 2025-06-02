@@ -1,4 +1,12 @@
 reference;data
+primf;primforest
+secdf;secdforest
+primn;other
+secdn;other
+pastr;past
+range;past
+urban;urban
+pltns;forestry
 alfalfa, irrigated;other_crop
 alfalfa, rainfed;other_crop
 Almonds, with shell, irrigated;other_crop
@@ -119,7 +127,6 @@ Figs, irrigated;other_crop
 Figs, rainfed;other_crop
 Fonio, irrigated;other_crop
 Fonio, rainfed;other_crop
-pltns;forestry
 fornes, irrigated;other_crop
 fornes, rainfed;other_crop
 Fruit, citrus nes, irrigated;other_crop
@@ -224,7 +231,6 @@ Oranges, irrigated;other_crop
 Oranges, rainfed;other_crop
 Papayas, irrigated;other_crop
 Papayas, rainfed;other_crop
-pastr;past
 Peaches and nectarines, irrigated;other_crop
 Peaches and nectarines, rainfed;other_crop
 Pears, irrigated;other_crop
@@ -255,8 +261,6 @@ Poppy seed, irrigated;other_crop
 Poppy seed, rainfed;other_crop
 Potatoes, irrigated;other_crop
 Potatoes, rainfed;other_crop
-primf;primforest
-primn;other
 Pulses nes, irrigated;other_crop
 Pulses nes, rainfed;other_crop
 Pumpkins, squash and gourds, irrigated;other_crop
@@ -265,7 +269,6 @@ Quinces, irrigated;other_crop
 Quinces, rainfed;other_crop
 Quinoa, irrigated;tece
 Quinoa, rainfed;tece
-range;past
 Rapeseed, irrigated;other_crop
 Rapeseed, rainfed;other_crop
 Raspberries, irrigated;other_crop
@@ -280,8 +283,6 @@ ryefor, irrigated;other_crop
 ryefor, rainfed;other_crop
 Safflower seed, irrigated;other_crop
 Safflower seed, rainfed;other_crop
-secdf;secdforest
-secdn;other
 Seed cotton, irrigated;other_crop
 Seed cotton, rainfed;other_crop
 Sesame seed, irrigated;other_crop
@@ -326,7 +327,6 @@ Tung nuts, irrigated;other_crop
 Tung nuts, rainfed;other_crop
 turnipfor, irrigated;other_crop
 turnipfor, rainfed;other_crop
-urban;urban
 Vanilla, irrigated;other_crop
 Vanilla, rainfed;other_crop
 Vegetables, fresh nes, irrigated;other_crop
