@@ -21,8 +21,6 @@ readMagpieFulldataGdx <- function(subtype) {
 
   if (subtype == "land") {
     x <- magpie4::land(gdx, level = "cell", subcategories = "crop")
-    # TODO check subcategories arg forestry (for addtc)
-    # x2 <- magpie4::land(gdx, level = "cell", subcategories = "forestry")
     getSets(x) <- c("region", "id", "year", "data")
     unit <- "Mha"
     description <- "land use information"

@@ -16,9 +16,6 @@ toolMaxHarvestPerYear <- function(land, split = TRUE) {
                                fill = diff(getYears(land, as.integer = TRUE)))
   stopifnot(timestepLength > 0)
 
-  land <- add_columns(land, "pltns")
-  land[, , "pltns"] <- dimSums(land[, , c("pltns_added_treecover", "pltns_excl_added_treecover")])
-
   land <- land[, , c("primf", "secdf", "pltns", "primn", "secdn")]
   if (split) {
     getItems(land, 3) <- sub("secdf", "secyf", getItems(land, 3))
