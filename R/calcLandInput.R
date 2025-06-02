@@ -44,7 +44,7 @@ calcLandInput <- function(input) {
     # see note in the documentation of this function
     out <- add_columns(out, "biofuel_1st_gen", fill = 0)
 
-    expectedCategories <- toolGetMapping("referenceMappings/magpie.csv", where = "mrdownscale")$data
+    expectedCategories <- toolLandCategoriesMapping(input = input, target = "luh2mod")$dataInput
   } else {
     stop("Unsupported input type \"", input, "\"")
   }
