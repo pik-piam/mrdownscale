@@ -7,10 +7,13 @@
 #' @inherit toolHarmonizeFade return
 #' @author Pascal Sauer
 toolHarmonizeFadeForest <- function(xInput, xTarget, harmonizationPeriod) {
-  hp1 <- harmonizationPeriod[1]
   x <- toolHarmonizeFade(xInput, xTarget, harmonizationPeriod, level = 4)
   years <- getYears(x, as.integer = TRUE)
   psf <- c("primf", "secdf")
+  if (!all(psf %in% getItems(x))) {
+    return(x)
+  }
+  hp1 <- harmonizationPeriod[1]
   forest <- dimSums(x[, years >= hp1, psf], 3)
 
   primf <- xTarget[, hp1, "primf"]
