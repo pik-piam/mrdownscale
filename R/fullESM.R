@@ -20,7 +20,7 @@
 #'
 #' @author Pascal Sauer, Jan Philipp Dietrich
 fullESM <- function(rev = numeric_version("0"), ..., scenario = "", harmonizationPeriod = c(2015, 2050),
-                    yearsSubset = 2015:2150, harmonization = "fade", downscaling = "magpieClassic",
+                    yearsSubset = 2015:2100, harmonization = "fade", downscaling = "magpieClassic",
                     compression = 2, progress = TRUE) {
   stopifnot(...length() == 0)
 
