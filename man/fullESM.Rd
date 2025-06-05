@@ -9,7 +9,7 @@ fullESM(
   ...,
   scenario = "",
   harmonizationPeriod = c(2015, 2050),
-  yearsSubset = 2015:2150,
+  yearsSubset = 2015:2100,
   harmonization = "fade",
   downscaling = "magpieClassic",
   compression = 2,
