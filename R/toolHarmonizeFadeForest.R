@@ -10,7 +10,7 @@ toolHarmonizeFadeForest <- function(xInput, xTarget, harmonizationPeriod) {
   x <- toolHarmonizeFade(xInput, xTarget, harmonizationPeriod, level = 4)
   years <- getYears(x, as.integer = TRUE)
   psf <- c("primf", "secdf")
-  if (!all(psf %in% getItems(x))) {
+  if (!all(psf %in% getItems(x, 3))) {
     return(x)
   }
   hp1 <- harmonizationPeriod[1]
