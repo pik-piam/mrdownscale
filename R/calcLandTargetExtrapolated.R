@@ -20,6 +20,7 @@
 #' supplementary = TRUE and target is luh2mod wood harvest area is also returned
 #' @author Pascal Sauer
 calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
+  hp1 <- harmonizationPeriod[[1]]
   xInput <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
   inputYears <- getYears(xInput, as.integer = TRUE)
   transitionYears <- inputYears[inputYears > harmonizationPeriod[1] & inputYears < harmonizationPeriod[2]]
@@ -56,8 +57,8 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
               setequal(getItems(harvestHist, 3), getItems(maxHarvestHist, 3)))
 
     # calculate share: wood harvest area / max possible harvest
-    harvestShare <- dimSums(harvestHist[, -1, ], 2) / dimSums(maxHarvestHist, 2)
-    harvestShare[is.na(harvestShare)] <- 0
+    harvestShare <- harvestHist[, hp1, ] / maxHarvestHist[, hp1, ]
+    harvestShare[is.nan(harvestShare)] <- 0
     harvestShare[harvestShare > 1] <- 1
 
     secymf <- paste0(c("secyf", "secmf"), "_wood_harvest_area")
@@ -74,10 +75,9 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
     timestepLength <- unique(diff(transitionYears))
     stopifnot(identical(getYears(harvest), getYears(out)),
               length(timestepLength) == 1, timestepLength > 0)
+    primfn <- c("primf", "primn")
+    secdfn <- c("secdf", "secdn")
     for (i in match(transitionYears, getYears(out, as.integer = TRUE))) {
-      primfn <- c("primf", "primn")
-      secdfn <- c("secdf", "secdn")
-
       # in toolMaxHarvestPerYear out[, i, ] is only used to determine timestepLength and then thrown away
       harvest[, i, ] <- harvestShare * toolMaxHarvestPerYear(out[, c(i - 1, i), ])
 
@@ -92,8 +92,8 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
       out[, i, primfn] <- mpmin(out[, i, primfn], maxPossiblePrim)
 
       woodland <- out[, , getItems(harvestAgg, 3)]
-      stopifnot(harvestAgg <= woodland[, i - 1, ] / timestepLength,
-                woodland[, i, primfn] <= woodland[, i - 1, primfn] - timestepLength * harvestAgg[, , primfn])
+      stopifnot(harvestAgg <= woodland[, i - 1, ],
+                woodland[, i, primfn] <= woodland[, i - 1, primfn] - harvestAgg[, , primfn])
     }
 
     # consistency checks wood harvest area
