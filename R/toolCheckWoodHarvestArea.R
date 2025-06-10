@@ -52,17 +52,6 @@ toolWoodHarvestMapping <- function() {
   return(map)
 }
 
-toolBiohMapping <- function() {
-  map <- as.data.frame(rbind(c("primf_bioh", "primf"),
-                             c("secyf_bioh", "secdf"),
-                             c("secmf_bioh", "secdf"),
-                             c("pltns_bioh", "pltns"),
-                             c("primn_bioh", "primn"),
-                             c("secnf_bioh", "secdn")))
-  colnames(map) <- c("bioh", "land")
-  return(map)
-}
-
 toolAggregateWoodHarvest <- function(woodHarvest) {
   map <- toolWoodHarvestMapping()
 

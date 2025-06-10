@@ -21,7 +21,13 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   geometry <- attr(xInput, "geometry")
   crs <- attr(xInput, "crs")
 
-  biohMap <- toolBiohMapping()
+  biohMap <- as.data.frame(rbind(c("primf_bioh", "primf"),
+                                 c("secyf_bioh", "secdf"),
+                                 c("secmf_bioh", "secdf"),
+                                 c("pltns_bioh", "pltns"),
+                                 c("primn_bioh", "primn"),
+                                 c("secnf_bioh", "secdn")))
+  colnames(biohMap) <- c("bioh", "land")
   kgCPerMhaInput <- xInput[, , biohMap$bioh] / magclass::setNames(xInput[, , woodHarvestAreaCategories()],
                                                                   sub("wood_harvest_area$", "bioh",
                                                                       woodHarvestAreaCategories()))
