@@ -30,7 +30,5 @@ toolMaxHarvestPerYear <- function(land, split = TRUE) {
 
   # cannot harvest full primf each year as it is converted to secdf after harvest
   maxHarvest[, , prim] <- maxHarvest[, , prim] / timestepLength
-# TODO always return variable names with _wood_harvest_area
-# TODO new assumption: can harvest secondary land each year (5 times for 5 year timestep), where to adapt code?
   return(maxHarvest)
 }
