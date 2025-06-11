@@ -31,10 +31,8 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   kgCPerMhaInput <- xInput[, , biohMap$bioh] / magclass::setNames(xInput[, , woodHarvestAreaCategories()],
                                                                   sub("wood_harvest_area$", "bioh",
                                                                       woodHarvestAreaCategories()))
-  kgCPerMhaInput[is.nan(kgCPerMhaInput)] <- 0
-  # should we prevent bioh without harvest area before this point, so the following line is no longer necessary?
-  kgCPerMhaInput[is.infinite(kgCPerMhaInput)] <- max(kgCPerMhaInput[is.finite(kgCPerMhaInput)])
-  stopifnot(is.finite(kgCPerMhaInput), kgCPerMhaInput >= 0)
+  kgCPerMhaInput[is.nan(kgCPerMhaInput)] <- min(kgCPerMhaInput[!is.nan(kgCPerMhaInput)])
+  stopifnot(0 < kgCPerMhaInput, kgCPerMhaInput < Inf)
   getItems(kgCPerMhaInput, 3) <- sub("bioh$", "kgC_per_Mha", getItems(kgCPerMhaInput, 3))
 
   xTarget <- calcOutput("NonlandTargetExtrapolated", input = input, target = target,
@@ -43,10 +41,8 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   kgCPerMhaTarget <- xTarget[, , biohMap$bioh] / magclass::setNames(xTarget[, , woodHarvestAreaCategories()],
                                                                     sub("wood_harvest_area$", "bioh",
                                                                         woodHarvestAreaCategories()))
-  kgCPerMhaTarget[is.nan(kgCPerMhaTarget)] <- 0
-  # should we prevent bioh without harvest area before this point, so the following line is no longer necessary?
-  kgCPerMhaTarget[is.infinite(kgCPerMhaTarget)] <- max(kgCPerMhaTarget[is.finite(kgCPerMhaTarget)])
-  stopifnot(is.finite(kgCPerMhaTarget), kgCPerMhaTarget >= 0)
+  kgCPerMhaTarget[is.nan(kgCPerMhaTarget)] <- min(kgCPerMhaTarget[!is.nan(kgCPerMhaTarget)])
+  stopifnot(0 < kgCPerMhaTarget, kgCPerMhaTarget < Inf)
   getItems(kgCPerMhaTarget, 3) <- sub("bioh$", "kgC_per_Mha", getItems(kgCPerMhaTarget, 3))
 
   harmonizer <- toolGetHarmonizer(harmonization)
@@ -61,18 +57,16 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
 
   # adapt bioh to harmonized harvest area
   kgCPerMhaHarmonized <- out[, , getItems(kgCPerMhaTarget, 3)]
-  # should we prevent harvest area without bioh before this point, so the following line is no longer necessary?
-  kgCPerMhaHarmonized[kgCPerMhaHarmonized == 0] <- min(kgCPerMhaHarmonized[kgCPerMhaHarmonized > 0])
-  stopifnot(is.finite(kgCPerMhaHarmonized), kgCPerMhaHarmonized >= 0)
+  stopifnot(0 < kgCPerMhaHarmonized, kgCPerMhaHarmonized < Inf)
   biohCalculated <- kgCPerMhaHarmonized * magclass::setNames(harvestArea,
                                                              sub("wood_harvest_area$", "kgC_per_Mha",
                                                                  getItems(harvestArea, 3)))
   getItems(biohCalculated, 3) <- sub("kgC_per_Mha$", "bioh", getItems(biohCalculated, 3))
-  stopifnot(0 <= biohCalculated, is.finite(biohCalculated))
+  stopifnot(0 <= biohCalculated, biohCalculated < Inf)
 
   biohNormalization <- dimSums(out[, , biohMap$bioh], 3) / dimSums(biohCalculated, 3)
   biohNormalization[is.nan(biohNormalization)] <- 0
-  stopifnot(0 <= biohNormalization, is.finite(biohNormalization))
+  stopifnot(0 <= biohNormalization, biohNormalization < Inf)
 
   biohAdapted <- biohNormalization * biohCalculated
 
