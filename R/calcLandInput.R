@@ -45,6 +45,7 @@ calcLandInput <- function(input) {
     out <- add_columns(out, "biofuel_1st_gen", fill = 0)
 
     expectedCategories <- toolGetMapping("referenceMappings/magpie.csv", where = "mrdownscale")$data
+    primf <- "primforest"
   } else {
     stop("Unsupported input type \"", input, "\"")
   }
@@ -57,8 +58,8 @@ calcLandInput <- function(input) {
   toolExpectTrue(all(out >= 0), "All values are >= 0")
   outSum <- dimSums(out, dim = 3)
   toolExpectLessDiff(outSum, outSum[, 1, ], 10^-4, "Total area is constant over time")
-  toolExpectTrue(all(out[, -1, "primforest"] <= setYears(out[, -nyears(out), "primforest"], getYears(out[, -1, ]))),
-                 "primforest is never expanding", falseStatus = "warn")
+  toolExpectTrue(all(out[, -1, primf] <= setYears(out[, -nyears(out), primf], getYears(out[, -1, ]))),
+                 "primary forest is never expanding", falseStatus = "warn")
 
   return(list(x = out,
               isocountries = FALSE,
