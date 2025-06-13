@@ -11,11 +11,7 @@
 #' @return magpie object with the maximum possible yearly wood harvest area
 #'
 #' @author Pascal Sauer
-toolMaxHarvestPerYear <- function(land, split = TRUE) {
-  timestepLength <- new.magpie(years = getYears(land)[-1],
-                               fill = diff(getYears(land, as.integer = TRUE)))
-  stopifnot(timestepLength > 0)
-
+toolMaxHarvestPerYear <- function(land, split = TRUE, timestepAdjust = TRUE) {
   land <- land[, , c("primf", "secdf", "pltns", "primn", "secdn")]
   prim <- c("primf", "primn")
   if (split) {
@@ -28,7 +24,12 @@ toolMaxHarvestPerYear <- function(land, split = TRUE) {
   }
   maxHarvest <- setYears(land[, -nyears(land), ], getYears(land)[-1])
 
-  # cannot harvest full primf each year as it is converted to secdf after harvest
-  maxHarvest[, , prim] <- maxHarvest[, , prim] / timestepLength
+  if (timestepAdjust) {
+    timestepLength <- new.magpie(years = getYears(land)[-1],
+                                 fill = diff(getYears(land, as.integer = TRUE)))
+    stopifnot(timestepLength > 0)
+    # cannot harvest full primf each year as it is converted to secdf after harvest
+    maxHarvest[, , prim] <- maxHarvest[, , prim] / timestepLength
+  }
   return(maxHarvest)
 }

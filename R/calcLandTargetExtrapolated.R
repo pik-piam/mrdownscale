@@ -27,31 +27,18 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
 
   xTarget <- calcOutput("LandTargetLowRes", input = input, target = target, aggregate = FALSE)
   histYears <- getYears(xTarget, as.integer = TRUE)
-
-  # ---------- extrapolate -------------
-  exTarget <- toolExtrapolate(xTarget, transitionYears)
-  toolWarnIfExpansion(exTarget, c("primf", "primn"))
-  exTarget[exTarget < 0] <- 0
-
-  # ---------- normalize -------------
-  # normalize exTarget so that its total sum over all layers agrees for all time steps
-  # with the sum over all layers in target in the harmonization year (e.g. makes sure
-  # that the land changes in a land data set do not alter the total sum of land.)
   targetArea <- dimSums(setYears(xTarget[, max(histYears), ], NULL), dim = 3)
-  exTarget <- exTarget * targetArea / dimSums(exTarget, dim = 3)
-  exTarget[is.na(exTarget)] <- 0
-  out <- mbind(xTarget, exTarget)
 
-  # normalization can introduce prim expansion
-  out <- toolReplaceExpansion(out, "primf", "secdf", noteThreshold = 100, warnThreshold = 100)
-  out <- toolReplaceExpansion(out, "primn", "secdn", noteThreshold = 100, warnThreshold = 100)
+  out <- calcOutput("LandTargetExtrapolatedCore", input = input, target = target,
+                    harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
 
   harvest <- NULL
   if (target %in% c("luh2mod", "luh3")) {
     # ------- calculate wood harvest shares -------
     harvestHist <- calcOutput("NonlandTargetLowRes", input = input, target = target, aggregate = FALSE)
     harvestHist <- harvestHist[, , endsWith(getItems(harvestHist, 3), "wood_harvest_area")]
-    maxHarvestHist <- toolMaxHarvestPerYear(xTarget)
+    maxHarvestHist <- toolMaxHarvestPerYear(xTarget, timestepAdjust = FALSE)
+
     stopifnot(setequal(getItems(harvestHist, 1), getItems(maxHarvestHist, 1)),
               setequal(getItems(harvestHist[, -1, ], 2), getItems(maxHarvestHist, 2)),
               setequal(getItems(harvestHist, 3), getItems(maxHarvestHist, 3)))
@@ -79,10 +66,12 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
     secdfn <- c("secdf", "secdn")
     for (i in match(transitionYears, getYears(out, as.integer = TRUE))) {
       # in toolMaxHarvestPerYear out[, i, ] is only used to determine timestepLength and then thrown away
-      harvest[, i, ] <- harvestShare * toolMaxHarvestPerYear(out[, c(i - 1, i), ])
+      harvest[, i, ] <- mpmin(harvestShare * toolMaxHarvestPerYear(out[, c(i - 1, i), ], timestepAdjust = FALSE),
+                              toolMaxHarvestPerYear(out[, c(i - 1, i), ]))
 
       harvestAgg <- toolAggregateWoodHarvest(harvest[, i, ])
       maxPossiblePrim <- out[, i - 1, primfn] - timestepLength * harvestAgg[, , primfn]
+      stopifnot(maxPossiblePrim >= 0)
 
       # more prim than in previous timestep is not possible, convert to secd
       toSecd <- out[, i, primfn] - maxPossiblePrim
@@ -123,4 +112,36 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
               min = 0,
               description = "Extrapolated land target data for harmonization",
               woodHarvestArea = harvest))
+}
+
+calcLandTargetExtrapolatedCore <- function(input, target, harmonizationPeriod) {
+  xInput <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
+  inputYears <- getYears(xInput, as.integer = TRUE)
+  transitionYears <- inputYears[inputYears > harmonizationPeriod[1] & inputYears < harmonizationPeriod[2]]
+
+  xTarget <- calcOutput("LandTargetLowRes", input = input, target = target, aggregate = FALSE)
+  histYears <- getYears(xTarget, as.integer = TRUE)
+
+  # ---------- extrapolate -------------
+  exTarget <- toolExtrapolate(xTarget, transitionYears)
+  toolWarnIfExpansion(exTarget, c("primf", "primn"))
+  exTarget[exTarget < 0] <- 0
+
+  # ---------- normalize -------------
+  # normalize exTarget so that its total sum over all layers agrees for all time steps
+  # with the sum over all layers in target in the harmonization year (e.g. makes sure
+  # that the land changes in a land data set do not alter the total sum of land.)
+  targetArea <- dimSums(setYears(xTarget[, max(histYears), ], NULL), dim = 3)
+  exTarget <- exTarget * targetArea / dimSums(exTarget, dim = 3)
+  exTarget[is.na(exTarget)] <- 0
+  out <- mbind(xTarget, exTarget)
+
+  # normalization can introduce prim expansion
+  out <- toolReplaceExpansion(out, "primf", "secdf", noteThreshold = 100, warnThreshold = 100)
+  out <- toolReplaceExpansion(out, "primn", "secdn", noteThreshold = 100, warnThreshold = 100)
+  return(list(x = out,
+              isocountries = FALSE,
+              unit = "Mha",
+              min = 0,
+              description = "Extrapolated land target data for harmonization"))
 }
