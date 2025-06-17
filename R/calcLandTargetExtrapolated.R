@@ -3,14 +3,12 @@
 #' Aggregated low resolution target data is extrapolated to the given years
 #' using toolExtrapolate and normalized afterwards, so that the total sum over
 #' all land types is unchanged.
-#' To account for the relationship between wood
-#' harvest area and primary land (which is no longer primary once it has been
-#' harvested) wood harvest area is calculated here even though it is otherwise
-#' considered a nonland variable. The share of woody land that was
-#' harvested in the historical period is calculated and then multiplied
-#' by the maximum possible harvest in the extrapolation period. Primary land
-#' is then converted to secondary land so the total reduction equals the area
-#' that was harvested.
+#' To account for the relationship between wood harvest area and primary land
+#' (which is no longer primary once it has been harvested) wood harvest area
+#' is calculated here even though it is a nonland variable. The share of
+#' woody land that was harvested in the historical period is calculated and
+#' then multiplied by land (already extrapolated). Primary land is then
+#' converted to secondary land, so that total reduction equals harvested area.
 #'
 #' @param input character, name of the input data set
 #' @param target character, name of the target data set
@@ -114,6 +112,7 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
               woodHarvestArea = harvest))
 }
 
+# extra function for better cache utilization
 calcLandTargetExtrapolatedCore <- function(input, target, harmonizationPeriod) {
   xInput <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
   inputYears <- getYears(xInput, as.integer = TRUE)

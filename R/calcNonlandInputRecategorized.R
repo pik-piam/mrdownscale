@@ -2,6 +2,7 @@
 #'
 #' Harmonize categories by mapping nonland input data categories to the categories of the nonland target dataset.
 #' See \code{\link{calcLandInputRecategorized}} for an explanation of the mapping procedure.
+#' Report and discard wood harvest area if there is zero wood harvest (bioh) or vice versa.
 #'
 #' @param input name of the input dataset, currently only "magpie"
 #' @param target name of the target dataset, currently only "luh2"
