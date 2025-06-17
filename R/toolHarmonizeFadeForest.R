@@ -1,7 +1,8 @@
 #' toolHarmonizeFadeForest
 #'
 #' Harmonize using \code{\link{toolHarmonizeFade}}, then sum up primf + secdf,
-#' then disaggregate again in a way that minimizes primf to secdf conversion.
+#' then disaggregate again in a way that minimizes primf to secdf conversion,
+#' without exceeding linear extrapolation of primf.
 #'
 #' @inheritParams toolHarmonizeFade
 #' @inherit toolHarmonizeFade return
@@ -17,20 +18,21 @@ toolHarmonizeFadeForest <- function(xInput, xTarget, harmonizationPeriod) {
   }
   forest <- dimSums(x[, years >= hp1, psf], 3)
 
-
-  a <- xTarget[, getYears(xTarget, TRUE) <= hp1, "primf"]
-  di <- -a[, -1, ] + setYears(a[, -nyears(a), ],
-                              getYears(a[, -1, ]))
-  meanPrimfDecline <- magpply(di, mean, DIM = 2)
-  b <- xTarget[, hp1, "primf"]
+  # linear extrapolation of primf, don't want to exceed this, also ensures some primf is always harvested
+  primfTarget <- xTarget[, getYears(xTarget, TRUE) <= hp1, "primf"]
+  decline <- -primfTarget[, -1, ] + setYears(primfTarget[, -nyears(primfTarget), ],
+                                             getYears(primfTarget[, -1, ]))
+  primfMeanDecline <- magpply(decline, mean, DIM = 2)
+  linearEx <- xTarget[, hp1, "primf"]
   for (year in years[years > hp1]) {
-    b <- mbind(b, setYears(b[, nyears(b), ] - meanPrimfDecline, year))
+    linearEx <- mbind(linearEx, setYears(linearEx[, nyears(linearEx), ] - primfMeanDecline, year))
   }
-  b[b < 0] <- 0
+  linearEx[linearEx < 0] <- 0
 
   primf <- xTarget[, hp1, "primf"]
   for (year in years[years > hp1]) {
-    p <- mpmin(b[, year, ], forest[, year, ])
+    p <- linearEx[, year, ]
+    p <- mpmin(p, forest[, year, ])
     p <- mpmin(p, primf[, nyears(primf), ])
     p <- setYears(p, year)
     primf <- mbind(primf, p)
