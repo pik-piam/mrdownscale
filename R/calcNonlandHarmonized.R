@@ -41,7 +41,7 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   kgCPerMhaTarget <- xTarget[, , biohMap$bioh] / magclass::setNames(xTarget[, , woodHarvestAreaCategories()],
                                                                     sub("wood_harvest_area$", "bioh",
                                                                         woodHarvestAreaCategories()))
-  kgCPerMhaTarget[is.nan(kgCPerMhaTarget)] <- min(kgCPerMhaTarget[!is.nan(kgCPerMhaTarget)])
+  kgCPerMhaTarget[!is.finite(kgCPerMhaTarget)] <- min(kgCPerMhaTarget[is.finite(kgCPerMhaTarget)])
   stopifnot(0 < kgCPerMhaTarget, kgCPerMhaTarget < Inf)
   getItems(kgCPerMhaTarget, 3) <- sub("bioh$", "kgC_per_Mha", getItems(kgCPerMhaTarget, 3))
 

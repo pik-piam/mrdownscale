@@ -48,7 +48,7 @@ calcLandInputRecategorized <- function(input, target) {
     # if totaln shrinks, shrink primn and secdn according to their proportions in the previous timestep
     # if totaln expands, expand only secdn, primn stays constant
     totaln <- dimSums(out[, , c("primn", "secdn")], 3)
-    out <- toolReplaceExpansion(out, "primn", "secdn", warnThreshold = 20)
+    out <- toolReplaceExpansion(out, "primn", "secdn", warnThreshold = 20) # TODO warnThreshold = 100
 
     toolExpectLessDiff(dimSums(out[, , c("primn", "secdn")], 3), totaln, 10^-5,
                        paste("No change in sum of primn and secdn after replacing",

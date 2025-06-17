@@ -44,6 +44,7 @@ calcLandInput <- function(input) {
         }
       }
     }
+    # TODO clean up here
 
     scalingFactors <- totalCrop / dimSums(crop, dim = 3)
     scalingFactors[is.na(scalingFactors)] <- 1
