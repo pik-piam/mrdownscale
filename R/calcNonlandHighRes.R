@@ -34,6 +34,7 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
 
   futureYears <- getYears(x, as.integer = TRUE)
   futureYears <- futureYears[futureYears > harmonizationPeriod[1]]
+  histYears <- setdiff(getYears(x, as.integer = TRUE), futureYears)
 
   resmap <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
 
@@ -124,7 +125,8 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
                  "Nonland categories remain unchanged")
   toolExpectTrue(min(out) >= 0, "All values are >= 0")
 
-  toolCheckWoodHarvestArea(out[, getYears(landHighRes), whaCat], landHighRes)
+  toolCheckWoodHarvestArea(out[, histYears, whaCat], landHighRes[, histYears, ], "In historical period, ")
+  toolCheckWoodHarvestArea(out[, futureYears, whaCat], landHighRes[, futureYears, ], "After historical period, ")
 
   return(list(x = out,
               min = 0,
