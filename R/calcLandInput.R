@@ -29,27 +29,22 @@ calcLandInput <- function(input) {
                        dimSums(crop, dim = 3),
                        10^-5, "sum over all crops equals crop_area")
 
+    # in case we have no crop_area, but fallow and/or treecover: assign to bio energy trees
+    fallowTreecover <- dimSums(land[, , c("crop_fallow", "crop_treecover")], 3)
+    zeroCropArea <- collapseDim(land[, , "crop_area"]) == 0
+    # keep fallow plus treecover only where crop_area is zero
+    fallowTreecover <- fallowTreecover * ifelse(zeroCropArea, 1, 0)
+    land[, , c("crop_fallow", "crop_treecover")] <- ifelse(zeroCropArea, 0,
+                                                           land[, , c("crop_fallow", "crop_treecover")])
+    crop[, , "betr_rainfed"] <- crop[, , "betr_rainfed"] + fallowTreecover
+    land[, , "crop_area"] <- land[, , "crop_area"] + fallowTreecover
+
     # scale crop to take up the whole area of crop_area + crop_fallow + crop_treecover
     # need this to report for ScenarioMIP/LUH-format, might not want this for other applications
     totalCrop <- dimSums(land[, , c("crop_area", "crop_fallow", "crop_treecover")], 3)
     scalingFactors <- totalCrop / dimSums(crop, dim = 3)
     scalingFactors[is.nan(scalingFactors)] <- 1
-
-    # in case we have fallow and/or treecover, but no crop_area assign to bio energy trees
-    for (region in getItems(scalingFactors, 1)) {
-      for (year in getItems(scalingFactors, 2)) {
-        if (scalingFactors[region, year, ] == Inf) {
-          crop[region, year, "betr_rainfed"] <- crop[region, year, "betr_rainfed"] + totalCrop[region, year, ]
-          land[region, year, "crop_area"] <- land[region, year, "crop_area"] + totalCrop[region, year, ]
-          land[region, year, c("crop_fallow", "crop_treecover")] <- 0
-        }
-      }
-    }
-    # TODO clean up here
-    totalCrop <- dimSums(land[, , c("crop_area", "crop_fallow", "crop_treecover")], 3)
-    scalingFactors <- totalCrop / dimSums(crop, dim = 3)
-    scalingFactors[is.nan(scalingFactors)] <- 1
-    stopifnot(0 <= scalingFactors, scalingFactors < Inf)
+    stopifnot(1 <= scalingFactors, scalingFactors < Inf)
     crop <- crop * scalingFactors
 
     toolExpectLessDiff(dimSums(crop, dim = 3), totalCrop, 10^-5,
