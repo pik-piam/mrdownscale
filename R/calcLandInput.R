@@ -31,9 +31,23 @@ calcLandInput <- function(input) {
 
     # scale crop to take up the whole area of crop_area + crop_fallow + crop_treecover
     # need this to report for ScenarioMIP/LUH-format, might not want this for other applications
-    totalCrop <- dimSums(land[, , c("crop_area", "crop_fallow", "crop_treecover")])
+    totalCrop <- dimSums(land[, , c("crop_area", "crop_fallow", "crop_treecover")], 3)
     scalingFactors <- totalCrop / dimSums(crop, dim = 3)
     scalingFactors[is.na(scalingFactors)] <- 1
+
+    # in case we have fallow and/or treecover, but no crop_area assign to other land
+    for (region in getItems(scalingFactors, 1)) {
+      for (year in getItems(scalingFactors, 2)) {
+        if (scalingFactors[region, year, ] == Inf) {
+          land[region, year, "other"] <- land[region, year, "other"] + totalCrop[region, year, ]
+          totalCrop[region, year, ] <- 0
+        }
+      }
+    }
+
+    scalingFactors <- totalCrop / dimSums(crop, dim = 3)
+    scalingFactors[is.na(scalingFactors)] <- 1
+    stopifnot(1 <= scalingFactors, scalingFactors < Inf)
     crop <- crop * scalingFactors
 
     toolExpectLessDiff(dimSums(crop, dim = 3), totalCrop, 10^-5,
