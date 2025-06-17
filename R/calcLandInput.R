@@ -33,22 +33,23 @@ calcLandInput <- function(input) {
     # need this to report for ScenarioMIP/LUH-format, might not want this for other applications
     totalCrop <- dimSums(land[, , c("crop_area", "crop_fallow", "crop_treecover")], 3)
     scalingFactors <- totalCrop / dimSums(crop, dim = 3)
-    scalingFactors[is.na(scalingFactors)] <- 1
+    scalingFactors[is.nan(scalingFactors)] <- 1
 
-    # in case we have fallow and/or treecover, but no crop_area assign to other land
+    # in case we have fallow and/or treecover, but no crop_area assign to bio energy trees
     for (region in getItems(scalingFactors, 1)) {
       for (year in getItems(scalingFactors, 2)) {
         if (scalingFactors[region, year, ] == Inf) {
-          land[region, year, "other"] <- land[region, year, "other"] + totalCrop[region, year, ]
-          totalCrop[region, year, ] <- 0
+          crop[region, year, "betr_rainfed"] <- crop[region, year, "betr_rainfed"] + totalCrop[region, year, ]
+          land[region, year, "crop_area"] <- land[region, year, "crop_area"] + totalCrop[region, year, ]
+          land[region, year, c("crop_fallow", "crop_treecover")] <- 0
         }
       }
     }
     # TODO clean up here
-
+    totalCrop <- dimSums(land[, , c("crop_area", "crop_fallow", "crop_treecover")], 3)
     scalingFactors <- totalCrop / dimSums(crop, dim = 3)
-    scalingFactors[is.na(scalingFactors)] <- 1
-    stopifnot(1 <= scalingFactors, scalingFactors < Inf)
+    scalingFactors[is.nan(scalingFactors)] <- 1
+    stopifnot(0 <= scalingFactors, scalingFactors < Inf)
     crop <- crop * scalingFactors
 
     toolExpectLessDiff(dimSums(crop, dim = 3), totalCrop, 10^-5,
