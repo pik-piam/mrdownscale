@@ -91,6 +91,9 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   toolExpectTrue(min(out) >= 0, "All values are >= 0")
   # SpatRaster can hold values up to ~10^40 before replacing with Inf, so check we are well below that
   toolExpectTrue(max(out) < 10^30, "All values are < 10^30")
+  toolExpectLessDiff(out[, getYears(out, as.integer = TRUE) <= harmonizationPeriod[1], ],
+                     xTarget[, getYears(xTarget, as.integer = TRUE) <= harmonizationPeriod[1], ],
+                     10^-4, "Returning reference data before harmonization period")
 
   return(list(x = out,
               isocountries = FALSE,
