@@ -78,8 +78,6 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   out <- mbind(out, harvestArea)
   out <- out[, , getItems(kgCPerMhaTarget, 3), invert = TRUE]
 
-# TODO primf_bioh drops to 0 in 2025, why?
-
   attr(out, "geometry") <- geometry
   attr(out, "crs")      <- crs
 
