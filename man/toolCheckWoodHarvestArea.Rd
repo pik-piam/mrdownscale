@@ -4,7 +4,7 @@
 \alias{toolCheckWoodHarvestArea}
 \title{toolCheckWoodHarvestArea}
 \usage{
-toolCheckWoodHarvestArea(harvest, land, notePrefix = "")
+toolCheckWoodHarvestArea(harvest, land, endOfHistory)
 }
 \arguments{
 \item{harvest}{magpie object with exactly the following categories:
@@ -13,7 +13,8 @@ paste0(c("primf", "secyf", "secmf", "pltns", "primn", "secnf"), "_wood_harvest_a
 \item{land}{magpie object with at least the following categories:
 c("primf", "secdf", "pltns", "primn", "secdn")}
 
-\item{notePrefix}{character to prepend to the check's message}
+\item{endOfHistory}{The last year considered part of the historical period,
+will check and report consistency separately for history and after}
 }
 \description{
 Check wood harvest area is not exceeding land area of the corresponding

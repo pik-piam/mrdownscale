@@ -58,7 +58,7 @@ A BibTeX entry for LaTeX users is
     reference data},
   author = {Pascal Sauer and Jan Philipp Dietrich},
   doi = {10.5281/zenodo.11244475},
-  date = {2025-06-17},
+  date = {2025-06-18},
   year = {2025},
   url = {https://github.com/pik-piam/mrdownscale},
   note = {Version: 0.38.0},
