@@ -18,10 +18,10 @@
 #' supplementary = TRUE and target is luh2mod wood harvest area is also returned
 #' @author Pascal Sauer
 calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
-  hp1 <- harmonizationPeriod[[1]]
+  hp1 <- harmonizationPeriod[1]
   xInput <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
   inputYears <- getYears(xInput, as.integer = TRUE)
-  transitionYears <- inputYears[inputYears > harmonizationPeriod[1] & inputYears < harmonizationPeriod[2]]
+  transitionYears <- inputYears[inputYears > hp1 & inputYears < harmonizationPeriod[2]]
 
   xTarget <- calcOutput("LandTargetLowRes", input = input, target = target, aggregate = FALSE)
   histYears <- getYears(xTarget, as.integer = TRUE)
@@ -87,15 +87,7 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
     toolExpectLessDiff(harvest[, histYears, ], harvestHist, 0,
                        "In historical period, wood harvest area was not changed")
     toolExpectTrue(min(harvest) >= 0, "wood harvest area is >= 0")
-
-    histYears <- getYears(harvest, as.integer = TRUE)
-    histYears <- histYears[histYears < transitionYears[1]]
-    toolCheckWoodHarvestArea(harvest[, histYears, ], out[, histYears, ],
-                             "In historical period, ")
-
-    futureYears <- setdiff(getYears(harvest, as.integer = TRUE), histYears)
-    toolCheckWoodHarvestArea(harvest[, futureYears, ], out[, futureYears, ],
-                             "After historical period, ")
+    toolCheckWoodHarvestArea(harvest, out, hp1)
   }
 
   # consistency checks land

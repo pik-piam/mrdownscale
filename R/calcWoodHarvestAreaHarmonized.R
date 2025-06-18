@@ -117,8 +117,7 @@ calcWoodHarvestAreaHarmonized <- function(input, target, harmonizationPeriod, ha
   toolExpectTrue(min(out) >= 0, "All values are >= 0")
   toolExpectLessDiff(out[, histYears, ], xTarget[, histYears, ], 0,
                      "history is not changed by harmonization")
-  toolCheckWoodHarvestArea(out[, histYears, ], landHarmonized[, histYears, ], "In historical period, ")
-  toolCheckWoodHarvestArea(out[, futureYears, ], landHarmonized[, futureYears, ], "After historical period, ")
+  toolCheckWoodHarvestArea(out, landHarmonized, harmonizationPeriod[1])
 
   return(list(x = out,
               isocountries = FALSE,
