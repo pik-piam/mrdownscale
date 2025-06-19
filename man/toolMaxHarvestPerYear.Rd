@@ -4,22 +4,26 @@
 \alias{toolMaxHarvestPerYear}
 \title{toolMaxHarvestPerYear}
 \usage{
-toolMaxHarvestPerYear(land, split = TRUE)
+toolMaxHarvestPerYear(land, split = TRUE, timestepAdjust = TRUE)
 }
 \arguments{
 \item{land}{magpie object with at least the following categories:
-c("primf", "secdf", "pltns_added_treecover",
-  "pltns_excl_added_treecover", "primn", "secdn")}
+c("primf", "secdf", "pltns", "primn", "secdn")}
 
 \item{split}{if TRUE: split secdf to secyf and secdmf,
 rename secdf to secnf, and append "_wood_harvest_area" to names}
+
+\item{timestepAdjust}{if TRUE: divide values for primary land by timestep
+length. This makes sense, because once primary land has been harvested,
+it is converted to secondary land and thus cannot be harvested again.
+Might introduce unintended spikes when timestep length changes.}
 }
 \value{
 magpie object with the maximum possible yearly wood harvest area
 }
 \description{
-Calculate the maximum possible harvest area per year
-(dividing by timestep length) based on the given land data.
+Calculate the maximum possible harvest area per year based on the
+given land data.
 }
 \author{
 Pascal Sauer

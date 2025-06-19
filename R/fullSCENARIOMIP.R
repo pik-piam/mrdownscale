@@ -1,13 +1,13 @@
 fullSCENARIOMIP <- function(rev = numeric_version("0"), ..., scenario = "",
-                            harmonizationPeriod = c(2020, 2050),
-                            yearsSubset = 2020:2100,
-                            harmonization = "fade", downscaling = "magpieClassic",
+                            harmonizationPeriod = c(2020, 2060),
+                            yearsSubset = 1995:2100,
+                            harmonization = "fadeForest", downscaling = "magpieClassic",
                             compression = 2, progress = TRUE) {
   stopifnot(...length() == 0)
 
   revision <- if (identical(rev, numeric_version("0"))) format(Sys.time(), "%Y-%m-%d") else rev
 
-  fileSuffix <- paste0("_input4MIPs_landState_ScenarioMIP_PIK-MAgPIE-",
+  fileSuffix <- paste0("_input4MIPs_landState_ScenarioMIP_",
                        scenario, if (scenario != "") "-",
                        revision, "_gn_", min(yearsSubset), "-", max(yearsSubset), ".nc")
 
@@ -20,7 +20,8 @@ fullSCENARIOMIP <- function(rev = numeric_version("0"), ..., scenario = "",
                        references = paste0("https://github.com/pik-piam/mrdownscale and ",
                                            "https://wcrp-cmip.org/mips/scenariomip/"),
                        targetMIP = "ScenarioMIP",
-                       ncTitle = "MAgPIE Land-Use Data Harmonized and Downscaled using LUH3 historic as reference",
+                       ncTitle = paste0("REMIND-MAgPIE Land-Use Data Harmonized ",
+                                        "and Downscaled using LUH3 historic as reference"),
                        referenceDataset = paste0("LUH3 historic from https://aims2.llnl.gov/search/input4mips/ ",
                                                  "(institution_id = 'UofMD' and mip_era = 'CMIP7')"),
                        furtherInfoUrl = "NA")

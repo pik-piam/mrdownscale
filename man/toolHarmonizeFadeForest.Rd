@@ -22,7 +22,8 @@ harmonization period and a smooth transition in between.
 }
 \description{
 Harmonize using \code{\link{toolHarmonizeFade}}, then sum up primf + secdf,
-then disaggregate again in a way that minimizes primf to secdf conversion.
+then disaggregate again in a way that minimizes primf to secdf conversion,
+without exceeding linear extrapolation of primf.
 }
 \author{
 Pascal Sauer

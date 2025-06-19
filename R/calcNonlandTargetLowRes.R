@@ -13,17 +13,22 @@ calcNonlandTargetLowRes <- function(input, target) {
   # get target data in spatial resolution of input data
   xTarget <- calcOutput("NonlandTarget", target = target, aggregate = FALSE)
   ref <- as.SpatVector(xInput[, 1, 1])[, c(".region", ".id")]
-  xTarget <- terra::extract(xTarget, ref, sum, na.rm = TRUE, bind = TRUE)
-  xTarget <- as.magpie(xTarget)
+  out <- terra::extract(xTarget, ref, sum, na.rm = TRUE, bind = TRUE)
+  out <- as.magpie(out)
 
-  stopifnot(setequal(getItems(xInput, 3), getItems(xTarget, 3)))
-  out <- xTarget[, , getItems(xInput, 3)] # harmonize order of dim 3
+  stopifnot(setequal(getItems(xInput, 3), getItems(out, 3)))
+  out <- out[, , getItems(xInput, 3)] # harmonize order of dim 3
 
   roundFuelWood <- c("roundwood_harvest_weight_type", "fuelwood_harvest_weight_type")
   toolExpectLessDiff(dimSums(out[, , grep("_bioh$", getItems(out, 3), value = TRUE)], 3),
                      dimSums(out[, , roundFuelWood], 3),
                      10^5, "Harvest weight types are consistent")
   toolExpectTrue(min(out) >= 0, "All values are >= 0")
+
+  lastYear <- terra::time(xTarget)[length(terra::time(xTarget))]
+  mTarget <- as.magpie(xTarget[[terra::time(xTarget) == lastYear]])
+  toolExpectLessDiff(dimSums(mTarget, 1), dimSums(out[, lastYear, ], 1), 10^-5,
+                     "total sum is not changed by aggregation")
 
   return(list(x = out,
               isocountries = FALSE,

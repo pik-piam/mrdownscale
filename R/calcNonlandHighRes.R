@@ -124,7 +124,7 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
                  "Nonland categories remain unchanged")
   toolExpectTrue(min(out) >= 0, "All values are >= 0")
 
-  toolCheckWoodHarvestArea(out[, getYears(landHighRes), whaCat], landHighRes)
+  toolCheckWoodHarvestArea(out[, , whaCat], landHighRes, harmonizationPeriod[1])
 
   return(list(x = out,
               min = 0,

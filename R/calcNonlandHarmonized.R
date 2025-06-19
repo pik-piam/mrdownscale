@@ -21,14 +21,18 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   geometry <- attr(xInput, "geometry")
   crs <- attr(xInput, "crs")
 
-  biohMap <- toolBiohMapping()
+  biohMap <- as.data.frame(rbind(c("primf_bioh", "primf"),
+                                 c("secyf_bioh", "secdf"),
+                                 c("secmf_bioh", "secdf"),
+                                 c("pltns_bioh", "pltns"),
+                                 c("primn_bioh", "primn"),
+                                 c("secnf_bioh", "secdn")))
+  colnames(biohMap) <- c("bioh", "land")
   kgCPerMhaInput <- xInput[, , biohMap$bioh] / magclass::setNames(xInput[, , woodHarvestAreaCategories()],
                                                                   sub("wood_harvest_area$", "bioh",
                                                                       woodHarvestAreaCategories()))
-  kgCPerMhaInput[is.nan(kgCPerMhaInput)] <- 0
-  # should we prevent bioh without harvest area before this point, so the following line is no longer necessary?
-  kgCPerMhaInput[is.infinite(kgCPerMhaInput)] <- max(kgCPerMhaInput[is.finite(kgCPerMhaInput)])
-  stopifnot(is.finite(kgCPerMhaInput), kgCPerMhaInput >= 0)
+  kgCPerMhaInput[is.nan(kgCPerMhaInput)] <- min(kgCPerMhaInput[!is.nan(kgCPerMhaInput)])
+  stopifnot(0 < kgCPerMhaInput, kgCPerMhaInput < Inf)
   getItems(kgCPerMhaInput, 3) <- sub("bioh$", "kgC_per_Mha", getItems(kgCPerMhaInput, 3))
 
   xTarget <- calcOutput("NonlandTargetExtrapolated", input = input, target = target,
@@ -37,10 +41,8 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   kgCPerMhaTarget <- xTarget[, , biohMap$bioh] / magclass::setNames(xTarget[, , woodHarvestAreaCategories()],
                                                                     sub("wood_harvest_area$", "bioh",
                                                                         woodHarvestAreaCategories()))
-  kgCPerMhaTarget[is.nan(kgCPerMhaTarget)] <- 0
-  # should we prevent bioh without harvest area before this point, so the following line is no longer necessary?
-  kgCPerMhaTarget[is.infinite(kgCPerMhaTarget)] <- max(kgCPerMhaTarget[is.finite(kgCPerMhaTarget)])
-  stopifnot(is.finite(kgCPerMhaTarget), kgCPerMhaTarget >= 0)
+  kgCPerMhaTarget[!is.finite(kgCPerMhaTarget)] <- min(kgCPerMhaTarget[is.finite(kgCPerMhaTarget)])
+  stopifnot(0 < kgCPerMhaTarget, kgCPerMhaTarget < Inf)
   getItems(kgCPerMhaTarget, 3) <- sub("bioh$", "kgC_per_Mha", getItems(kgCPerMhaTarget, 3))
 
   harmonizer <- toolGetHarmonizer(harmonization)
@@ -55,18 +57,16 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
 
   # adapt bioh to harmonized harvest area
   kgCPerMhaHarmonized <- out[, , getItems(kgCPerMhaTarget, 3)]
-  # should we prevent harvest area without bioh before this point, so the following line is no longer necessary?
-  kgCPerMhaHarmonized[kgCPerMhaHarmonized == 0] <- min(kgCPerMhaHarmonized[kgCPerMhaHarmonized > 0])
-  stopifnot(is.finite(kgCPerMhaHarmonized), kgCPerMhaHarmonized >= 0)
+  stopifnot(0 < kgCPerMhaHarmonized, kgCPerMhaHarmonized < Inf)
   biohCalculated <- kgCPerMhaHarmonized * magclass::setNames(harvestArea,
                                                              sub("wood_harvest_area$", "kgC_per_Mha",
                                                                  getItems(harvestArea, 3)))
   getItems(biohCalculated, 3) <- sub("kgC_per_Mha$", "bioh", getItems(biohCalculated, 3))
-  stopifnot(0 <= biohCalculated, is.finite(biohCalculated))
+  stopifnot(0 <= biohCalculated, biohCalculated < Inf)
 
   biohNormalization <- dimSums(out[, , biohMap$bioh], 3) / dimSums(biohCalculated, 3)
   biohNormalization[is.nan(biohNormalization)] <- 0
-  stopifnot(0 <= biohNormalization, is.finite(biohNormalization))
+  stopifnot(0 <= biohNormalization, biohNormalization < Inf)
 
   biohAdapted <- biohNormalization * biohCalculated
 
@@ -91,6 +91,9 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   toolExpectTrue(min(out) >= 0, "All values are >= 0")
   # SpatRaster can hold values up to ~10^40 before replacing with Inf, so check we are well below that
   toolExpectTrue(max(out) < 10^30, "All values are < 10^30")
+  toolExpectLessDiff(out[, getYears(out, as.integer = TRUE) <= harmonizationPeriod[1], ],
+                     xTarget[, getYears(xTarget, as.integer = TRUE) <= harmonizationPeriod[1], ],
+                     10^-4, "Returning reference data before harmonization period")
 
   return(list(x = out,
               isocountries = FALSE,

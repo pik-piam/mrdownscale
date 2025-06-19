@@ -8,37 +8,56 @@
 #' paste0(c("primf", "secyf", "secmf", "pltns", "primn", "secnf"), "_wood_harvest_area")
 #' @param land magpie object with at least the following categories:
 #' c("primf", "secdf", "pltns", "primn", "secdn")
-#' @param notePrefix character to prepend to the check's message
+#' @param endOfHistory The last year considered part of the historical period,
+#' will check and report consistency separately for history and after
 #'
 #' @author Pascal Sauer
-toolCheckWoodHarvestArea <- function(harvest, land, notePrefix = "") {
-  stopifnot(setequal(getItems(harvest, 1), getItems(land, 1)))
+toolCheckWoodHarvestArea <- function(harvest, land, endOfHistory) {
+  stopifnot(identical(getItems(harvest, 1), getItems(land, 1)))
+  if (nyears(harvest) < 2) {
+    message("less than 2 years provided, not checking wood harvest area")
+    return()
+  }
   harvest <- toolAggregateWoodHarvest(harvest)
   stopifnot(getItems(harvest, 3) %in% getItems(land, 3),
             identical(getYears(harvest), getYears(land)))
-  years <- getYears(land, as.integer = TRUE)
 
   maxHarvestPerYear <- toolMaxHarvestPerYear(land, split = FALSE)
   excessHarvestPerYear <- harvest[, -1, ] - maxHarvestPerYear
   stopifnot(identical(getItems(excessHarvestPerYear, 2), getItems(maxHarvestPerYear, 2)))
 
-  msg <- paste0(" (max yearly excess harvest: ", signif(max(excessHarvestPerYear), 3), " Mha)")
-  toolExpectTrue(max(excessHarvestPerYear) <= 10^-10,
-                 paste0(notePrefix, "wood harvest area is smaller than land ",
-                        "of the corresponding type", if (max(excessHarvestPerYear) > 10^-10) msg),
-                 level = 1)
+  checkArea <- function(x, notePrefix) {
+    msg <- paste0(" (max yearly excess harvest: ", signif(max(x), 3), " Mha)")
+    toolExpectTrue(max(x) <= 10^-10,
+                   paste0(notePrefix, "wood harvest area is smaller than land ",
+                          "of the corresponding type", if (max(x) > 10^-10) msg),
+                   level = 2)
+  }
+  harvestYears <- getYears(excessHarvestPerYear, as.integer = TRUE)
+  checkArea(excessHarvestPerYear[, harvestYears[harvestYears <= endOfHistory], ],
+            paste0("In historical period (until ", endOfHistory, "), "))
+  checkArea(excessHarvestPerYear[, harvestYears[harvestYears > endOfHistory], ],
+            paste0("After historical period (after ", endOfHistory, "), "))
 
   prim <- c("primf", "primn")
-  timestepLength <- new.magpie(years = years[-1], fill = diff(years))
-  maxPrim <- setYears(land[, -nyears(land), prim], years[-1]) - timestepLength * harvest[, -1, prim]
+  landYears <- getYears(land, as.integer = TRUE)
+  timestepLength <- new.magpie(years = landYears[-1], fill = diff(landYears))
+  maxPrim <- setYears(land[, -nyears(land), prim], landYears[-1]) - timestepLength * harvest[, -1, prim]
   primExcess <- land[, -1, prim] - maxPrim
 
-  msg <- paste0(" (", signif(max(primExcess), 3), "Mha more primf/primn than possible)")
-  toolExpectTrue(max(primExcess) <= 10^-10,
-                 paste0(notePrefix, "primf and primn are shrinking by at least ",
-                        "their respective wood harvest area",
-                        if (max(primExcess) > 10^-10) msg),
-                 level = 1)
+  checkPrim <- function(x, notePrefix) {
+    msg <- paste0(" (", signif(max(x), 3), "Mha more primf/primn than possible)")
+    toolExpectTrue(max(x) <= 10^-10,
+                   paste0(notePrefix, "primf and primn are shrinking by at least ",
+                          "their respective wood harvest area",
+                          if (max(x) > 10^-10) msg),
+                   level = 1)
+  }
+  primYears <- getYears(primExcess, as.integer = TRUE)
+  checkPrim(primExcess[, primYears[primYears <= endOfHistory], ],
+            paste0("In historical period (until ", endOfHistory, "), "))
+  checkPrim(primExcess[, primYears[primYears > endOfHistory], ],
+            paste0("After historical period (after ", endOfHistory, "), "))
 }
 
 toolWoodHarvestMapping <- function() {
@@ -49,17 +68,6 @@ toolWoodHarvestMapping <- function() {
                              c("primn_wood_harvest_area", "primn"),
                              c("secnf_wood_harvest_area", "secdn")))
   colnames(map) <- c("harvest", "land")
-  return(map)
-}
-
-toolBiohMapping <- function() {
-  map <- as.data.frame(rbind(c("primf_bioh", "primf"),
-                             c("secyf_bioh", "secdf"),
-                             c("secmf_bioh", "secdf"),
-                             c("pltns_bioh", "pltns"),
-                             c("primn_bioh", "primn"),
-                             c("secnf_bioh", "secdn")))
-  colnames(map) <- c("bioh", "land")
   return(map)
 }
 
