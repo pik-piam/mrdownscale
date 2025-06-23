@@ -53,8 +53,19 @@ calcNonlandReport <- function(outputFormat, harmonizationPeriod, yearsSubset, ha
     # convert from km2 to Mha
     cellAreaMha <- cellAreaKm2 / 10000
 
-    # convert from kg yr-1 to kg ha-1 yr-1
-    fertl <- x[, , grep("fertilizer$", getNames(x))] / cellAreaHa
+    # convert from kg yr-1 to kg ha-1 yr-1, assuming ha-1 refers not to cell area, but e.g. c3ann cropland
+    land <- calcOutput("LandReport", outputFormat = outputFormat,
+                       harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
+                       harmonization = harmonization, downscaling = downscaling, aggregate = FALSE)
+    fertl <- x[, , grep("fertilizer$", getNames(x))]
+    fertl <- fertl / magclass::setNames(cellAreaHa * land[, , sub("_fertilizer", "",  getNames(fertl))],
+                                        getNames(fertl))
+    fertl[is.nan(fertl) | fertl == Inf] <- 0
+    summary(fertl)
+    if (max(fertl) > 900) {
+      warning("implausible fertilizer rate: ", max(fertl))
+      browser() # TODO
+    }
     getNames(fertl) <- sub("(.+)_fertilizer$", "fertl_\\1", getNames(fertl))
 
     # convert from Mha to shares
