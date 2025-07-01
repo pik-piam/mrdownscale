@@ -42,7 +42,7 @@ readMagpieFulldataGdx <- function(subtype) {
   } else if (subtype == "fertilizer") {
     suppressSpecificWarnings({
       suppressMessages({
-        x <- magpie4::NitrogenBudget(gdx, level = "cell", cropTypes = TRUE)
+        x <- magpie4::NitrogenBudget(gdx, level = "cell", cropTypes = TRUE, threshold = 0.005)
       })
     }, "due to non-iteration of fertilizer distribution, residual fertilizer deficit is moved to balanceflow.")
     x <- collapseDim(x[, , "fertilizer"])
