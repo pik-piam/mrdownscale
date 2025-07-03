@@ -24,17 +24,13 @@ calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
 
   xTarget <- calcOutput("NonlandTargetLowRes", input = input, target = target, aggregate = FALSE)
 
-  exTarget <- toolExtrapolate(xTarget[, , grep("_(fertilizer|harvest_weight_type)$", getItems(xTarget, 3))],
-                              transitionYears)
+  exTarget <- toolExtrapolate(xTarget[, , c("fertilizer", "harvest_weight_type")], transitionYears)
   exTarget[exTarget < 0] <- 0
 
-  woody <- c("primf", "secyf", "secmf", "pltns", "primn", "secnf")
-
   # calculate kg C per Mha in historical period
-  histBioh <- dimSums(xTarget[, , paste0(woody, "_bioh")], 2)
-  getItems(histBioh, 3) <- sub("_bioh$", "_wood_harvest_area", getItems(histBioh, 3))
-  histHarvestArea <- dimSums(xTarget[, , paste0(woody, "_wood_harvest_area")], 2)
-  kgCPerMha <- histBioh / histHarvestArea
+  histBioh <- dimSums(xTarget[, , "bioh"], 2)
+  histHarvestArea <- dimSums(xTarget[, , "wood_harvest_area"], 2)
+  kgCPerMha <- 1 / histHarvestArea * collapseDim(histBioh)
   kgCPerMha[is.nan(kgCPerMha)] <- 0
   stopifnot(is.finite(kgCPerMha))
 
@@ -47,21 +43,20 @@ calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
 
   stopifnot(setequal(getItems(harvestMha, 3), getItems(kgCPerMha, 3)))
   harvestKgC <- harvestMha * kgCPerMha
-  getItems(harvestKgC, 3)  <- sub("_wood_harvest_area$", "_bioh", getItems(harvestKgC, 3))
+  getItems(harvestKgC, 3.1)  <- sub("wood_harvest_area", "bioh", getItems(harvestKgC, 3.1))
 
-  roundFuelWood <- c("roundwood_harvest_weight_type", "fuelwood_harvest_weight_type")
-  harvestType <- exTarget[, , roundFuelWood]
+  harvestType <- exTarget[, , "harvest_weight_type"]
   harvestType <- harvestType / dimSums(harvestType, 3)
   harvestType[is.nan(harvestType)] <- 0.5
   stopifnot(is.finite(harvestType))
   harvestType <- harvestType * dimSums(harvestKgC, 3)
-  exTarget[, , roundFuelWood] <- harvestType
+  exTarget[, , "harvest_weight_type"] <- harvestType
 
   out <- mbind(xTarget,
                mbind(exTarget, harvestMha, harvestKgC))
 
-  toolExpectLessDiff(dimSums(out[, , paste0(woody, "_bioh")], 3),
-                     dimSums(out[, , roundFuelWood], 3),
+  toolExpectLessDiff(dimSums(out[, , "bioh"], 3),
+                     dimSums(out[, , "harvest_weight_type"], 3),
                      10^5, "Harvest weight types are consistent")
   toolExpectTrue(min(out) >= 0, "All values are >= 0")
   toolExpectLessDiff(out[, getYears(out, as.integer = TRUE) <= harmonizationPeriod[1], ],

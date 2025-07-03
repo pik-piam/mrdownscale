@@ -6,7 +6,7 @@
 #' @param land magpie object with at least the following categories:
 #' c("primf", "secdf", "pltns", "primn", "secdn")
 #' @param split if TRUE: split secdf to secyf and secdmf,
-#' rename secdf to secnf, and append "_wood_harvest_area" to names
+#' rename secdf to secnf, and add dim "wood_harvest_area"
 #' @param timestepAdjust if TRUE: divide values for primary land by timestep
 #' length. This makes sense, because once primary land has been harvested,
 #' it is converted to secondary land and thus cannot be harvested again.
@@ -20,10 +20,9 @@ toolMaxHarvestPerYear <- function(land, split = TRUE, timestepAdjust = TRUE) {
   if (split) {
     getItems(land, 3) <- sub("secdf", "secyf", getItems(land, 3))
     getItems(land, 3) <- sub("secdn", "secnf", getItems(land, 3))
-    getItems(land, 3) <- paste0(getItems(land, 3), "_wood_harvest_area")
-    land <- add_columns(land, "secmf_wood_harvest_area")
-    land[, , "secmf_wood_harvest_area"] <- land[, , "secyf_wood_harvest_area"]
-    prim <- c("primf_wood_harvest_area", "primn_wood_harvest_area")
+    land <- add_columns(land, "secmf")
+    land[, , "secmf"] <- land[, , "secyf"]
+    land <- add_dimension(land, dim = 3.1, add = "category", nm = "wood_harvest_area")
   }
   maxHarvest <- setYears(land[, -nyears(land), ], getYears(land)[-1])
 
