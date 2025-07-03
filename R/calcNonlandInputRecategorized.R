@@ -116,66 +116,58 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
 
   x <- mbind(otherWoodHarvestWeight, otherWoodHarvestArea, x[, , "other", invert = TRUE])
 
-  getNames(x) <- paste0(getItems(x, 3.2, full = TRUE), "_", getItems(x, 3.1, full = TRUE))
-  getNames(x) <- sub("_wood_harvest_weight_type", "_harvest_weight_type", getNames(x))
-  getNames(x) <- sub("_wood_harvest_weight", "_bioh", getNames(x))
+  getNames(x) <- sub("wood_harvest_weight_type", "harvest_weight_type", getNames(x))
+  getNames(x) <- sub("wood_harvest_weight", "bioh", getNames(x))
   getNames(x) <- sub("secdn", "secnf", getNames(x))
   getNames(x) <- sub("primforest", "primf", getNames(x))
-  x <- collapseDim(x)
-  getSets(x)["d3.1"] <- "data"
 
-  biohCategories <- paste0(c("primf", "primn", "secmf", "secyf", "secnf", "pltns"), "_bioh")
-  if (target %in% c("luh2", "luh2mod")) {
-    biohCategories <- setdiff(biohCategories, "pltns_bioh")
-  }
-  # wha = wood harvest area
-  whaCategories <- sub("bioh", "wood_harvest_area", biohCategories)
-
-  biohRenamed <- x[, , biohCategories]
-  getItems(biohRenamed, 3) <- sub("_bioh", "_wood_harvest_area", getItems(biohRenamed, 3))
-  problematic <- x[, , whaCategories] > 0 & biohRenamed == 0
-  stopifnot(setequalDims(x[, , whaCategories], problematic))
+  biohRenamed <- x[, , "bioh"]
+  getItems(biohRenamed, 3.1) <- sub("bioh", "wood_harvest_area", getItems(biohRenamed, 3.1))
+  problematic <- x[, , "wood_harvest_area"] > 0 & biohRenamed == 0
+  stopifnot(setequalDims(x[, , "wood_harvest_area"], problematic))
   if (any(problematic)) {
-    maxWha <- max(x[, , whaCategories][problematic])
+    maxWha <- max(x[, , "wood_harvest_area"][problematic])
     toolStatusMessage(if (maxWha > 10^-10) "warn" else "note",
                       paste0("setting wood harvest area to zero where corresponding bioh is zero ",
                              "(max such wood harvest area: ",
                              signif(maxWha, 3), " Mha yr-1)"))
-    x[, , whaCategories][problematic] <- 0
+    x[, , "wood_harvest_area"][problematic] <- 0
   }
 
-  whaRenamed <- x[, , whaCategories]
-  getItems(whaRenamed, 3) <- sub("_wood_harvest_area", "_bioh", getItems(whaRenamed, 3))
-  problematic <- x[, , biohCategories] > 0 & whaRenamed == 0
-  stopifnot(setequalDims(x[, , biohCategories], problematic))
+  whaRenamed <- x[, , "wood_harvest_area"]
+  getItems(whaRenamed, 3.1) <- sub("wood_harvest_area", "bioh", getItems(whaRenamed, 3.1))
+  problematic <- x[, , "bioh"] > 0 & whaRenamed == 0
+  stopifnot(setequalDims(x[, , "bioh"], problematic))
   if (any(problematic)) {
-    maxBioh <- max(x[, , biohCategories][problematic])
+    maxBioh <- max(x[, , "bioh"][problematic])
     toolStatusMessage(if (maxBioh > 1) "warn" else "note",
                       paste0("setting bioh to zero where corresponding wood harvest area is zero (max such bioh: ",
                              signif(maxBioh, 3), " kg C yr-1)"))
-    x[, , biohCategories][problematic] <- 0
+    x[, , "bioh"][problematic] <- 0
   }
 
   attr(x, "crs") <- crs
   attr(x, "geometry") <- geometry
 
   # check data for consistency
-  toolExpectTrue(identical(unname(getSets(x)), c("region", "id", "year", "data")),
+  toolExpectTrue(identical(unname(getSets(x)), c("region", "id", "year", "category", "data")),
                  "Dimensions are named correctly")
 
-  toolExpectTrue(setequal(getNames(x),
-                          c(whaCategories,
-                            biohCategories,
-                            paste0(c("roundwood", "fuelwood"), "_harvest_weight_type"),
-                            paste0(c("c3ann", "c4ann", "c3per", "c4per", "c3nfx"), "_fertilizer"))),
+  woodland <- c("primf", "primn", "secmf", "secyf", "secnf",
+                if (!target %in% c("luh2", "luh2mod")) "pltns")
+  toolExpectTrue(setequal(getItems(x, 3),
+                          c(paste0("wood_harvest_area.", woodland),
+                            paste0("bioh.", woodland),
+                            paste0("harvest_weight_type.", c("roundwood", "fuelwood")),
+                            paste0("fertilizer.", c("c3ann", "c4ann", "c3per", "c4per", "c3nfx")))),
                  "Nonland categories match target definition")
   toolExpectTrue(all(x >= 0), "All values are >= 0")
 
-  whaRenamed <- x[, , whaCategories]
-  getItems(whaRenamed, 3) <- sub("_wood_harvest_area", "_bioh", getItems(whaRenamed, 3))
-  toolExpectTrue(all(whaRenamed > 0 | x[, , biohCategories] == 0),
+  whaRenamed <- x[, , "wood_harvest_area"]
+  getItems(whaRenamed, 3.1) <- sub("wood_harvest_area", "bioh", getItems(whaRenamed, 3.1))
+  toolExpectTrue(all(whaRenamed > 0 | x[, , "bioh"] == 0),
                  "If bioh > 0 then wood harvest area > 0")
-  toolExpectTrue(all(whaRenamed == 0 | x[, , biohCategories] > 0),
+  toolExpectTrue(all(whaRenamed == 0 | x[, , "bioh"] > 0),
                  "If wood harvest area > 0 then bioh > 0")
 
   return(list(x = x,
@@ -184,4 +176,3 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
               min = 0,
               description = "Input data with nonland categories remapped to categories of target dataset"))
 }
-# TODO adapt to new fertilizer unit
