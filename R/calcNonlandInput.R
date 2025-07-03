@@ -50,8 +50,6 @@ calcNonlandInput <- function(input) {
     # there are some negative values very close to zero, replace with 0
     stopifnot(min(fertilizer) >= -10^-10)
     fertilizer[fertilizer < 0] <- 0
-    # convert from Tg yr-1 to kg yr-1
-    fertilizer <- fertilizer * 10^9
 
     out <- mbind(woodHarvestWeightSource, woodHarvestWeightType, woodHarvestArea, fertilizer)
   } else {
@@ -65,7 +63,7 @@ calcNonlandInput <- function(input) {
 
   return(list(x = out,
               isocountries = FALSE,
-              unit = "harvest_weight: kg C yr-1; harvest_area: Mha yr-1; fertilizer: kg yr-1",
+              unit = "harvest_weight: kg C yr-1; harvest_area: Mha yr-1; fertilizer: Tg yr-1",
               min = 0,
               description = "Nonland input data for data harmonization and downscaling pipeline"))
 }
