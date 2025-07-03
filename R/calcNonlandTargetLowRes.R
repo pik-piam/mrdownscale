@@ -15,24 +15,37 @@ calcNonlandTargetLowRes <- function(input, target) {
   ref <- as.SpatVector(xInput[, 1, 1])[, c(".region", ".id")]
   out <- terra::extract(xTarget, ref, sum, na.rm = TRUE, bind = TRUE)
   out <- as.magpie(out)
+  getItems(out, 3, raw = TRUE) <- sub("^(.+?)_(.+)$", "\\2.\\1", getItems(out, 3))
+  names(dimnames(out))[3] <- "category.data"
+
+  lastYear <- terra::time(xTarget)[length(terra::time(xTarget))]
+  mTarget <- as.magpie(xTarget[[terra::time(xTarget) == lastYear]])
+  getItems(mTarget, 3, raw = TRUE) <- sub("^(.+?)_(.+)$", "\\2.\\1", getItems(mTarget, 3))
+  names(dimnames(mTarget))[3] <- "category.data"
+  toolExpectLessDiff(dimSums(mTarget, 1), dimSums(out[, lastYear, ], 1), 10^-5,
+                     "total sum is not changed by aggregation")
+
+  land <- calcOutput("LandTargetLowRes", input = input, target = target, aggregate = FALSE)
+  cropMha <- toolAggregateCropland(land, keepOthers = FALSE)
+  # convert from kg yr-1 to kg ha-1 yr-1
+  out[, , "fertilizer"] <- out[, , "fertilizer"] / (10^6 * cropMha)
+  out[, , "fertilizer"][is.nan(out[, , "fertilizer"])] <- 0
 
   stopifnot(setequal(getItems(xInput, 3), getItems(out, 3)))
   out <- out[, , getItems(xInput, 3)] # harmonize order of dim 3
 
-  roundFuelWood <- c("roundwood_harvest_weight_type", "fuelwood_harvest_weight_type")
-  toolExpectLessDiff(dimSums(out[, , grep("_bioh$", getItems(out, 3), value = TRUE)], 3),
-                     dimSums(out[, , roundFuelWood], 3),
+  toolExpectTrue(all(out[, , "fertilizer"] <= 1200),
+                 paste0("Fertilizer application is <= 1200 kg ha-1 yr-1 (max: ",
+                        signif(max(out[, , "fertilizer"]), 3), ")"))
+
+  toolExpectLessDiff(dimSums(out[, , "bioh"], 3),
+                     dimSums(out[, , "harvest_weight_type"], 3),
                      10^5, "Harvest weight types are consistent")
   toolExpectTrue(min(out) >= 0, "All values are >= 0")
 
-  lastYear <- terra::time(xTarget)[length(terra::time(xTarget))]
-  mTarget <- as.magpie(xTarget[[terra::time(xTarget) == lastYear]])
-  toolExpectLessDiff(dimSums(mTarget, 1), dimSums(out[, lastYear, ], 1), 10^-5,
-                     "total sum is not changed by aggregation")
-
   return(list(x = out,
               isocountries = FALSE,
-              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: kg yr-1",
+              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: kg ha-1 yr-1",
               min = 0,
               description = "Land target data at the same low resolution as the input dataset for harmonization"))
 }
