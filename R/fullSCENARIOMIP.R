@@ -1,5 +1,5 @@
 fullSCENARIOMIP <- function(rev = numeric_version("0"), ..., scenario = "",
-                            harmonizationPeriod = c(2020, 2060),
+                            harmonizationPeriod = c(2020, 2050),
                             yearsSubset = 1995:2100,
                             harmonization = "fadeForest", downscaling = "magpieClassic",
                             compression = 2, progress = TRUE) {

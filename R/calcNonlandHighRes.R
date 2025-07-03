@@ -71,7 +71,9 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
                              c("c4per_irrigated_biofuel_2nd_gen", "c4per"),
                              c("c4per_rainfed_biofuel_2nd_gen", "c4per")))
   colnames(map) <- c("from", "to")
+  land2 <- toolAggregateCropland(land) # TODO use only this if check succeeds
   land <- toolAggregate(land, map, from = "from", to = "to", dim = 3)
+  stopifnot(setequalDims(land, land2), land == land2)
 
   # wood harvest area, use land in previous year (as that is what's harvested) as weight
   whaCat <- woodHarvestAreaCategories()
@@ -123,6 +125,7 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
   toolExpectTrue(setequal(getItems(out, dim = 3), getItems(x, dim = 3)),
                  "Nonland categories remain unchanged")
   toolExpectTrue(min(out) >= 0, "All values are >= 0")
+  # TODO compare total global fertilizer in harmonizationPeriod[2] to calcNonlandInput
 
   toolCheckWoodHarvestArea(out[, , whaCat], landHighRes, harmonizationPeriod[1])
 
