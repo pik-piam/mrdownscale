@@ -21,35 +21,22 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   geometry <- attr(xInput, "geometry")
   crs <- attr(xInput, "crs")
 
-  biohMap <- as.data.frame(rbind(c("primf_bioh", "primf"),
-                                 c("secyf_bioh", "secdf"),
-                                 c("secmf_bioh", "secdf"),
-                                 c("pltns_bioh", "pltns"),
-                                 c("primn_bioh", "primn"),
-                                 c("secnf_bioh", "secdn")))
-  colnames(biohMap) <- c("bioh", "land")
-  kgCPerMhaInput <- xInput[, , biohMap$bioh] / magclass::setNames(xInput[, , woodHarvestAreaCategories()],
-                                                                  sub("wood_harvest_area$", "bioh",
-                                                                      woodHarvestAreaCategories()))
+  kgCPerMhaInput <- xInput[, , "bioh"] / collapseDim(xInput[, , "wood_harvest_area"])
   kgCPerMhaInput[is.nan(kgCPerMhaInput)] <- min(kgCPerMhaInput[!is.nan(kgCPerMhaInput)])
   stopifnot(0 < kgCPerMhaInput, kgCPerMhaInput < Inf)
-  getItems(kgCPerMhaInput, 3) <- sub("bioh$", "kgC_per_Mha", getItems(kgCPerMhaInput, 3))
+  getItems(kgCPerMhaInput, 3.1) <- sub("bioh$", "kgC_per_Mha", getItems(kgCPerMhaInput, 3.1))
 
   xTarget <- calcOutput("NonlandTargetExtrapolated", input = input, target = target,
                         harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
 
-  kgCPerMhaTarget <- xTarget[, , biohMap$bioh] / magclass::setNames(xTarget[, , woodHarvestAreaCategories()],
-                                                                    sub("wood_harvest_area$", "bioh",
-                                                                        woodHarvestAreaCategories()))
+  kgCPerMhaTarget <- xTarget[, , "bioh"] / collapseDim(xTarget[, , "wood_harvest_area"])
   kgCPerMhaTarget[!is.finite(kgCPerMhaTarget)] <- min(kgCPerMhaTarget[is.finite(kgCPerMhaTarget)])
   stopifnot(0 < kgCPerMhaTarget, kgCPerMhaTarget < Inf)
-  getItems(kgCPerMhaTarget, 3) <- sub("bioh$", "kgC_per_Mha", getItems(kgCPerMhaTarget, 3))
+  getItems(kgCPerMhaTarget, 3.1) <- sub("bioh$", "kgC_per_Mha", getItems(kgCPerMhaTarget, 3.1))
 
   harmonizer <- toolGetHarmonizer(harmonization)
-  out <- harmonizer(mbind(xInput[, , woodHarvestAreaCategories(), invert = TRUE],
-                          kgCPerMhaInput),
-                    mbind(xTarget[, , woodHarvestAreaCategories(), invert = TRUE],
-                          kgCPerMhaTarget),
+  out <- harmonizer(mbind(xInput[, , "wood_harvest_area", invert = TRUE], kgCPerMhaInput),
+                    mbind(xTarget[, , "wood_harvest_area", invert = TRUE], kgCPerMhaTarget),
                     harmonizationPeriod = harmonizationPeriod)
 
   harvestArea <- calcOutput("WoodHarvestAreaHarmonized", input = input, target = target,
@@ -58,23 +45,21 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   # adapt bioh to harmonized harvest area
   kgCPerMhaHarmonized <- out[, , getItems(kgCPerMhaTarget, 3)]
   stopifnot(0 < kgCPerMhaHarmonized, kgCPerMhaHarmonized < Inf)
-  biohCalculated <- kgCPerMhaHarmonized * magclass::setNames(harvestArea,
-                                                             sub("wood_harvest_area$", "kgC_per_Mha",
-                                                                 getItems(harvestArea, 3)))
-  getItems(biohCalculated, 3) <- sub("kgC_per_Mha$", "bioh", getItems(biohCalculated, 3))
+  biohCalculated <- kgCPerMhaHarmonized * collapseDim(harvestArea)
+  getItems(biohCalculated, 3.1) <- sub("kgC_per_Mha$", "bioh", getItems(biohCalculated, 3.1))
   stopifnot(0 <= biohCalculated, biohCalculated < Inf)
 
-  biohNormalization <- dimSums(out[, , biohMap$bioh], 3) / dimSums(biohCalculated, 3)
+  biohNormalization <- dimSums(out[, , "bioh"], 3) / dimSums(biohCalculated, 3)
   biohNormalization[is.nan(biohNormalization)] <- 0
   stopifnot(0 <= biohNormalization, biohNormalization < Inf)
 
   biohAdapted <- biohNormalization * biohCalculated
 
-  toolExpectLessDiff(dimSums(out[, , biohMap$bioh], 3),
+  toolExpectLessDiff(dimSums(out[, , "bioh"], 3),
                      dimSums(biohAdapted, 3),
                      10^-4, "Adapting bioh to harmonized wood harvest area does not change total bioh")
 
-  out[, , biohMap$bioh] <- biohAdapted
+  out[, , "bioh"] <- biohAdapted
   out <- mbind(out, harvestArea)
   out <- out[, , getItems(kgCPerMhaTarget, 3), invert = TRUE]
 
@@ -84,11 +69,14 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   # checks
   toolExpectTrue(!is.null(attr(out, "geometry")), "Data contains geometry information")
   toolExpectTrue(!is.null(attr(out, "crs")), "Data contains CRS information")
-  toolExpectTrue(identical(unname(getSets(out)), c("region", "id", "year", "data")),
+  toolExpectTrue(identical(unname(getSets(out)), c("region", "id", "year", "category", "data")),
                  "Dimensions are named correctly")
   toolExpectTrue(setequal(getItems(out, dim = 3), getItems(xTarget, dim = 3)),
                  "Nonland categories remain unchanged")
   toolExpectTrue(min(out) >= 0, "All values are >= 0")
+  toolExpectTrue(max(out[, , "fertilizer"]) <= 1200,
+                 paste0("Fertilizer application is <= 1200 kg ha-1 yr-1 (max: ",
+                        signif(max(out[, , "fertilizer"]), 3), ")"))
   # SpatRaster can hold values up to ~10^40 before replacing with Inf, so check we are well below that
   toolExpectTrue(max(out) < 10^30, "All values are < 10^30")
   toolExpectLessDiff(out[, getYears(out, as.integer = TRUE) <= harmonizationPeriod[1], ],
@@ -97,7 +85,7 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
 
   return(list(x = out,
               isocountries = FALSE,
-              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: kg yr-1",
+              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: kg ha-1 yr-1",
               min = 0,
               description = "Harmonized nonland data"))
 }

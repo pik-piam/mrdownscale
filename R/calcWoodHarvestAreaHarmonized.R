@@ -44,11 +44,11 @@ calcWoodHarvestAreaHarmonized <- function(input, target, harmonizationPeriod, ha
 
   # calculate raw (inconsistent with land) harmonized wood harvest area
   xInput <- calcOutput("NonlandInputRecategorized", input = input, target = target, aggregate = FALSE)
-  xInput <- xInput[, , woodHarvestAreaCategories()]
+  xInput <- xInput[, , "wood_harvest_area"]
 
   xTarget <- calcOutput("NonlandTargetExtrapolated", input = input, target = target,
                         harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
-  xTarget <- xTarget[, , woodHarvestAreaCategories()]
+  xTarget <- xTarget[, , "wood_harvest_area"]
   harmonizer <- toolGetHarmonizer(harmonization)
   rawHarvestHarmonized <- harmonizer(xInput, xTarget, harmonizationPeriod = harmonizationPeriod)
 
@@ -105,9 +105,12 @@ calcWoodHarvestAreaHarmonized <- function(input, target, harmonizationPeriod, ha
   # assemble output
   out <- mbind(primHarv, secdHarv)
   out <- out[, futureYears, ]
-  out <- toolAggregate(out, toolWoodHarvestMapping(),
+  map <- toolWoodHarvestMapping()
+  map$harvest <- sub("wood_harvest_area\\.", "", map$harvest)
+  out <- toolAggregate(out, map,
                        weight = xTarget[, harmonizationPeriod[1], ] + 10^-30,
                        from = "land", to = "harvest", dim = 3)
+  out <- add_dimension(out, dim = 3.1, add = "category", nm = "wood_harvest_area")
 
   out <- mbind(xTarget[, histYears, ], out)
   stopifnot(dimSums(out[, -1, ], 3) + excessSecdHarvest + 10^-10 >=
