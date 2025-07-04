@@ -78,7 +78,3 @@ toolAggregateWoodHarvest <- function(woodHarvest) {
 
   return(toolAggregate(woodHarvest, map, from = "harvest", to = "land", dim = 3))
 }
-
-woodHarvestAreaCategories <- function() {
-  return(paste0(c("primf", "secyf", "secmf", "pltns", "primn", "secnf"), "_wood_harvest_area"))
-}

@@ -88,13 +88,13 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   fertilizer <- fertilizerTg * 10^9 / (landMha * 10^6)
   fertilizer[is.nan(fertilizer)] <- 0
 
-  toolExpectTrue(all(fertilizer <= 1200),
+  toolExpectTrue(max(fertilizer) <= 1200,
                  paste0("Fertilizer application is <= 1200 kg ha-1 yr-1 (max: ",
                         signif(max(fertilizer), 3), ")"))
-  if (any(fertilizer > 1200)) {
+  if (max(fertilizer) > 1200) {
     toolStatusMessage("note", paste0("Fertilizer is capped at 1200 kg ha-1 yr-1"))
+    fertilizer[fertilizer > 1200] <- 1200
   }
-  fertilizer[fertilizer > 1200] <- 1200
 
   fertilizer <- add_dimension(fertilizer, 3.1, "category", "fertilizer")
   x <- mbind(fertilizer, x[, , "fertilizer", invert = TRUE])

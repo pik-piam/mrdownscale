@@ -34,7 +34,7 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
   if (target %in% c("luh2mod", "luh3")) {
     # ------- calculate wood harvest shares -------
     harvestHist <- calcOutput("NonlandTargetLowRes", input = input, target = target, aggregate = FALSE)
-    harvestHist <- harvestHist[, , endsWith(getItems(harvestHist, 3), "wood_harvest_area")]
+    harvestHist <- harvestHist[, , "wood_harvest_area"]
     maxHarvestHist <- toolMaxHarvestPerYear(xTarget, timestepAdjust = FALSE)
 
     stopifnot(setequal(getItems(harvestHist, 1), getItems(maxHarvestHist, 1)),
@@ -46,7 +46,7 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
     harvestShare[is.nan(harvestShare)] <- 0
     harvestShare[harvestShare > 1] <- 1
 
-    secymf <- paste0(c("secyf", "secmf"), "_wood_harvest_area")
+    secymf <- paste0("wood_harvest_area.", c("secyf", "secmf"))
     normalization <- dimSums(harvestShare[, , secymf], 3) + 10^-10 # + 10^-10 to ensure sum <= 1
     normalization[normalization < 1] <- 1
     harvestShare[, , secymf] <- harvestShare[, , secymf] / normalization
