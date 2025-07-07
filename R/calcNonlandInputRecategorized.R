@@ -4,7 +4,7 @@
 #' See \code{\link{calcLandInputRecategorized}} for an explanation of the mapping procedure.
 #'
 #' Report and discard wood harvest area if there is zero wood harvest (bioh) or vice versa.
-#' If fertilizer application is larger than 600 kg ha-1 yr-1 it is set to 600 kg ha-1 yr-1.
+#' If fertilizer application is larger than 1200 kg ha-1 yr-1 it is set to 1200 kg ha-1 yr-1.
 #'
 #' @param input name of the input dataset, currently only "magpie"
 #' @param target name of the target dataset, currently only "luh2"
