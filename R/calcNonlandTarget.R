@@ -10,22 +10,27 @@ calcNonlandTarget <- function(target) {
   if (target %in% c("luh2", "luh2mod", "luh3")) {
     if (target %in% c("luh2", "luh2mod")) {
       cellAreaKm2 <- readSource("LUH2v2h", subtype = "cellArea", convert = FALSE)
+      states <- readSource("LUH2v2h", subtype = "states", convert = FALSE)
       management <- readSource("LUH2v2h", subtype = "management", convert = FALSE)
       transitions <- readSource("LUH2v2h", subtype = "transitions", convert = FALSE)
     } else {
       cellAreaKm2 <- readSource("LUH3", subtype = "cellArea", convert = FALSE)
+      states <- readSource("LUH3", subtype = "states", subset = 1995:2020, convert = FALSE)
       management <- readSource("LUH3", subtype = "management", subset = 1995:2020, convert = FALSE)
       transitions <- readSource("LUH3", subtype = "transitions", subset = 1995:2020, convert = FALSE)
     }
 
+    # convert from km2 to ha
+    cellAreaHa <- cellAreaKm2 * 100
     # convert from km2 to Mha
     cellAreaMha <- cellAreaKm2 / 10000
 
-    ### fertilizer in kg ha-1 yr-1
-    fertilizer <- management["fertl"]
-    # TODO keep name fertl as long as unit is kg ha-1 yr-1
+    ### fertilizer in Tg yr-1
+    # need absolute values for aggregating
+    # convert from kg ha-1 yr-1 to Tg yr-1, assuming ha-1 refers not to cell area, but e.g. c3ann cropland
+    fertilizer <- management["fertl"] * cellAreaHa * states[[sub("fertl_", "", names(management["fertl"]))]] / 10^9
     names(fertilizer) <- paste0(sub("fertl_", "", names(fertilizer)), "_fertilizer")
-    terra::units(fertilizer) <- "kg ha-1 yr-1"
+    terra::units(fertilizer) <- "Tg yr-1"
 
     ### wood harvest area in Mha yr-1
     # LUH3 includes pltns_harv variable, but it's zero everywhere, so no need to read it
@@ -87,7 +92,7 @@ calcNonlandTarget <- function(target) {
 
     return(list(x = out,
                 class = "SpatRaster",
-                unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: kg ha-1 yr-1",
+                unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: Tg yr-1",
                 description = "Nonland target data for data harmonization"))
   } else {
     stop("Unsupported output type \"", target, "\"")

@@ -79,8 +79,6 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   fertilizer[, , "c3per"] <- fertilizer[, , "c3per"] + fertilizer[, , "c3per_biofuel_2nd_gen"]
   fertilizer[, , "c4per"] <- fertilizer[, , "c4per"] + fertilizer[, , "c4per_biofuel_2nd_gen"]
   fertilizer <- fertilizer[, , c("c3per_biofuel_2nd_gen", "c4per_biofuel_2nd_gen"), invert = TRUE]
-  # convert from Tg yr-1 to kg yr-1
-  fertilizer <- fertilizer * 10^9
   fertilizer <- add_dimension(fertilizer, 3.1, "category", "fertilizer")
   x <- mbind(fertilizer, x[, , "fertilizer", invert = TRUE])
 
@@ -157,7 +155,7 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
 
   return(list(x = x,
               isocountries = FALSE,
-              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: kg yr-1",
+              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: Tg yr-1",
               min = 0,
               description = "Input data with nonland categories remapped to categories of target dataset"))
 }

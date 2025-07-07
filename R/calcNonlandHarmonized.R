@@ -80,31 +80,24 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
                      xTarget[, getYears(xTarget, as.integer = TRUE) <= harmonizationPeriod[1], ],
                      10^-4, "Returning reference data before harmonization period")
 
-  toolExpectTrue(max(out[, , "fertilizer"]) <= 1200,
-                 paste0("Fertilizer application is <= 1200 kg ha-1 yr-1 (max: ",
-                        signif(max(out[, , "fertilizer"]), 3), ")"))
+  # TODO
+  # toolExpectTrue(max(out[, , "fertilizer"]) <= 1200,
+  #                paste0("Fertilizer application is <= 1200 kg ha-1 yr-1 (max: ",
+  #                       signif(max(out[, , "fertilizer"]), 3), ")"))
+
   # for years after harmonization make sure that total global fertilizer applied matches input
   years <- getYears(out, TRUE)
   years <- years[years >= harmonizationPeriod[2]]
   fertilizerInput <- calcOutput("NonlandInput", input = input, aggregate = FALSE)
   fertilizerInput <- fertilizerInput[, years, "fertilizer"]
   fertilizerInput <- dimSums(fertilizerInput, c(1, 3))
-  # convert from Tg yr-1 to kg yr-1
-  fertilizerInput <- fertilizerInput * 10^9
 
-  land <- calcOutput("LandHarmonized", input = input, target = target, harmonizationPeriod = harmonizationPeriod,
-                     harmonization = harmonization, aggregate = FALSE)
-  cropMha <- toolAggregateCropland(land[, years, ], keepOthers = FALSE)
-  # convert from kg ha-1 yr-1 to kg yr-1
-  fertilizerOutput <- out[, years, "fertilizer"] * (cropMha * 10^6)
-  fertilizerOutput <- dimSums(fertilizerOutput, c(1, 3))
-
-  toolExpectLessDiff(fertilizerInput, fertilizerOutput, 10^-5,
+  toolExpectLessDiff(fertilizerInput, out[, years, "fertilizer"], 10^-5,
                      "Total global fertilizer after harmonization period matches input data")
 
   return(list(x = out,
               isocountries = FALSE,
-              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: kg ha-1 yr-1",
+              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: Tg yr-1",
               min = 0,
               description = "Harmonized nonland data"))
 }

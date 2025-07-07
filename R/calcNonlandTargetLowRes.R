@@ -11,21 +11,8 @@ calcNonlandTargetLowRes <- function(input, target) {
   xInput <- calcOutput("NonlandInputRecategorized", input = input, target = target, aggregate = FALSE)
   ref <- as.SpatVector(xInput[, 1, 1])[, c(".region", ".id")]
 
-  if (target %in% c("luh2", "luh2mod")) {
-    cellAreaKm2 <- readSource("LUH2v2h", subtype = "cellArea", convert = FALSE)
-    states <- readSource("LUH2v2h", subtype = "states", convert = FALSE)
-  } else {
-    cellAreaKm2 <- readSource("LUH3", subtype = "cellArea", convert = FALSE)
-    states <- readSource("LUH3", subtype = "states", subset = 1995:2020, convert = FALSE)
-  }
-
   # get target data in spatial resolution of input data
   xTarget <- calcOutput("NonlandTarget", target = target, aggregate = FALSE)
-  # convert fertilizer from kg ha-1 yr-1 to kg yr-1, so it can be summed up
-  fertilizerSelect <- grep("fertilizer", names(xTarget), value = TRUE)
-  cropNames <- sub("_fertilizer", "", names(xTarget[[fertilizerSelect]]))
-  xTarget <- c(xTarget[[!names(xTarget) %in% fertilizerSelect]],
-               xTarget[[fertilizerSelect]] * (cellAreaKm2 * 100 * states[[cropNames]]))
   out <- terra::extract(xTarget, ref, sum, na.rm = TRUE, bind = TRUE)
   out <- as.magpie(out)
   getItems(out, 3, raw = TRUE) <- sub("^(.+?)_(.+)$", "\\2.\\1", getItems(out, 3))
@@ -38,20 +25,12 @@ calcNonlandTargetLowRes <- function(input, target) {
   toolExpectLessDiff(dimSums(mTarget, 1), dimSums(out[, lastYear, ], 1), 10^-5,
                      "total sum is not changed by aggregation")
 
-  landLowRes <- calcOutput("LandTargetLowRes", input = input, target = target, aggregate = FALSE)
-  # convert from Mha to ha
-  cropHaLowRes <- toolAggregateCropland(landLowRes, keepOthers = FALSE) * 10^6
-
-  # convert from kg yr-1 to kg ha-1 yr-1
-  out[, , "fertilizer"] <- out[, , "fertilizer"] / cropHaLowRes
-  out[, , "fertilizer"][is.nan(out[, , "fertilizer"])] <- 0
-
   stopifnot(setequal(getItems(xInput, 3), getItems(out, 3)))
   out <- out[, , getItems(xInput, 3)] # harmonize order
 
-  toolExpectTrue(max(out[, , "fertilizer"]) <= 1200,
-                 paste0("Fertilizer application is <= 1200 kg ha-1 yr-1 (max: ",
-                        signif(max(out[, , "fertilizer"]), 3), ")"))
+  # toolExpectTrue(max(out[, , "fertilizer"]) <= 1200,
+  #                paste0("Fertilizer application is <= 1200 kg ha-1 yr-1 (max: ",
+  #                       signif(max(out[, , "fertilizer"]), 3), ")"))
 
   toolExpectLessDiff(dimSums(out[, , "bioh"], 3),
                      dimSums(out[, , "harvest_weight_type"], 3),
@@ -60,7 +39,7 @@ calcNonlandTargetLowRes <- function(input, target) {
 
   return(list(x = out,
               isocountries = FALSE,
-              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: kg ha-1 yr-1",
+              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: Tg yr-1",
               min = 0,
               description = "Land target data at the same low resolution as the input dataset for harmonization"))
 }

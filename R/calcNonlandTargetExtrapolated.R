@@ -65,7 +65,7 @@ calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
 
   return(list(x = out,
               isocountries = FALSE,
-              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: kg ha-1 yr-1",
+              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: Tg yr-1",
               min = 0,
               description = "Extrapolated nonland target data for harmonization"))
 }
