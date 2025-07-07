@@ -24,7 +24,8 @@ calcNonlandTargetLowRes <- function(input, target) {
   # convert fertilizer from kg ha-1 yr-1 to kg yr-1, so it can be summed up
   fertilizerSelect <- grep("fertilizer", names(xTarget), value = TRUE)
   cropNames <- sub("_fertilizer", "", names(xTarget[[fertilizerSelect]]))
-  xTarget[[fertilizerSelect]] <- xTarget[[fertilizerSelect]] * (cellAreaKm2 * 100) * states[[cropNames]]
+  xTarget <- c(xTarget[[!names(xTarget) %in% fertilizerSelect]],
+               xTarget[[fertilizerSelect]] * (cellAreaKm2 * 100 * states[[cropNames]]))
   out <- terra::extract(xTarget, ref, sum, na.rm = TRUE, bind = TRUE)
   out <- as.magpie(out)
   getItems(out, 3, raw = TRUE) <- sub("^(.+?)_(.+)$", "\\2.\\1", getItems(out, 3))
