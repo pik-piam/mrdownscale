@@ -94,10 +94,10 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
 
   land <- calcOutput("LandHarmonized", input = input, target = target, harmonizationPeriod = harmonizationPeriod,
                      harmonization = harmonization, aggregate = FALSE)
-  cropMha <- toolAggregateCropland(land, keepOthers = FALSE)
+  cropMha <- toolAggregateCropland(land[, years, ], keepOthers = FALSE)
   # convert from kg ha-1 yr-1 to kg yr-1
-  fertilizerOutput <- out[, , "fertilizer"] * (cropMha * 10^6)
-  fertilizerOutput <- dimSums(fertilizerOutput[, years, ], c(1, 3))
+  fertilizerOutput <- out[, years, "fertilizer"] * (cropMha * 10^6)
+  fertilizerOutput <- dimSums(fertilizerOutput, c(1, 3))
 
   toolExpectLessDiff(fertilizerInput, fertilizerOutput, 10^-5,
                      "Total global fertilizer after harmonization period matches input data")
