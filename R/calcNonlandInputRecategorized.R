@@ -4,7 +4,6 @@
 #' See \code{\link{calcLandInputRecategorized}} for an explanation of the mapping procedure.
 #'
 #' Report and discard wood harvest area if there is zero wood harvest (bioh) or vice versa.
-#' If fertilizer application is larger than 1200 kg ha-1 yr-1 it is set to 1200 kg ha-1 yr-1.
 #'
 #' @param input name of the input dataset, currently only "magpie"
 #' @param target name of the target dataset, currently only "luh2"
@@ -53,7 +52,7 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   x <- mbind(youngWeight, matureWeight, youngArea, matureArea, x[, , "secdforest", invert = TRUE])
 
   # map fertilizer using weights from land categorization
-  fertilizerTg <- collapseDim(x[, , "fertilizer"])
+  fertilizer <- collapseDim(x[, , "fertilizer"])
 
   ref <- calcOutput("LandCategorizationWeight", map = map, geometry = geometry, crs = crs, aggregate = FALSE)
 
@@ -72,30 +71,16 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   map$dataInput <- sub("_irrigated", "", map$dataInput)
   map$dataOutput <- sub("_irrigated", "", map$dataOutput)
   map$merge <- gsub("_irrigated", "", map$merge)
-  mapFertilizer <- map[map$dataInput %in% getItems(fertilizerTg, 3), ]
+  mapFertilizer <- map[map$dataInput %in% getItems(fertilizer, 3), ]
 
-  fertilizerMerge <- toolAggregate(fertilizerTg, mapFertilizer, dim = 3, from = "dataInput", to = "merge",
+  fertilizerMerge <- toolAggregate(fertilizer, mapFertilizer, dim = 3, from = "dataInput", to = "merge",
                                    weight = ref[, , unique(mapFertilizer$merge)])
-  fertilizerTg <- toolAggregate(fertilizerMerge, mapFertilizer, dim = 3, from = "merge", to = "dataOutput")
-  fertilizerTg[, , "c3per"] <- fertilizerTg[, , "c3per"] + fertilizerTg[, , "c3per_biofuel_2nd_gen"]
-  fertilizerTg[, , "c4per"] <- fertilizerTg[, , "c4per"] + fertilizerTg[, , "c4per_biofuel_2nd_gen"]
-  fertilizerTg <- fertilizerTg[, , c("c3per_biofuel_2nd_gen", "c4per_biofuel_2nd_gen"), invert = TRUE]
-
-  landMha <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
-  landMha <- toolAggregateCropland(landMha)[, , getItems(fertilizerTg, 3)]
-  stopifnot(setequalDims(fertilizerTg, landMha))
-  # convert from Tg Mha-1 yr-1 to kg ha-1 yr-1 (relative to specific cropland, e.g. c3ann)
-  fertilizer <- fertilizerTg * 10^9 / (landMha * 10^6)
-  fertilizer[is.nan(fertilizer)] <- 0
-
-  toolExpectTrue(max(fertilizer) <= 1200,
-                 paste0("Fertilizer application is <= 1200 kg ha-1 yr-1 (max: ",
-                        signif(max(fertilizer), 3), ")"))
-  if (max(fertilizer) > 1200) {
-    toolStatusMessage("note", paste0("Fertilizer is capped at 1200 kg ha-1 yr-1"))
-    fertilizer[fertilizer > 1200] <- 1200
-  }
-
+  fertilizer <- toolAggregate(fertilizerMerge, mapFertilizer, dim = 3, from = "merge", to = "dataOutput")
+  fertilizer[, , "c3per"] <- fertilizer[, , "c3per"] + fertilizer[, , "c3per_biofuel_2nd_gen"]
+  fertilizer[, , "c4per"] <- fertilizer[, , "c4per"] + fertilizer[, , "c4per_biofuel_2nd_gen"]
+  fertilizer <- fertilizer[, , c("c3per_biofuel_2nd_gen", "c4per_biofuel_2nd_gen"), invert = TRUE]
+  # convert from Tg yr-1 to kg yr-1
+  fertilizer <- fertilizer * 10^9
   fertilizer <- add_dimension(fertilizer, 3.1, "category", "fertilizer")
   x <- mbind(fertilizer, x[, , "fertilizer", invert = TRUE])
 
@@ -172,7 +157,7 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
 
   return(list(x = x,
               isocountries = FALSE,
-              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: kg ha-1 yr-1",
+              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: kg yr-1",
               min = 0,
               description = "Input data with nonland categories remapped to categories of target dataset"))
 }
