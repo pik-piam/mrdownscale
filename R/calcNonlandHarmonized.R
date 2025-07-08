@@ -80,19 +80,17 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
                      xTarget[, getYears(xTarget, as.integer = TRUE) <= harmonizationPeriod[1], ],
                      10^-4, "Returning reference data before harmonization period")
 
-  # TODO
-  # toolExpectTrue(max(out[, , "fertilizer"]) <= 1200,
-  #                paste0("Fertilizer application is <= 1200 kg ha-1 yr-1 (max: ",
-  #                       signif(max(out[, , "fertilizer"]), 3), ")"))
-
   # for years after harmonization make sure that total global fertilizer applied matches input
   years <- getYears(out, TRUE)
   years <- years[years >= harmonizationPeriod[2]]
   fertilizerInput <- calcOutput("NonlandInputRecategorized", input = input, target = target, aggregate = FALSE)
   fertilizerInput <- fertilizerInput[, years, "fertilizer"]
-
   toolExpectLessDiff(fertilizerInput, out[, years, "fertilizer"], 10^-5,
                      "Total global fertilizer after harmonization period matches input data")
+  toolCheckFertilizer(out[, , "fertilizer"],
+                      calcOutput("LandHarmonized", input = input, target = target,
+                                 harmonizationPeriod = harmonizationPeriod,
+                                 harmonization = harmonization, aggregate = FALSE))
 
   return(list(x = out,
               isocountries = FALSE,

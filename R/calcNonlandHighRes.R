@@ -93,6 +93,7 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
   fertilizerInput <- dimSums(fertilizerInput[, years, "fertilizer"], 1)
   toolExpectLessDiff(fertilizerInput, dimSums(out[, years, "fertilizer"], 1), 10^-5,
                      "Total global fertilizer after harmonization period matches input data")
+  toolCheckFertilizer(out[, , "fertilizer"], landHighRes)
 
   toolExpectTrue(setequal(getItems(out, dim = 3), getItems(x, dim = 3)),
                  "Nonland categories remain unchanged")
