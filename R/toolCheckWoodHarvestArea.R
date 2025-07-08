@@ -51,7 +51,7 @@ toolCheckWoodHarvestArea <- function(harvest, land, endOfHistory) {
                    paste0(notePrefix, "primf and primn are shrinking by at least ",
                           "their respective wood harvest area",
                           if (max(x) > 10^-10) msg),
-                   level = 1)
+                   level = 2)
   }
   primYears <- getYears(primExcess, as.integer = TRUE)
   checkPrim(primExcess[, primYears[primYears <= endOfHistory], ],
