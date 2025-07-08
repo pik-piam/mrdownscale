@@ -34,10 +34,30 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   stopifnot(0 < kgCPerMhaTarget, kgCPerMhaTarget < Inf)
   getItems(kgCPerMhaTarget, 3.1) <- sub("bioh$", "kgC_per_Mha", getItems(kgCPerMhaTarget, 3.1))
 
+  fertilizerKgPerHaInput <- toolFertilizerKgPerHa(xInput[, , "fertilizer"],
+                                                  calcOutput("LandInputRecategorized", input = input,
+                                                             target = target, aggregate = FALSE))
+  fertilizerKgPerHaTarget <- toolFertilizerKgPerHa(xTarget[, , "fertilizer"],
+                                                   calcOutput("LandTargetExtrapolated",
+                                                              input = input, target = target,
+                                                              harmonizationPeriod = harmonizationPeriod,
+                                                              aggregate = FALSE))
+
+  harmonizationInput <- xInput[, , c("wood_harvest_area", "fertilizer"), invert = TRUE]
+  harmonizationInput <- mbind(harmonizationInput, kgCPerMhaInput, fertilizerKgPerHaInput)
+
+  harmonizationTarget <- xTarget[, , c("wood_harvest_area", "fertilizer"), invert = TRUE]
+  harmonizationTarget <- mbind(harmonizationTarget, kgCPerMhaTarget, fertilizerKgPerHaTarget)
+
   harmonizer <- toolGetHarmonizer(harmonization)
-  out <- harmonizer(mbind(xInput[, , "wood_harvest_area", invert = TRUE], kgCPerMhaInput),
-                    mbind(xTarget[, , "wood_harvest_area", invert = TRUE], kgCPerMhaTarget),
-                    harmonizationPeriod = harmonizationPeriod)
+  out <- harmonizer(harmonizationInput, harmonizationTarget, harmonizationPeriod = harmonizationPeriod)
+
+  landHarmonizedMha <- calcOutput("LandHarmonized", input = input, target = target,
+                                  harmonizationPeriod = harmonizationPeriod,
+                                  harmonization = harmonization, aggregate = FALSE)
+  cropMha <- toolAggregateCropland(landHarmonizedMha, keepOthers = FALSE)
+  # convert from kg ha-1 yr-1 to Tg yr-1
+  out[, , "fertilizer"] <- out[, , "fertilizer"] * cropMha * (10^6 / 10^9)
 
   harvestArea <- calcOutput("WoodHarvestAreaHarmonized", input = input, target = target,
                             harmonizationPeriod = harmonizationPeriod, harmonization = harmonization, aggregate = FALSE)
@@ -87,10 +107,7 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   fertilizerInput <- fertilizerInput[, years, "fertilizer"]
   toolExpectLessDiff(fertilizerInput, out[, years, "fertilizer"], 10^-5,
                      "Total global fertilizer after harmonization period matches input data")
-  toolCheckFertilizer(out[, , "fertilizer"],
-                      calcOutput("LandHarmonized", input = input, target = target,
-                                 harmonizationPeriod = harmonizationPeriod,
-                                 harmonization = harmonization, aggregate = FALSE))
+  toolCheckFertilizer(out[, , "fertilizer"], landHarmonizedMha)
 
   return(list(x = out,
               isocountries = FALSE,
@@ -98,3 +115,5 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
               min = 0,
               description = "Harmonized nonland data"))
 }
+
+# TODO check total global fertilizer plot
