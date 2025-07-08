@@ -63,6 +63,14 @@ calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
                      xTarget[, getYears(xTarget, as.integer = TRUE) <= harmonizationPeriod[1], ],
                      10^-4, "Returning reference data before harmonization period")
 
+  cropMha <- toolAggregateCropland(xLand$x, keepOthers = FALSE)
+  # convert from Tg yr-1 to kg ha-1 yr-1
+  fertilizerKgPerHa <- out[, , "fertilizer"] / cropMha * (10^9 / 10^6)
+  fertilizerKgPerHa[is.nan(fertilizerKgPerHa)] <- 0
+  toolExpectTrue(max(fertilizerKgPerHa) <= 1200,
+                 paste0("Fertilizer application is <= 1200 kg ha-1 yr-1 (max: ",
+                        signif(max(fertilizerKgPerHa), 3), ")"))
+
   return(list(x = out,
               isocountries = FALSE,
               unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: Tg yr-1",

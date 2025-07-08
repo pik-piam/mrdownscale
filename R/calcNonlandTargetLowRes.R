@@ -28,10 +28,6 @@ calcNonlandTargetLowRes <- function(input, target) {
   stopifnot(setequal(getItems(xInput, 3), getItems(out, 3)))
   out <- out[, , getItems(xInput, 3)] # harmonize order
 
-  # toolExpectTrue(max(out[, , "fertilizer"]) <= 1200,
-  #                paste0("Fertilizer application is <= 1200 kg ha-1 yr-1 (max: ",
-  #                       signif(max(out[, , "fertilizer"]), 3), ")"))
-
   toolExpectLessDiff(dimSums(out[, , "bioh"], 3),
                      dimSums(out[, , "harvest_weight_type"], 3),
                      10^5, "Harvest weight types are consistent")
