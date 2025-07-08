@@ -15,9 +15,9 @@
 #' @author Pascal Sauer
 calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestArea = 0.95,
                                           youngShareWoodHarvestWeight = 0.5) {
-  landInput <- calcOutput("NonlandInput", input = input, aggregate = FALSE)
+  nonlandInput <- calcOutput("NonlandInput", input = input, aggregate = FALSE)
   resolutionMapping <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
-  x <- landInput[unique(resolutionMapping$lowRes), , ]
+  x <- nonlandInput[unique(resolutionMapping$lowRes), , ]
 
   resolutionMapping$cluster <- resolutionMapping$lowRes
   "!# @monitor magpie4:::addGeometry"
@@ -136,8 +136,8 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   toolExpectTrue(identical(unname(getSets(x)), c("region", "id", "year", "category", "data")),
                  "Dimensions are named correctly")
 
-  stopifnot(length(setdiff(getItems(x, 1), getItems(landInput, 1))) == 0)
-  omitted <- setdiff(getItems(landInput, 1), getItems(x, 1))
+  stopifnot(length(setdiff(getItems(x, 1), getItems(nonlandInput, 1))) == 0)
+  omitted <- setdiff(getItems(nonlandInput, 1), getItems(x, 1))
   omittedMessage <- paste0(" (omitted: ",
                            paste0(omitted, collapse = ", "),
                            ")")
@@ -162,8 +162,10 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
                  "If wood harvest area > 0 then bioh > 0")
 
   toolExpectLessDiff(dimSums(x[, , "fertilizer"], 3),
-                     dimSums(landInput[unique(resolutionMapping$lowRes), , "fertilizer"], 3),
+                     dimSums(nonlandInput[unique(resolutionMapping$lowRes), , "fertilizer"], 3),
                      10^-5, "Total fertilizer is not changed by recategorization")
+  toolCheckFertilizer(x[, , "fertilizer"],
+                      calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE))
 
   return(list(x = x,
               isocountries = FALSE,

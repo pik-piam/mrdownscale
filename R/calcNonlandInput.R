@@ -60,6 +60,7 @@ calcNonlandInput <- function(input) {
   toolExpectTrue(identical(unname(getSets(out)), c("region", "id", "year", "category", "data")),
                  "Dimensions are named correctly")
   toolExpectTrue(all(out >= 0), "All values are >= 0")
+  toolCheckFertilizer(out[, , "fertilizer"], land)
 
   return(list(x = out,
               isocountries = FALSE,
