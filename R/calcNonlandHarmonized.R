@@ -88,9 +88,8 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   # for years after harmonization make sure that total global fertilizer applied matches input
   years <- getYears(out, TRUE)
   years <- years[years >= harmonizationPeriod[2]]
-  fertilizerInput <- calcOutput("NonlandInput", input = input, aggregate = FALSE)
+  fertilizerInput <- calcOutput("NonlandInputRecategorized", input = input, target = target, aggregate = FALSE)
   fertilizerInput <- fertilizerInput[, years, "fertilizer"]
-  fertilizerInput <- dimSums(fertilizerInput, c(1, 3))
 
   toolExpectLessDiff(fertilizerInput, out[, years, "fertilizer"], 10^-5,
                      "Total global fertilizer after harmonization period matches input data")
