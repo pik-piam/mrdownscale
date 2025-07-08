@@ -53,10 +53,11 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
   stopifnot(getItems(weightBioh, 3) == getItems(bioh, 3))
   biohDownscaled <- toolAggregate(bioh, resmap, weight = weightBioh, from = "lowRes", to = "cell", dim = 1)
 
-
-  # no disaggregation for fertilizer as unit is kg ha-1 yr-1,
-  # just copy values low res values into each grid cell
-  fertilizerDownscaled <- setCells(x[resmap$lowRes, futureYears, "fertilizer"], resmap$cell)
+  fertilizer <- x[, futureYears, "fertilizer"]
+  weightFertilizer <- toolAggregateCropland(landHighRes)[, futureYears, getItems(fertilizer, 3.2)] + 10^-30
+  weightFertilizer <- add_dimension(weightFertilizer, add = "category", nm = "fertilizer")
+  fertilizerDownscaled <- toolAggregate(fertilizer, resmap, weight = weightFertilizer,
+                                        from = "lowRes", to = "cell", dim = 1)
 
   nonlandTarget <- calcOutput("NonlandTarget", target = target, aggregate = FALSE)
   nonlandTarget <- as.magpie(nonlandTarget[[terra::time(nonlandTarget) <= harmonizationPeriod[1] &
@@ -88,20 +89,10 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
   # for years after harmonization make sure that total global fertilizer applied matches input
   years <- getYears(out, TRUE)
   years <- years[years >= harmonizationPeriod[2]]
-  fertilizerInput <- calcOutput("NonlandInput", input = input, aggregate = FALSE)
-  fertilizerInput <- fertilizerInput[, years, "fertilizer"]
-  fertilizerInput <- dimSums(fertilizerInput, c(1, 3))
-  # convert from Tg yr-1 to kg yr-1
-  fertilizerInput <- fertilizerInput * 10^9
-
-  cropMha <- toolAggregateCropland(landHighRes, keepOthers = FALSE)
-  # convert from kg ha-1 yr-1 to kg yr-1
-  fertilizerOutput <- out[, years, "fertilizer"] * (cropMha[, years, ] * 10^6)
-  fertilizerOutput <- dimSums(fertilizerOutput, c(1, 3))
-
-  toolExpectLessDiff(fertilizerInput, fertilizerOutput, 10^-5,
+  fertilizerInput <- calcOutput("NonlandInputRecategorized", input = input, target = target, aggregate = FALSE)
+  fertilizerInput <- dimSums(fertilizerInput[, years, "fertilizer"], 1)
+  toolExpectLessDiff(fertilizerInput, dimSums(out[, years, "fertilizer"], 1), 10^-5,
                      "Total global fertilizer after harmonization period matches input data")
-  browser() # TODO
 
   toolExpectTrue(setequal(getItems(out, dim = 3), getItems(x, dim = 3)),
                  "Nonland categories remain unchanged")
@@ -112,6 +103,6 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
   return(list(x = out,
               min = 0,
               isocountries = FALSE,
-              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: kg ha-1 yr-1",
+              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: Tg yr-1",
               description = "Downscaled nonland data"))
 }

@@ -81,6 +81,7 @@ calcNonlandReport <- function(outputFormat, harmonizationPeriod, yearsSubset, ha
     woodTypeShares[, , "rndwd"] <- 1 - woodTypeShares[, , "fulwd"]
     woodTypeShares <- collapseDim(woodTypeShares, 1.3)
 
+    # TODO convert fertilizer from Tg yr-1 to kg ha-1 yr-1
     out <- mbind(fertl, harv, woodTypeShares, x[, , grep("bioh$", getNames(x))])
 
     shares <- grep("(harv|rndwd|fulwd)$", getNames(out), value = TRUE)
