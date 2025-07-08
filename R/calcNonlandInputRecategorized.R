@@ -15,9 +15,9 @@
 #' @author Pascal Sauer
 calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestArea = 0.95,
                                           youngShareWoodHarvestWeight = 0.5) {
-  x <- calcOutput("NonlandInput", input = input, aggregate = FALSE)
+  landInput <- calcOutput("NonlandInput", input = input, aggregate = FALSE)
   resolutionMapping <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
-  x <- x[unique(resolutionMapping$lowRes), , ]
+  x <- landInput[unique(resolutionMapping$lowRes), , ]
 
   resolutionMapping$cluster <- resolutionMapping$lowRes
   "!# @monitor magpie4:::addGeometry"
@@ -136,6 +136,14 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   toolExpectTrue(identical(unname(getSets(x)), c("region", "id", "year", "category", "data")),
                  "Dimensions are named correctly")
 
+  stopifnot(length(setdiff(getItems(x, 1), getItems(landInput, 1))) == 0)
+  omitted <- setdiff(getItems(landInput, 1), getItems(x, 1))
+  omittedMessage <- paste0(" (omitted: ",
+                           paste0(omitted, collapse = ", "),
+                           ")")
+  toolExpectTrue(length(omitted) == 0, paste0("Using full spatial dimension of input data",
+                                              if (length(omitted) > 0) omittedMessage))
+
   woodland <- c("primf", "primn", "secmf", "secyf", "secnf",
                 if (!target %in% c("luh2", "luh2mod")) "pltns")
   toolExpectTrue(setequal(getItems(x, 3),
@@ -152,6 +160,10 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
                  "If bioh > 0 then wood harvest area > 0")
   toolExpectTrue(all(whaRenamed == 0 | x[, , "bioh"] > 0),
                  "If wood harvest area > 0 then bioh > 0")
+
+  toolExpectLessDiff(dimSums(x[, , "fertilizer"], 3),
+                     dimSums(landInput[unique(resolutionMapping$lowRes), , "fertilizer"], 3),
+                     10^-5, "Total fertilizer is not changed by recategorization")
 
   return(list(x = x,
               isocountries = FALSE,
