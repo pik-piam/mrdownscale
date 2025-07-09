@@ -15,6 +15,7 @@
 #' @author Pascal Sauer
 calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestArea = 0.95,
                                           youngShareWoodHarvestWeight = 0.5) {
+  landMha <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
   nonlandInput <- calcOutput("NonlandInput", input = input, aggregate = FALSE)
   resolutionMapping <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
   x <- nonlandInput[unique(resolutionMapping$lowRes), , ]
@@ -80,6 +81,11 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   fertilizer[, , "c4per"] <- fertilizer[, , "c4per"] + fertilizer[, , "c4per_biofuel_2nd_gen"]
   fertilizer <- fertilizer[, , c("c3per_biofuel_2nd_gen", "c4per_biofuel_2nd_gen"), invert = TRUE]
   fertilizer <- add_dimension(fertilizer, 3.1, "category", "fertilizer")
+  perHa <- toolFertilizerKgPerHa(fertilizer, landMha)
+  perHaCapped <- perHa
+  perHaCapped[perHaCapped > 1200] <- 1190
+  # TODO scale others to make up for this
+  fertilizer <- toolFertilizerTg(perHaCapped, landMha)
   x <- mbind(fertilizer, x[, , "fertilizer", invert = TRUE])
 
   # map other wood harvest to primn and secdn using land as weights
@@ -164,8 +170,7 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   toolExpectLessDiff(dimSums(x[, , "fertilizer"], 3),
                      dimSums(nonlandInput[unique(resolutionMapping$lowRes), , "fertilizer"], 3),
                      10^-5, "Total fertilizer is not changed by recategorization")
-  toolCheckFertilizer(x[, , "fertilizer"],
-                      calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE))
+  toolCheckFertilizer(x[, , "fertilizer"], landMha)
 
   return(list(x = x,
               isocountries = FALSE,

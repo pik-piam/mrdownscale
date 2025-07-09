@@ -58,6 +58,9 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   cropMha <- toolAggregateCropland(landHarmonizedMha, keepOthers = FALSE)
   # convert from kg ha-1 yr-1 to Tg yr-1
   out[, , "fertilizer"] <- out[, , "fertilizer"] * cropMha * (10^6 / 10^9)
+  # replace data after harmonization with actual input data to avoid precision loss due to conversion between units
+  hp2 <- harmonizationPeriod[2]
+  out[, getYears(out, TRUE) >= hp2, "fertilizer"] <- xInput[, getYears(xInput, TRUE) >= hp2, "fertilizer"]
 
   harvestArea <- calcOutput("WoodHarvestAreaHarmonized", input = input, target = target,
                             harmonizationPeriod = harmonizationPeriod, harmonization = harmonization, aggregate = FALSE)
@@ -86,6 +89,8 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   attr(out, "geometry") <- geometry
   attr(out, "crs")      <- crs
 
+  nonlandInput <- calcOutput("NonlandInputRecategorized", input = input, target = target, aggregate = FALSE)
+
   # checks
   toolExpectTrue(!is.null(attr(out, "geometry")), "Data contains geometry information")
   toolExpectTrue(!is.null(attr(out, "crs")), "Data contains CRS information")
@@ -101,10 +106,8 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
                      10^-4, "Returning reference data before harmonization period")
 
   # for years after harmonization make sure that total global fertilizer applied matches input
-  years <- getYears(out, TRUE)
-  years <- years[years >= harmonizationPeriod[2]]
-  fertilizerInput <- calcOutput("NonlandInputRecategorized", input = input, target = target, aggregate = FALSE)
-  fertilizerInput <- fertilizerInput[, years, "fertilizer"]
+  years <- getYears(out, TRUE)[getYears(out, TRUE) >= hp2]
+  fertilizerInput <- nonlandInput[, years, "fertilizer"]
   toolExpectLessDiff(fertilizerInput, out[, years, "fertilizer"], 10^-5,
                      "Total global fertilizer after harmonization period matches input data")
   toolCheckFertilizer(out[, , "fertilizer"], landHarmonizedMha)
@@ -115,5 +118,3 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
               min = 0,
               description = "Harmonized nonland data"))
 }
-
-# TODO check total global fertilizer plot

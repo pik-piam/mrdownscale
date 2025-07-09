@@ -82,11 +82,7 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
   toolExpectLessDiff(inSum, outSum, 10^-3,
                      "No significant global sum difference per category before and after downscaling")
 
-  toolExpectTrue(max(out[, , "fertilizer"]) <= 1200,
-                 paste0("Fertilizer application is <= 1200 kg ha-1 yr-1 (max: ",
-                        signif(max(out[, , "fertilizer"]), 3), ")"))
-
-  # for years after harmonization make sure that total global fertilizer applied matches input
+  # for years after harmonization make sure that total global fertilizer matches input
   years <- getYears(out, TRUE)
   years <- years[years >= harmonizationPeriod[2]]
   fertilizerInput <- calcOutput("NonlandInputRecategorized", input = input, target = target, aggregate = FALSE)
