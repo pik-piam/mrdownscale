@@ -24,8 +24,15 @@ calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
 
   xTarget <- calcOutput("NonlandTargetLowRes", input = input, target = target, aggregate = FALSE)
 
-  exTarget <- toolExtrapolate(xTarget[, , c("fertilizer", "harvest_weight_type")], transitionYears)
-  exTarget[exTarget < 0] <- 0
+  xLand <- calcOutput("LandTargetExtrapolated", input = input, target = target,
+                      harmonizationPeriod = harmonizationPeriod, aggregate = FALSE, supplementary = TRUE)
+
+  # convert Tg yr-1 to kg ha-1 yr-1
+  fertilizer <- toolFertilizerKgPerHa(xTarget[, , "fertilizer"], xLand$x[, getYears(xTarget), ])
+
+  exFertilizer <- toolExtrapolate(fertilizer, transitionYears, linearModel = FALSE)
+  # convert from kg ha-1 yr-1 to Tg yr-1
+  exFertilizer <- toolFertilizerTg(exFertilizer, xLand$x[, getYears(exFertilizer), ])
 
   # calculate kg C per Mha in historical period
   histBioh <- dimSums(xTarget[, , "bioh"], 2)
@@ -35,8 +42,6 @@ calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
   stopifnot(is.finite(kgCPerMha))
 
   # get wood harvest area extrapolation, then apply historical kg C per Mha
-  xLand <- calcOutput("LandTargetExtrapolated", input = input, target = target,
-                      harmonizationPeriod = harmonizationPeriod, aggregate = FALSE, supplementary = TRUE)
   stopifnot(xLand$unit == "Mha",
             !is.null(xLand$woodHarvestArea))
   harvestMha <- xLand$woodHarvestArea[, transitionYears, ]
@@ -45,15 +50,15 @@ calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
   harvestKgC <- harvestMha * kgCPerMha
   getItems(harvestKgC, 3.1)  <- sub("wood_harvest_area", "bioh", getItems(harvestKgC, 3.1))
 
-  harvestType <- exTarget[, , "harvest_weight_type"]
+  harvestType <- toolExtrapolate(xTarget[, , "harvest_weight_type"], transitionYears)
+  harvestType[harvestType < 0] <- 0
   harvestType <- harvestType / dimSums(harvestType, 3)
   harvestType[is.nan(harvestType)] <- 0.5
   stopifnot(is.finite(harvestType))
   harvestType <- harvestType * dimSums(harvestKgC, 3)
-  exTarget[, , "harvest_weight_type"] <- harvestType
 
   out <- mbind(xTarget,
-               mbind(exTarget, harvestMha, harvestKgC))
+               mbind(exFertilizer, harvestType, harvestMha, harvestKgC))
 
   toolExpectLessDiff(dimSums(out[, , "bioh"], 3),
                      dimSums(out[, , "harvest_weight_type"], 3),
