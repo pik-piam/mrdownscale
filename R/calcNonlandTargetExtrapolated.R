@@ -37,7 +37,7 @@ calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
   # calculate kg C per Mha in historical period
   histBioh <- dimSums(xTarget[, , "bioh"], 2)
   histHarvestArea <- dimSums(xTarget[, , "wood_harvest_area"], 2)
-  kgCPerMha <- 1 / histHarvestArea * collapseDim(histBioh) # TODO order is important here, need histHarvestArea before histBioh
+  kgCPerMha <- 1 / histHarvestArea * collapseDim(histBioh) # order is important here for correct dims
   kgCPerMha[is.nan(kgCPerMha)] <- 0
   stopifnot(is.finite(kgCPerMha))
 
