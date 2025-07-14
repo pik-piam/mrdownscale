@@ -37,11 +37,7 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   fertilizerKgPerHaInput <- toolFertilizerKgPerHa(xInput[, , "fertilizer"],
                                                   calcOutput("LandInputRecategorized", input = input,
                                                              target = target, aggregate = FALSE))
-  fertilizerKgPerHaTarget <- toolFertilizerKgPerHa(xTarget[, , "fertilizer"],
-                                                   calcOutput("LandTargetExtrapolated",
-                                                              input = input, target = target,
-                                                              harmonizationPeriod = harmonizationPeriod,
-                                                              aggregate = FALSE))
+  fertilizerKgPerHaTarget <- xTarget[, , "fertilizer"]
 
   harmonizationInput <- xInput[, , c("wood_harvest_area", "fertilizer"), invert = TRUE]
   harmonizationInput <- mbind(harmonizationInput, kgCPerMhaInput, fertilizerKgPerHaInput)
