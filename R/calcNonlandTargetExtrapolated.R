@@ -14,7 +14,7 @@
 #' @examples
 #' \dontrun{
 #'   calcOutput("NonlandTargetExtrapolated", input = "magpie",
-#'              target = "luh2mod", transitionYears = seq(2020, 2045, 5))
+#'              target = "luh2mod", harmonizationPeriod = c(2020, 2050))
 #' }
 #' @author Pascal Sauer
 calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
@@ -31,8 +31,6 @@ calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
   fertilizer <- toolFertilizerKgPerHa(xTarget[, , "fertilizer"], xLand$x[, getYears(xTarget), ])
 
   exFertilizer <- toolExtrapolate(fertilizer, transitionYears, linearModel = FALSE)
-  # convert from kg ha-1 yr-1 to Tg yr-1
-  exFertilizer <- toolFertilizerTg(exFertilizer, xLand$x[, getYears(exFertilizer), ])
 
   # calculate kg C per Mha in historical period
   histBioh <- dimSums(xTarget[, , "bioh"], 2)
@@ -68,11 +66,11 @@ calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
                      xTarget[, getYears(xTarget, as.integer = TRUE) <= harmonizationPeriod[1], ],
                      10^-4, "Returning reference data before harmonization period")
 
-  toolCheckFertilizer(out[, , "fertilizer"], xLand$x)
+  toolCheckFertilizer(out[, , "fertilizer"])
 
   return(list(x = out,
               isocountries = FALSE,
-              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: Tg yr-1",
+              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: kg ha-1 yr-1",
               min = 0,
               description = "Extrapolated nonland target data for harmonization"))
 }
