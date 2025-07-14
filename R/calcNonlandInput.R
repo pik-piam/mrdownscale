@@ -41,15 +41,20 @@ calcNonlandInput <- function(input) {
     toolExpectTrue(min(woodland - timestepLengths * collapseDim(woodHarvestArea)[, -1, ]) >= -10^-10,
                    "Wood harvest area is smaller than land of the corresponding type")
 
-    fertilizer <- readSource("MagpieFulldataGdx", subtype = "fertilizer")
+    # get fertilizer on regional level, then disaggregate to cluster level using cropland as weight
+    fertilizerRegional <- readSource("MagpieFulldataGdx", subtype = "fertilizerRegional")
+
+    clustermap <- readSource("MagpieFulldataGdx", subtype = "clustermap")
+    regionToCluster <- unique(clustermap[, c("region", "cluster")])
+
+    crop <- dimSums(readSource("MagpieFulldataGdx", subtype = "crop"), "water")
+    fertilizer <- toolAggregate(fertilizerRegional, regionToCluster, weight = crop, zeroWeight = "allow")
+    toolExpectLessDiff(dimSums(fertilizerRegional, 1), dimSums(fertilizer, 1), 10^-10,
+                       "Disaggregating to cluster level does not change total fertilizer")
     fertilizer <- add_dimension(fertilizer, dim = 3.1,
                                 add = "category", "fertilizer")
     getSets(fertilizer)[["d3.2"]] <- "data"
-    # clusters without crop area are NA, replace with 0
-    fertilizer[is.na(fertilizer)] <- 0
-    # there are some negative values very close to zero, replace with 0
-    stopifnot(min(fertilizer) >= -10^-10)
-    fertilizer[fertilizer < 0] <- 0
+    stopifnot(min(fertilizer) >= 0)
 
     out <- mbind(woodHarvestWeightSource, woodHarvestWeightType, woodHarvestArea, fertilizer)
   } else {
