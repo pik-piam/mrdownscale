@@ -75,6 +75,9 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
   out <- mbind(nonlandTarget,
                mbind(harvestAreaDownscaled, biohDownscaled, fertilizerDownscaled, harvestTypeDownscaled))
 
+  # checks
+  fertilizerInput <- calcOutput("NonlandInputRecategorized", input = input, target = target, aggregate = FALSE)
+
   inSum <- dimSums(x[, , "fertilizer", invert = TRUE], dim = 1)
   outSum <- dimSums(out[, , "fertilizer", invert = TRUE], dim = 1)
   stopifnot(identical(getYears(inSum), getYears(outSum)),
@@ -85,7 +88,6 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
   # for years after harmonization make sure that total global fertilizer matches input
   years <- getYears(out, TRUE)
   years <- years[years >= harmonizationPeriod[2]]
-  fertilizerInput <- calcOutput("NonlandInputRecategorized", input = input, target = target, aggregate = FALSE)
   fertilizerInput <- dimSums(fertilizerInput[, years, "fertilizer"], 1)
   toolExpectLessDiff(fertilizerInput, dimSums(out[, years, "fertilizer"], 1), 10^-5,
                      "Total global fertilizer after harmonization period matches input data")
@@ -103,3 +105,5 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
               unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: Tg yr-1",
               description = "Downscaled nonland data"))
 }
+
+# TODO ~ [!] Check failed: Fertilizer application is <= 1200 kg ha-1 yr-1 (max: Inf)

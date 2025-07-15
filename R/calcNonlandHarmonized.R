@@ -114,3 +114,5 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
               min = 0,
               description = "Harmonized nonland data"))
 }
+
+# TODO [!] Check failed: Returning reference data before harmonization period (maxdiff = 5, threshold = 1e-04)

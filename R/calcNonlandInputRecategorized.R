@@ -26,8 +26,9 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   crs <- attr(x, "crs")
   geometry <- attr(x, "geometry")
 
-  # rename pltns category
   map <- toolLandCategoriesMapping(input, target)
+
+  # rename pltns category
   pltnsInInput <- map[map$dataOutput == "pltns", "dataInput"]
   stopifnot(length(pltnsInInput) == 1)
   getItems(x, 3, raw = TRUE) <- sub(pltnsInInput, "pltns", getItems(x, 3))
@@ -52,41 +53,9 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
 
   x <- mbind(youngWeight, matureWeight, youngArea, matureArea, x[, , "secdforest", invert = TRUE])
 
-  # map fertilizer using weights from land categorization
-  fertilizer <- collapseDim(x[, , "fertilizer"])
-
   ref <- calcOutput("LandCategorizationWeight", map = map, geometry = geometry, crs = crs, aggregate = FALSE)
-
-  # sum up weights for irrigated/rainfed
-  irrigatedNames <- grep("irrigated", getItems(ref, 3), value = TRUE)
-  irrigated <- ref[, , irrigatedNames]
-  getItems(irrigated, 3) <- gsub("_irrigated", "", irrigatedNames)
-
-  rainfedNames <- gsub("irrigated", "rainfed", irrigatedNames)
-  rainfed <- ref[, , rainfedNames]
-  getItems(rainfed, 3) <- gsub("_rainfed", "", rainfedNames)
-  ref <- mbind(ref[, , c(irrigatedNames, rainfedNames), invert = TRUE], irrigated + rainfed)
-  stopifnot(!grepl("irrigated|rainfed", getItems(ref, 3)))
-
-  map$reference <- sub(", irrigated", "", map$reference)
-  map$dataInput <- sub("_irrigated", "", map$dataInput)
-  map$dataOutput <- sub("_irrigated", "", map$dataOutput)
-  map$merge <- gsub("_irrigated", "", map$merge)
-  mapFertilizer <- map[map$dataInput %in% getItems(fertilizer, 3), ]
-
-  fertilizerMerge <- toolAggregate(fertilizer, mapFertilizer, dim = 3, from = "dataInput", to = "merge",
-                                   weight = ref[, , unique(mapFertilizer$merge)])
-  fertilizer <- toolAggregate(fertilizerMerge, mapFertilizer, dim = 3, from = "merge", to = "dataOutput")
-  fertilizer[, , "c3per"] <- fertilizer[, , "c3per"] + fertilizer[, , "c3per_biofuel_2nd_gen"]
-  fertilizer[, , "c4per"] <- fertilizer[, , "c4per"] + fertilizer[, , "c4per_biofuel_2nd_gen"]
-  fertilizer <- fertilizer[, , c("c3per_biofuel_2nd_gen", "c4per_biofuel_2nd_gen"), invert = TRUE]
-  fertilizer <- add_dimension(fertilizer, 3.1, "category", "fertilizer")
-  perHa <- toolFertilizerKgPerHa(fertilizer, landMha)
-  perHaCapped <- perHa
-  perHaCapped[perHaCapped > 1200] <- 1190
-  # TODO scale others to make up for this
-  fertilizer <- toolFertilizerTg(perHaCapped, landMha)
-  x <- mbind(fertilizer, x[, , "fertilizer", invert = TRUE])
+  x <- mbind(x[, , "fertilizer", invert = TRUE],
+             toolRecategorizeFertilizer(x[, , "fertilizer"], ref, map, landMha))
 
   # map other wood harvest to primn and secdn using land as weights
   mapOther <- map[map$dataInput == "other", ]
@@ -178,3 +147,44 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
               min = 0,
               description = "Input data with nonland categories remapped to categories of target dataset"))
 }
+
+toolRecategorizeFertilizer <- function(x, ref, map, landMha) {
+  # map fertilizer using weights from land categorization
+  fertilizer <- collapseDim(x)
+
+  # sum up weights for irrigated/rainfed
+  irrigatedNames <- grep("irrigated", getItems(ref, 3), value = TRUE)
+  irrigated <- ref[, , irrigatedNames]
+  getItems(irrigated, 3) <- gsub("_irrigated", "", irrigatedNames)
+
+  rainfedNames <- gsub("irrigated", "rainfed", irrigatedNames)
+  rainfed <- ref[, , rainfedNames]
+  getItems(rainfed, 3) <- gsub("_rainfed", "", rainfedNames)
+  ref <- mbind(ref[, , c(irrigatedNames, rainfedNames), invert = TRUE], irrigated + rainfed)
+  stopifnot(!grepl("irrigated|rainfed", getItems(ref, 3)))
+
+  map$reference <- sub(", irrigated", "", map$reference)
+  map$dataInput <- sub("_irrigated", "", map$dataInput)
+  map$dataOutput <- sub("_irrigated", "", map$dataOutput)
+  map$merge <- gsub("_irrigated", "", map$merge)
+  mapFertilizer <- map[map$dataInput %in% getItems(fertilizer, 3), ]
+
+  fertilizerMerge <- toolAggregate(fertilizer, mapFertilizer, dim = 3, from = "dataInput", to = "merge",
+                                   weight = ref[, , unique(mapFertilizer$merge)])
+  fertilizer <- toolAggregate(fertilizerMerge, mapFertilizer, dim = 3, from = "merge", to = "dataOutput")
+
+  fertilizer[, , "c3per"] <- fertilizer[, , "c3per"] + fertilizer[, , "c3per_biofuel_2nd_gen"]
+  fertilizer[, , "c4per"] <- fertilizer[, , "c4per"] + fertilizer[, , "c4per_biofuel_2nd_gen"]
+  fertilizer <- fertilizer[, , c("c3per_biofuel_2nd_gen", "c4per_biofuel_2nd_gen"), invert = TRUE]
+  fertilizer <- add_dimension(fertilizer, 3.1, "category", "fertilizer")
+  perHa <- toolFertilizerKgPerHa(fertilizer, landMha)
+  perHaCapped <- perHa
+  perHaCapped[perHaCapped > 1200] <- 1190
+  # TODO scale others to make up for this
+  fertilizer <- toolFertilizerTg(perHaCapped, landMha)
+  return(fertilizer)
+}
+
+# TODO [!] Check failed: Total fertilizer is not changed by recategorization (maxdiff = 0.01, threshold = 1e-05)
+
+# TODO ~ [WARNING] setting bioh to zero where corresponding wood harvest area is zero (max such bioh: 11 kg C yr-1)
