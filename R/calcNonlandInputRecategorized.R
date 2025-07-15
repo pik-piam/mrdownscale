@@ -150,39 +150,15 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
 
 toolRecategorizeFertilizer <- function(x, ref, map, landMha) {
   # map fertilizer using weights from land categorization
-  fertilizer <- collapseDim(x)
+  x <- collapseDim(x)
+  getItems(x, 3) <- paste0(getItems(x, 3), "_rainfed")
+  x <- add_columns(x, setdiff(unique(map$dataInput), getItems(x, 3)), fill = 0)
 
-  # sum up weights for irrigated/rainfed
-  irrigatedNames <- grep("irrigated", getItems(ref, 3), value = TRUE)
-  irrigated <- ref[, , irrigatedNames]
-  getItems(irrigated, 3) <- gsub("_irrigated", "", irrigatedNames)
-
-  rainfedNames <- gsub("irrigated", "rainfed", irrigatedNames)
-  rainfed <- ref[, , rainfedNames]
-  getItems(rainfed, 3) <- gsub("_rainfed", "", rainfedNames)
-  ref <- mbind(ref[, , c(irrigatedNames, rainfedNames), invert = TRUE], irrigated + rainfed)
-  stopifnot(!grepl("irrigated|rainfed", getItems(ref, 3)))
-
-  map$reference <- sub(", irrigated", "", map$reference)
-  map$dataInput <- sub("_irrigated", "", map$dataInput)
-  map$dataOutput <- sub("_irrigated", "", map$dataOutput)
-  map$merge <- gsub("_irrigated", "", map$merge)
-  mapFertilizer <- map[map$dataInput %in% getItems(fertilizer, 3), ]
-
-  fertilizerMerge <- toolAggregate(fertilizer, mapFertilizer, dim = 3, from = "dataInput", to = "merge",
-                                   weight = ref[, , unique(mapFertilizer$merge)])
-  fertilizer <- toolAggregate(fertilizerMerge, mapFertilizer, dim = 3, from = "merge", to = "dataOutput")
-
-  fertilizer[, , "c3per"] <- fertilizer[, , "c3per"] + fertilizer[, , "c3per_biofuel_2nd_gen"]
-  fertilizer[, , "c4per"] <- fertilizer[, , "c4per"] + fertilizer[, , "c4per_biofuel_2nd_gen"]
-  fertilizer <- fertilizer[, , c("c3per_biofuel_2nd_gen", "c4per_biofuel_2nd_gen"), invert = TRUE]
-  fertilizer <- add_dimension(fertilizer, 3.1, "category", "fertilizer")
-  perHa <- toolFertilizerKgPerHa(fertilizer, landMha)
-  perHaCapped <- perHa
-  perHaCapped[perHaCapped > 1200] <- 1190
-  # TODO scale others to make up for this
-  fertilizer <- toolFertilizerTg(perHaCapped, landMha)
-  return(fertilizer)
+  xMerge <- toolAggregate(x, map, dim = 3, from = "dataInput", to = "merge", weight = ref)
+  x <- toolAggregate(xMerge, map, dim = 3, from = "merge", to = "dataOutput")
+  x <- toolAggregateCropland(x, keepOthers = FALSE)
+  x <- add_dimension(x, 3.1, "category", "fertilizer")
+  return(x)
 }
 
 # TODO [!] Check failed: Total fertilizer is not changed by recategorization (maxdiff = 0.01, threshold = 1e-05)
