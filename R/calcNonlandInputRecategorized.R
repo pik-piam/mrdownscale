@@ -153,15 +153,11 @@ toolRecategorizeFertilizer <- function(x, ref, map, landInput) {
   # map fertilizer using weights from land categorization
   x <- collapseDim(x)
 
-  mapIR <- data.frame(fine = getItems(landInput, 3), coarse = getItems(landInput, 3))
-  cropTypes <- getItems(x, "data")
-  for (cropType in cropTypes) {
-    mapIR$coarse <- sub(paste0("^", cropType, "_.*$"), cropType, mapIR$coarse)
-  }
-  mapIR <- mapIR[mapIR$coarse %in% cropTypes, ]
+  cropMap <- toolCropMapping(landInput, cropTypes = getItems(x, "data"))
+  cropMap <- cropMap[cropMap$coarse %in% getItems(x, "data"), ]
 
-  weight <- toolFixWeight(landInput[, , unique(mapIR$fine)], mapIR, from = "coarse", to = "fine", dim = 3)
-  x <- toolAggregate(x, mapIR, weight = weight, dim = 3)
+  weight <- toolFixWeight(landInput[, , unique(cropMap$fine)], cropMap, from = "coarse", to = "fine", dim = 3)
+  x <- toolAggregate(x, cropMap, weight = weight, dim = 3)
   x <- add_columns(x, setdiff(unique(map$dataInput), getItems(x, 3)), fill = 0)
 
   xMerge <- toolAggregate(x, map, dim = 3, from = "dataInput", to = "merge", weight = ref)

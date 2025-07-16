@@ -3,12 +3,17 @@ toolAggregateCropland <- function(land,
                                   ...,
                                   keepOthers = TRUE) {
   stopifnot(...length() == 0)
-  map <- data.frame(from = getItems(land, 3), to = getItems(land, 3))
-  for (cropType in cropTypes) {
-    map$to <- sub(paste0("^", cropType, "_.*$"), cropType, map$to)
-  }
+  map <- toolCropMapping(land, cropTypes)
   if (!keepOthers) {
-    map <- map[map$to %in% cropTypes, ]
+    map <- map[map$coarse %in% cropTypes, ]
   }
-  return(toolAggregate(land[, , map$from], map, from = "from", to = "to", dim = 3))
+  return(toolAggregate(land[, , map$fine], map, from = "fine", to = "coarse", dim = 3))
+}
+
+toolCropMapping <- function(land, cropTypes) {
+  map <- data.frame(fine = getItems(land, 3), coarse = getItems(land, 3))
+  for (cropType in cropTypes) {
+    map$coarse <- sub(paste0("^", cropType, "_.*$"), cropType, map$coarse)
+  }
+  return(map)
 }
