@@ -6,8 +6,9 @@
 #' Wood harvest area is disaggregated using the maximum possible harvest per
 #' year which is based on the downscaled land data. Bioh
 #' is disaggregated using the just disaggregated wood harvest area as weight.
-#' Fertilizer is disaggregated using the downscaled land data. Harvest weight
-#' type is disaggregated using the nonland target data in the first year of
+#' Fertilizer is in kg ha-1 yr-1, so we simply use the low res/region value for each
+#' cell corresponding to that region. Harvest weight type is disaggregated
+#' using the nonland target data in the first year of
 #' the harmonization period as weight.
 #'
 #' @param input name of an input dataset, currently only "magpie"
@@ -53,11 +54,8 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
   stopifnot(getItems(weightBioh, 3) == getItems(bioh, 3))
   biohDownscaled <- toolAggregate(bioh, resmap, weight = weightBioh, from = "lowRes", to = "cell", dim = 1)
 
-  fertilizer <- x[, futureYears, "fertilizer"]
-  weightFertilizer <- toolAggregateCropland(landHighRes)[, futureYears, getItems(fertilizer, 3.2)] + 10^-30
-  weightFertilizer <- add_dimension(weightFertilizer, add = "category", nm = "fertilizer")
-  fertilizerDownscaled <- toolAggregate(fertilizer, resmap, weight = weightFertilizer,
-                                        from = "lowRes", to = "cell", dim = 1)
+  # fertilizer is in kg ha-1 yr-1 already, use low res/region value for each cell corresponding to that region
+  fertilizerDownscaled <- setCells(x[resmap$lowRes, futureYears, "fertilizer"], resmap$cell)
 
   nonlandTarget <- calcOutput("NonlandTarget", target = target, aggregate = FALSE)
   nonlandTarget <- as.magpie(nonlandTarget[[terra::time(nonlandTarget) <= harmonizationPeriod[1] &
@@ -89,9 +87,10 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
   years <- getYears(out, TRUE)
   years <- years[years >= harmonizationPeriod[2]]
   fertilizerInput <- dimSums(fertilizerInput[, years, "fertilizer"], 1)
-  toolExpectLessDiff(fertilizerInput, dimSums(out[, years, "fertilizer"], 1), 10^-5,
+  fertilizerOutput <- toolFertilizerTg(out[, years, "fertilizer"], landHighRes[, years, ])
+  toolExpectLessDiff(fertilizerInput, dimSums(fertilizerOutput, 1), 10^-5,
                      "Total global fertilizer after harmonization period matches input data")
-  toolCheckFertilizer(out[, , "fertilizer"], landHighRes)
+  toolCheckFertilizer(out[, , "fertilizer"])
 
   toolExpectTrue(setequal(getItems(out, dim = 3), getItems(x, dim = 3)),
                  "Nonland categories remain unchanged")
@@ -102,8 +101,6 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
   return(list(x = out,
               min = 0,
               isocountries = FALSE,
-              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: Tg yr-1",
+              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: kg ha-1 yr-1",
               description = "Downscaled nonland data"))
 }
-
-# TODO ~ [!] Check failed: Fertilizer application is <= 1200 kg ha-1 yr-1 (max: Inf)

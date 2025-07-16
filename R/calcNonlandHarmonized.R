@@ -52,6 +52,7 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   landHarmonizedMha <- calcOutput("LandHarmonized", input = input, target = target,
                                   harmonizationPeriod = hp,
                                   harmonization = harmonization, aggregate = FALSE)
+  out[, , "fertilizer"] <- toolFertilizerKgPerHa(out[, , "fertilizer"], landHarmonizedMha)
 
   harvestArea <- calcOutput("WoodHarvestAreaHarmonized", input = input, target = target,
                             harmonizationPeriod = hp, harmonization = harmonization, aggregate = FALSE)
@@ -93,25 +94,21 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   # SpatRaster can hold values up to ~10^40 before replacing with Inf, so check we are well below that
   toolExpectTrue(max(out) < 10^30, "All values are < 10^30")
 
-  # fertilizer unit changed, so check separately
-  toolExpectLessDiff(out[, getYears(out, as.integer = TRUE) <= hp[1], ][, , "fertilizer", invert = TRUE],
-                     xTarget[, getYears(xTarget, as.integer = TRUE) <= hp[1], ][, , "fertilizer", invert = TRUE],
+  toolExpectLessDiff(out[, getYears(out, as.integer = TRUE) <= hp[1], ],
+                     xTarget[, getYears(xTarget, as.integer = TRUE) <= hp[1], ],
                      10^-4, "Returning reference data before harmonization period")
-  fertilizerKgPerHa <- toolFertilizerKgPerHa(out[, , "fertilizer"], landHarmonizedMha)
-  toolExpectLessDiff(fertilizerKgPerHa[, getYears(out, as.integer = TRUE) <= hp[1], ],
-                     xTarget[, getYears(xTarget, as.integer = TRUE) <= hp[1], "fertilizer"],
-                     10^-4, "Fertilizer before harmonization period is consistent with target data")
 
   # for years after harmonization make sure that total global fertilizer applied matches input
   years <- getYears(out, TRUE)[getYears(out, TRUE) >= hp[2]]
   fertilizerInput <- nonlandInput[, years, "fertilizer"]
-  toolExpectLessDiff(fertilizerInput, out[, years, "fertilizer"], 10^-5,
-                     "Total global fertilizer after harmonization period matches input data")
-  toolCheckFertilizer(out[, , "fertilizer"], landHarmonizedMha)
+  fertilizerOutput <- toolFertilizerTg(out[, years, "fertilizer"], landHarmonizedMha[, years, ])
+  toolExpectLessDiff(fertilizerInput, fertilizerOutput, 10^-5,
+                     "Fertilizer after harmonization period matches input data")
+  toolCheckFertilizer(out[, , "fertilizer"])
 
   return(list(x = out,
               isocountries = FALSE,
-              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: Tg yr-1",
+              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: kg ha-1 yr-1",
               min = 0,
               description = "Harmonized nonland data"))
 }
