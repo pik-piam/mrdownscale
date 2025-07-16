@@ -160,7 +160,8 @@ toolRecategorizeFertilizer <- function(x, ref, map, landInput) {
   }
   mapIR <- mapIR[mapIR$coarse %in% cropTypes, ]
 
-  x <- toolAggregate(x, mapIR, weight = landInput[, , unique(mapIR$fine)], dim = 3) # TODO weightSum is zero
+  weight <- toolFixWeight(landInput[, , unique(mapIR$fine)], mapIR, from = "coarse", to = "fine", dim = 3)
+  x <- toolAggregate(x, mapIR, weight = weight, dim = 3)
   x <- add_columns(x, setdiff(unique(map$dataInput), getItems(x, 3)), fill = 0)
 
   xMerge <- toolAggregate(x, map, dim = 3, from = "dataInput", to = "merge", weight = ref)
@@ -169,7 +170,5 @@ toolRecategorizeFertilizer <- function(x, ref, map, landInput) {
   x <- add_dimension(x, 3.1, "category", "fertilizer")
   return(x)
 }
-
-# TODO [!] Check failed: Total fertilizer is not changed by recategorization (maxdiff = 0.01, threshold = 1e-05)
 
 # TODO ~ [WARNING] setting bioh to zero where corresponding wood harvest area is zero (max such bioh: 11 kg C yr-1)
