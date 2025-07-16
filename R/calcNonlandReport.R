@@ -34,16 +34,15 @@ calcNonlandReport <- function(outputFormat, harmonizationPeriod, yearsSubset, ha
 
     if (outputFormat == "ScenarioMIP") {
       # combine secyf + secmf into secdf
-      secyfWha <- "secyf_wood_harvest_area"
-      secmfWha <- "secmf_wood_harvest_area"
-      # TODO adapt whole function to subdims
+      secyfWha <- "wood_harvest_area.secyf"
+      secmfWha <- "wood_harvest_area.secmf"
       x[, , secyfWha] <- dimSums(x[, , c(secyfWha, secmfWha)], dim = 3)
       x <- x[, , secmfWha, invert = TRUE]
-      getNames(x) <- sub(secyfWha, "secdf_wood_harvest_area", getNames(x))
+      getNames(x) <- sub(secyfWha, "wood_harvest_area.secdf", getNames(x))
 
-      x[, , "secyf_bioh"] <- dimSums(x[, , c("secyf_bioh", "secmf_bioh")], dim = 3)
-      x <- x[, , "secmf_bioh", invert = TRUE]
-      getNames(x) <- sub("secyf_bioh", "secdf_bioh", getNames(x))
+      x[, , "bioh.secyf"] <- dimSums(x[, , c("bioh.secyf", "bioh.secmf")], dim = 3)
+      x <- x[, , "bioh.secmf", invert = TRUE]
+      getNames(x) <- sub("bioh.secyf", "bioh.secdf", getNames(x))
     }
 
     cellAreaKm2 <- as.magpie(cellAreaKm2)
@@ -53,10 +52,10 @@ calcNonlandReport <- function(outputFormat, harmonizationPeriod, yearsSubset, ha
     cellAreaMha <- cellAreaKm2 / 10000
 
     # convert from Mha to shares
-    harv <- x[, , grep("wood_harvest_area$", getNames(x))] / cellAreaMha
-    getNames(harv) <- sub("wood_harvest_area$", "harv", getNames(harv))
+    harv <- x[, , "wood_harvest_area"] / cellAreaMha
+    getNames(harv) <- sub("wood_harvest_area", "harv", getNames(harv))
 
-    woodTypeShares <- x[, , c("roundwood_harvest_weight_type", "fuelwood_harvest_weight_type")]
+    woodTypeShares <- x[, , "harvest_weight_type"]
 
     # get rndwd/fulwd shares per country to replace NAs
     coords <- getCoords(woodTypeShares)
@@ -77,12 +76,16 @@ calcNonlandReport <- function(outputFormat, harmonizationPeriod, yearsSubset, ha
     getItems(fillValuesCountry, 1, raw = TRUE) <- getItems(woodTypeShares, 1)
     names(dimnames(fillValuesCountry))[[1]] <- "x.y.country"
     woodTypeShares[is.na(woodTypeShares)] <- fillValuesCountry[is.na(woodTypeShares)]
-    getNames(woodTypeShares) <- c("rndwd", "fulwd")
+    getNames(woodTypeShares) <- c("harvest_weight_type.rndwd", "harvest_weight_type.fulwd")
     woodTypeShares[, , "rndwd"] <- 1 - woodTypeShares[, , "fulwd"]
     woodTypeShares <- collapseDim(woodTypeShares, 1.3)
 
-    # TODO convert fertilizer from Tg yr-1 to kg ha-1 yr-1
-    out <- mbind(fertl, harv, woodTypeShares, x[, , grep("bioh$", getNames(x))])
+    fertl <- x[, , "fertilizer"]
+    getNames(fertl) <- sub("fertilizer", "fertl", getNames(fertl))
+    out <- mbind(fertl, harv, woodTypeShares, x[, , "bioh"])
+    getNames(out) <- sub("\\.", "_", getNames(out))
+    getNames(out) <- sub("harvest_weight_type_", "", getNames(out))
+    names(dimnames(out))[3] <- "data"
 
     shares <- grep("(harv|rndwd|fulwd)$", getNames(out), value = TRUE)
     if (max(out[, , shares]) > 1.0001) {
