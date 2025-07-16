@@ -15,6 +15,7 @@
 #' @author Pascal Sauer
 calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestArea = 0.95,
                                           youngShareWoodHarvestWeight = 0.5) {
+  landInput <- calcOutput("LandInput", input = input, aggregate = FALSE)
   landMha <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
   nonlandInput <- calcOutput("NonlandInput", input = input, aggregate = FALSE)
   resolutionMapping <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
@@ -55,7 +56,7 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
 
   ref <- calcOutput("LandCategorizationWeight", map = map, geometry = geometry, crs = crs, aggregate = FALSE)
   x <- mbind(x[, , "fertilizer", invert = TRUE],
-             toolRecategorizeFertilizer(x[, , "fertilizer"], ref, map, landMha))
+             toolRecategorizeFertilizer(x[, , "fertilizer"], ref, map, landInput))
 
   # map other wood harvest to primn and secdn using land as weights
   mapOther <- map[map$dataInput == "other", ]
@@ -148,10 +149,18 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
               description = "Input data with nonland categories remapped to categories of target dataset"))
 }
 
-toolRecategorizeFertilizer <- function(x, ref, map, landMha) {
+toolRecategorizeFertilizer <- function(x, ref, map, landInput) {
   # map fertilizer using weights from land categorization
   x <- collapseDim(x)
-  getItems(x, 3) <- paste0(getItems(x, 3), "_rainfed")
+
+  mapIR <- data.frame(fine = getItems(landInput, 3), coarse = getItems(landInput, 3))
+  cropTypes <- getItems(x, "data")
+  for (cropType in cropTypes) {
+    mapIR$coarse <- sub(paste0("^", cropType, "_.*$"), cropType, mapIR$coarse)
+  }
+  mapIR <- mapIR[mapIR$coarse %in% cropTypes, ]
+
+  x <- toolAggregate(x, mapIR, weight = landInput[, , unique(mapIR$fine)], dim = 3) # TODO weightSum is zero
   x <- add_columns(x, setdiff(unique(map$dataInput), getItems(x, 3)), fill = 0)
 
   xMerge <- toolAggregate(x, map, dim = 3, from = "dataInput", to = "merge", weight = ref)
