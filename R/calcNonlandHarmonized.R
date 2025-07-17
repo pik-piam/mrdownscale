@@ -7,6 +7,8 @@
 #' by calculating kg C per mega hectare for input and target data and
 #' harmonizing it. This is then multiplied by the harmonized wood harvest area
 #' and scaled so the total harmonized bioh is reached.
+#' Harmonize absolute fertilizer in Tg yr-1, then convert to fertilizer rate
+#' in kg ha-1 yr-1.
 #'
 #' @param input name of the input dataset, currently only "magpie"
 #' @param target name of the target dataset, currently only "luh2"
@@ -35,16 +37,12 @@ calcNonlandHarmonized <- function(input, target, harmonizationPeriod, harmonizat
   stopifnot(0 < kgCPerMhaTarget, kgCPerMhaTarget < Inf)
   getItems(kgCPerMhaTarget, 3.1) <- sub("bioh$", "kgC_per_Mha", getItems(kgCPerMhaTarget, 3.1))
 
-  fertilizerTgInput <- xInput[, , "fertilizer"]
+  harmonizationInput <- mbind(xInput[, , "wood_harvest_area", invert = TRUE], kgCPerMhaInput)
   fertilizerTgTarget <- toolFertilizerTg(xTarget[, , "fertilizer"],
                                          calcOutput("LandTargetExtrapolated", input = input, target = target,
                                                     harmonizationPeriod = hp, aggregate = FALSE))
-
-  harmonizationInput <- xInput[, , c("wood_harvest_area", "fertilizer"), invert = TRUE]
-  harmonizationInput <- mbind(harmonizationInput, kgCPerMhaInput, fertilizerTgInput)
-
-  harmonizationTarget <- xTarget[, , c("wood_harvest_area", "fertilizer"), invert = TRUE]
-  harmonizationTarget <- mbind(harmonizationTarget, kgCPerMhaTarget, fertilizerTgTarget)
+  harmonizationTarget <- mbind(xTarget[, , c("wood_harvest_area", "fertilizer"), invert = TRUE],
+                               kgCPerMhaTarget, fertilizerTgTarget)
 
   harmonizer <- toolGetHarmonizer(harmonization)
   out <- harmonizer(harmonizationInput, harmonizationTarget, harmonizationPeriod = hp)

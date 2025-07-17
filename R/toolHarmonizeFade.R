@@ -27,8 +27,9 @@ toolHarmonizeFade <- function(xInput, xTarget, harmonizationPeriod, level = 3) {
             b %in% inputYears,
             transitionYears %in% inputYears,
             transitionYears %in% targetYears,
-            getItems(xInput, dim = 1) == getItems(xTarget, dim = 1),
-            getItems(xInput, dim = 3) == getItems(xTarget, dim = 3))
+            setequal(getItems(xInput, dim = 1), getItems(xTarget, dim = 1)),
+            setequal(getItems(xInput, dim = 3), getItems(xTarget, dim = 3)))
+  xInput <- xInput[getItems(xTarget, 1), , getItems(xTarget, 3)]
 
   # fade over from extrapolated target data to input data
   out <- convergence(xTarget[, transitionYears, ], xInput[, transitionYears, ],

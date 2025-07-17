@@ -166,5 +166,3 @@ toolRecategorizeFertilizer <- function(x, ref, map, landInput) {
   x <- add_dimension(x, 3.1, "category", "fertilizer")
   return(x)
 }
-
-# TODO ~ [WARNING] setting bioh to zero where corresponding wood harvest area is zero (max such bioh: 11 kg C yr-1)

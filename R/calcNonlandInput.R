@@ -5,6 +5,7 @@
 #' All "Land" functions deal with area data, as opposed to "Nonland" functions which deal with non-area
 #' data such as the amount of applied fertilizer. These are treated differently, because for area
 #' data other constraints apply, e.g. the total area must be constant over time.
+#' Fertilizer on regional level is disaggregated to cluster level using cropland as weight.
 #'
 #' @param input name of an input dataset, currently only "magpie"
 #' @return nonland input data

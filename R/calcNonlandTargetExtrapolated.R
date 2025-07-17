@@ -3,7 +3,8 @@
 #' Aggregated low resolution target data is extrapolated to the given years
 #' using toolExtrapolate. To extrapolate wood harvest weight (bioh) multiply
 #' wood harvest area already extrapolated by calcLandTargetExtrapolated with
-#' the historical wood harvest rate in kg C per Mha.
+#' the historical wood harvest rate in kg C per Mha. Fertilizer is extrapolated
+#' and returned in kg ha-1 yr-1.
 #'
 #' @param input character, name of the input data set, currently only "magpie"
 #' @param target character, name of the target data set, currently only "luh2mod"
@@ -18,18 +19,17 @@
 #' }
 #' @author Pascal Sauer
 calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
+  hp <- harmonizationPeriod
   xInput <- calcOutput("NonlandInputRecategorized", input = input, target = target, aggregate = FALSE)
   inputYears <- getYears(xInput, as.integer = TRUE)
-  transitionYears <- inputYears[inputYears > harmonizationPeriod[1] & inputYears < harmonizationPeriod[2]]
+  transitionYears <- inputYears[inputYears > hp[1] & inputYears < hp[2]]
 
   xTarget <- calcOutput("NonlandTargetLowRes", input = input, target = target, aggregate = FALSE)
 
   xLand <- calcOutput("LandTargetExtrapolated", input = input, target = target,
-                      harmonizationPeriod = harmonizationPeriod, aggregate = FALSE, supplementary = TRUE)
+                      harmonizationPeriod = hp, aggregate = FALSE, supplementary = TRUE)
 
-  # convert Tg yr-1 to kg ha-1 yr-1
-  fertilizer <- toolFertilizerKgPerHa(xTarget[, , "fertilizer"], xLand$x[, getYears(xTarget), ])
-
+  fertilizer <- toolFertilizerKgPerHa(xTarget[, , "fertilizer"], xLand$x)
   exFertilizer <- toolExtrapolate(fertilizer, transitionYears, linearModel = FALSE)
 
   # calculate kg C per Mha in historical period
@@ -62,10 +62,9 @@ calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
                      dimSums(out[, , "harvest_weight_type"], 3),
                      10^5, "Harvest weight types are consistent")
   toolExpectTrue(min(out) >= 0, "All values are >= 0")
-  toolExpectLessDiff(out[, getYears(out, as.integer = TRUE) <= harmonizationPeriod[1], ],
-                     xTarget[, getYears(xTarget, as.integer = TRUE) <= harmonizationPeriod[1], ],
-                     10^-4, "Returning reference data before harmonization period")
-
+  toolExpectLessDiff(out[, getYears(out, as.integer = TRUE) <= hp[1], ],
+                     xTarget[, getYears(xTarget, as.integer = TRUE) <= hp[1], ],
+                     10^-5, "Returning reference data before harmonization period")
   toolCheckFertilizer(out[, , "fertilizer"])
 
   return(list(x = out,
