@@ -84,6 +84,8 @@ calcNonlandReport <- function(outputFormat, harmonizationPeriod, yearsSubset, ha
     getNames(fertl) <- sub("fertilizer", "fertl", getNames(fertl))
     out <- mbind(fertl, harv, woodTypeShares, x[, , "bioh"])
     getNames(out) <- sub("\\.", "_", getNames(out))
+    getNames(out) <- sub("^bioh_(.+)", "\\1_bioh", getNames(out))
+    getNames(out) <- sub("^harv_(.+)", "\\1_harv", getNames(out))
     getNames(out) <- sub("harvest_weight_type_", "", getNames(out))
     names(dimnames(out))[3] <- "data"
 
