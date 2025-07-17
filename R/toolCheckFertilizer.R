@@ -8,20 +8,3 @@ toolCheckFertilizer <- function(fertilizer, landMha = NULL, threshold = 1200) {
                         signif(max(fertilizer), 3), ")"),
                  level = 1)
 }
-
-toolFertilizerKgPerHa <- function(fertilizerTg, landMha) {
-  landMha <- landMha[getItems(fertilizerTg, 1), getItems(fertilizerTg, 2), ]
-  cropMha <- toolAggregateCropland(landMha, getItems(fertilizerTg, 3.2), keepOthers = FALSE)
-  # convert from Tg yr-1 to kg ha-1 yr-1
-  fertilizerKgPerHa <- fertilizerTg / cropMha * (10^9 / 10^6)
-  fertilizerKgPerHa[is.nan(fertilizerKgPerHa)] <- 0
-  return(fertilizerKgPerHa)
-}
-
-toolFertilizerTg <- function(fertilizerKgPerHa, landMha) {
-  landMha <- landMha[getItems(fertilizerKgPerHa, 1), getItems(fertilizerKgPerHa, 2), ]
-  cropMha <- toolAggregateCropland(landMha, getItems(fertilizerKgPerHa, 3.2), keepOthers = FALSE)
-  # convert from kg ha-1 yr-1 to Tg yr-1
-  fertilizerTg <- fertilizerKgPerHa * cropMha * (10^6 / 10^9)
-  return(fertilizerTg)
-}
