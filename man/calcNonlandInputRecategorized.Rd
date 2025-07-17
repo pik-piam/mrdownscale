@@ -28,6 +28,8 @@ nonland data with target categories
 \description{
 Harmonize categories by mapping nonland input data categories to the categories of the nonland target dataset.
 See \code{\link{calcLandInputRecategorized}} for an explanation of the mapping procedure.
+}
+\details{
 Report and discard wood harvest area if there is zero wood harvest (bioh) or vice versa.
 }
 \author{

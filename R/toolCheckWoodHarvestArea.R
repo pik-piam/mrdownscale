@@ -51,7 +51,7 @@ toolCheckWoodHarvestArea <- function(harvest, land, endOfHistory) {
                    paste0(notePrefix, "primf and primn are shrinking by at least ",
                           "their respective wood harvest area",
                           if (max(x) > 10^-10) msg),
-                   level = 1)
+                   level = 2)
   }
   primYears <- getYears(primExcess, as.integer = TRUE)
   checkPrim(primExcess[, primYears[primYears <= endOfHistory], ],
@@ -61,12 +61,12 @@ toolCheckWoodHarvestArea <- function(harvest, land, endOfHistory) {
 }
 
 toolWoodHarvestMapping <- function() {
-  map <- as.data.frame(rbind(c("primf_wood_harvest_area", "primf"),
-                             c("secyf_wood_harvest_area", "secdf"),
-                             c("secmf_wood_harvest_area", "secdf"),
-                             c("pltns_wood_harvest_area", "pltns"),
-                             c("primn_wood_harvest_area", "primn"),
-                             c("secnf_wood_harvest_area", "secdn")))
+  map <- as.data.frame(rbind(c("wood_harvest_area.primf", "primf"),
+                             c("wood_harvest_area.secyf", "secdf"),
+                             c("wood_harvest_area.secmf", "secdf"),
+                             c("wood_harvest_area.pltns", "pltns"),
+                             c("wood_harvest_area.primn", "primn"),
+                             c("wood_harvest_area.secnf", "secdn")))
   colnames(map) <- c("harvest", "land")
   return(map)
 }
@@ -77,8 +77,4 @@ toolAggregateWoodHarvest <- function(woodHarvest) {
   stopifnot(setequal(getItems(woodHarvest, 3), map$harvest))
 
   return(toolAggregate(woodHarvest, map, from = "harvest", to = "land", dim = 3))
-}
-
-woodHarvestAreaCategories <- function() {
-  return(paste0(c("primf", "secyf", "secmf", "pltns", "primn", "secnf"), "_wood_harvest_area"))
 }

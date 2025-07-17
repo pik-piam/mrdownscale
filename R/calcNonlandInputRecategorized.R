@@ -2,6 +2,7 @@
 #'
 #' Harmonize categories by mapping nonland input data categories to the categories of the nonland target dataset.
 #' See \code{\link{calcLandInputRecategorized}} for an explanation of the mapping procedure.
+#'
 #' Report and discard wood harvest area if there is zero wood harvest (bioh) or vice versa.
 #'
 #' @param input name of the input dataset, currently only "magpie"
@@ -14,9 +15,11 @@
 #' @author Pascal Sauer
 calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestArea = 0.95,
                                           youngShareWoodHarvestWeight = 0.5) {
-  x <- calcOutput("NonlandInput", input = input, aggregate = FALSE)
+  landInput <- calcOutput("LandInput", input = input, aggregate = FALSE)
+  landMha <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
+  nonlandInput <- calcOutput("NonlandInput", input = input, aggregate = FALSE)
   resolutionMapping <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
-  x <- x[unique(resolutionMapping$lowRes), , ]
+  x <- nonlandInput[unique(resolutionMapping$lowRes), , ]
 
   resolutionMapping$cluster <- resolutionMapping$lowRes
   "!# @monitor magpie4:::addGeometry"
@@ -24,8 +27,9 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   crs <- attr(x, "crs")
   geometry <- attr(x, "geometry")
 
-  # rename pltns category
   map <- toolLandCategoriesMapping(input, target)
+
+  # rename pltns category
   pltnsInInput <- map[map$dataOutput == "pltns", "dataInput"]
   stopifnot(length(pltnsInInput) == 1)
   getItems(x, 3, raw = TRUE) <- sub(pltnsInInput, "pltns", getItems(x, 3))
@@ -50,36 +54,9 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
 
   x <- mbind(youngWeight, matureWeight, youngArea, matureArea, x[, , "secdforest", invert = TRUE])
 
-  # map fertilizer using weights from land categorization
-  fertilizer <- collapseDim(x[, , "fertilizer"])
-
   ref <- calcOutput("LandCategorizationWeight", map = map, geometry = geometry, crs = crs, aggregate = FALSE)
-
-  # sum up weights for irrigated/rainfed
-  irrigatedNames <- grep("irrigated", getItems(ref, 3), value = TRUE)
-  irrigated <- ref[, , irrigatedNames]
-  getItems(irrigated, 3) <- gsub("_irrigated", "", irrigatedNames)
-
-  rainfedNames <- gsub("irrigated", "rainfed", irrigatedNames)
-  rainfed <- ref[, , rainfedNames]
-  getItems(rainfed, 3) <- gsub("_rainfed", "", rainfedNames)
-  ref <- mbind(ref[, , c(irrigatedNames, rainfedNames), invert = TRUE], irrigated + rainfed)
-  stopifnot(!grepl("irrigated|rainfed", getItems(ref, 3)))
-
-  map$reference <- sub(", irrigated", "", map$reference)
-  map$dataInput <- sub("_irrigated", "", map$dataInput)
-  map$dataOutput <- sub("_irrigated", "", map$dataOutput)
-  map$merge <- gsub("_irrigated", "", map$merge)
-  mapFertilizer <- map[map$dataInput %in% getItems(fertilizer, 3), ]
-
-  fertilizerMerge <- toolAggregate(fertilizer, mapFertilizer, dim = 3, from = "dataInput", to = "merge",
-                                   weight = ref[, , unique(mapFertilizer$merge)])
-  fertilizer <- toolAggregate(fertilizerMerge, mapFertilizer, dim = 3, from = "merge", to = "dataOutput")
-  fertilizer[, , "c3per"] <- fertilizer[, , "c3per"] + fertilizer[, , "c3per_biofuel_2nd_gen"]
-  fertilizer[, , "c4per"] <- fertilizer[, , "c4per"] + fertilizer[, , "c4per_biofuel_2nd_gen"]
-  fertilizer <- fertilizer[, , c("c3per_biofuel_2nd_gen", "c4per_biofuel_2nd_gen"), invert = TRUE]
-  fertilizer <- add_dimension(fertilizer, 3.1, "category", "fertilizer")
-  x <- mbind(fertilizer, x[, , "fertilizer", invert = TRUE])
+  x <- mbind(x[, , "fertilizer", invert = TRUE],
+             toolRecategorizeFertilizer(x[, , "fertilizer"], ref, map, landInput))
 
   # map other wood harvest to primn and secdn using land as weights
   mapOther <- map[map$dataInput == "other", ]
@@ -98,71 +75,94 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
 
   x <- mbind(otherWoodHarvestWeight, otherWoodHarvestArea, x[, , "other", invert = TRUE])
 
-  getNames(x) <- paste0(getItems(x, 3.2, full = TRUE), "_", getItems(x, 3.1, full = TRUE))
-  getNames(x) <- sub("_wood_harvest_weight_type", "_harvest_weight_type", getNames(x))
-  getNames(x) <- sub("_wood_harvest_weight", "_bioh", getNames(x))
+  getNames(x) <- sub("wood_harvest_weight_type", "harvest_weight_type", getNames(x))
+  getNames(x) <- sub("wood_harvest_weight", "bioh", getNames(x))
   getNames(x) <- sub("secdn", "secnf", getNames(x))
   getNames(x) <- sub("primforest", "primf", getNames(x))
-  x <- collapseDim(x)
-  getSets(x)["d3.1"] <- "data"
 
-  biohCategories <- paste0(c("primf", "primn", "secmf", "secyf", "secnf", "pltns"), "_bioh")
-  if (target %in% c("luh2", "luh2mod")) {
-    biohCategories <- setdiff(biohCategories, "pltns_bioh")
-  }
-  # wha = wood harvest area
-  whaCategories <- sub("bioh", "wood_harvest_area", biohCategories)
-
-  biohRenamed <- x[, , biohCategories]
-  getItems(biohRenamed, 3) <- sub("_bioh", "_wood_harvest_area", getItems(biohRenamed, 3))
-  problematic <- x[, , whaCategories] > 0 & biohRenamed == 0
-  stopifnot(setequalDims(x[, , whaCategories], problematic))
+  biohRenamed <- x[, , "bioh"]
+  getItems(biohRenamed, 3.1) <- sub("bioh", "wood_harvest_area", getItems(biohRenamed, 3.1))
+  problematic <- x[, , "wood_harvest_area"] > 0 & biohRenamed == 0
+  stopifnot(setequalDims(x[, , "wood_harvest_area"], problematic))
   if (any(problematic)) {
-    maxWha <- max(x[, , whaCategories][problematic])
+    maxWha <- max(x[, , "wood_harvest_area"][problematic])
     toolStatusMessage(if (maxWha > 10^-10) "warn" else "note",
                       paste0("setting wood harvest area to zero where corresponding bioh is zero ",
                              "(max such wood harvest area: ",
                              signif(maxWha, 3), " Mha yr-1)"))
-    x[, , whaCategories][problematic] <- 0
+    x[, , "wood_harvest_area"][problematic] <- 0
   }
 
-  whaRenamed <- x[, , whaCategories]
-  getItems(whaRenamed, 3) <- sub("_wood_harvest_area", "_bioh", getItems(whaRenamed, 3))
-  problematic <- x[, , biohCategories] > 0 & whaRenamed == 0
-  stopifnot(setequalDims(x[, , biohCategories], problematic))
+  whaRenamed <- x[, , "wood_harvest_area"]
+  getItems(whaRenamed, 3.1) <- sub("wood_harvest_area", "bioh", getItems(whaRenamed, 3.1))
+  problematic <- x[, , "bioh"] > 0 & whaRenamed == 0
+  stopifnot(setequalDims(x[, , "bioh"], problematic))
   if (any(problematic)) {
-    maxBioh <- max(x[, , biohCategories][problematic])
+    maxBioh <- max(x[, , "bioh"][problematic])
     toolStatusMessage(if (maxBioh > 1) "warn" else "note",
                       paste0("setting bioh to zero where corresponding wood harvest area is zero (max such bioh: ",
                              signif(maxBioh, 3), " kg C yr-1)"))
-    x[, , biohCategories][problematic] <- 0
+    x[, , "bioh"][problematic] <- 0
   }
 
   attr(x, "crs") <- crs
   attr(x, "geometry") <- geometry
 
   # check data for consistency
-  toolExpectTrue(identical(unname(getSets(x)), c("region", "id", "year", "data")),
+  toolExpectTrue(identical(unname(getSets(x)), c("region", "id", "year", "category", "data")),
                  "Dimensions are named correctly")
 
-  toolExpectTrue(setequal(getNames(x),
-                          c(whaCategories,
-                            biohCategories,
-                            paste0(c("roundwood", "fuelwood"), "_harvest_weight_type"),
-                            paste0(c("c3ann", "c4ann", "c3per", "c4per", "c3nfx"), "_fertilizer"))),
+  stopifnot(length(setdiff(getItems(x, 1), getItems(nonlandInput, 1))) == 0)
+  omitted <- setdiff(getItems(nonlandInput, 1), getItems(x, 1))
+  omittedMessage <- paste0(" (omitted: ",
+                           paste0(omitted, collapse = ", "),
+                           ")")
+  toolExpectTrue(length(omitted) == 0, paste0("Using full spatial dimension of input data",
+                                              if (length(omitted) > 0) omittedMessage))
+
+  woodland <- c("primf", "primn", "secmf", "secyf", "secnf",
+                if (!target %in% c("luh2", "luh2mod")) "pltns")
+  toolExpectTrue(setequal(getItems(x, 3),
+                          c(paste0("wood_harvest_area.", woodland),
+                            paste0("bioh.", woodland),
+                            paste0("harvest_weight_type.", c("roundwood", "fuelwood")),
+                            paste0("fertilizer.", c("c3ann", "c4ann", "c3per", "c4per", "c3nfx")))),
                  "Nonland categories match target definition")
   toolExpectTrue(all(x >= 0), "All values are >= 0")
 
-  whaRenamed <- x[, , whaCategories]
-  getItems(whaRenamed, 3) <- sub("_wood_harvest_area", "_bioh", getItems(whaRenamed, 3))
-  toolExpectTrue(all(whaRenamed > 0 | x[, , biohCategories] == 0),
+  whaRenamed <- x[, , "wood_harvest_area"]
+  getItems(whaRenamed, 3.1) <- sub("wood_harvest_area", "bioh", getItems(whaRenamed, 3.1))
+  toolExpectTrue(all(whaRenamed > 0 | x[, , "bioh"] == 0),
                  "If bioh > 0 then wood harvest area > 0")
-  toolExpectTrue(all(whaRenamed == 0 | x[, , biohCategories] > 0),
+  toolExpectTrue(all(whaRenamed == 0 | x[, , "bioh"] > 0),
                  "If wood harvest area > 0 then bioh > 0")
+
+  toolExpectLessDiff(dimSums(x[, , "fertilizer"], 3),
+                     dimSums(nonlandInput[unique(resolutionMapping$lowRes), , "fertilizer"], 3),
+                     10^-5, "Total fertilizer is not changed by recategorization")
+  toolCheckFertilizer(x[, , "fertilizer"], landMha)
 
   return(list(x = x,
               isocountries = FALSE,
-              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: kg yr-1",
+              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: Tg yr-1",
               min = 0,
               description = "Input data with nonland categories remapped to categories of target dataset"))
+}
+
+toolRecategorizeFertilizer <- function(x, ref, map, landInput) {
+  # map fertilizer using weights from land categorization
+  x <- collapseDim(x)
+
+  cropMap <- toolCropMapping(landInput, cropTypes = getItems(x, "data"))
+  cropMap <- cropMap[cropMap$coarse %in% getItems(x, "data"), ]
+
+  weight <- toolFixWeight(landInput[, , unique(cropMap$fine)], cropMap, from = "coarse", to = "fine", dim = 3)
+  x <- toolAggregate(x, cropMap, weight = weight, dim = 3)
+  x <- add_columns(x, setdiff(unique(map$dataInput), getItems(x, 3)), fill = 0)
+
+  xMerge <- toolAggregate(x, map, dim = 3, from = "dataInput", to = "merge", weight = ref)
+  x <- toolAggregate(xMerge, map, dim = 3, from = "merge", to = "dataOutput")
+  x <- toolAggregateCropland(x, keepOthers = FALSE)
+  x <- add_dimension(x, 3.1, "category", "fertilizer")
+  return(x)
 }

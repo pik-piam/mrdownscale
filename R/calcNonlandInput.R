@@ -5,6 +5,7 @@
 #' All "Land" functions deal with area data, as opposed to "Nonland" functions which deal with non-area
 #' data such as the amount of applied fertilizer. These are treated differently, because for area
 #' data other constraints apply, e.g. the total area must be constant over time.
+#' Fertilizer on regional level is disaggregated to cluster level using cropland as weight.
 #'
 #' @param input name of an input dataset, currently only "magpie"
 #' @return nonland input data
@@ -41,17 +42,20 @@ calcNonlandInput <- function(input) {
     toolExpectTrue(min(woodland - timestepLengths * collapseDim(woodHarvestArea)[, -1, ]) >= -10^-10,
                    "Wood harvest area is smaller than land of the corresponding type")
 
-    fertilizer <- readSource("MagpieFulldataGdx", subtype = "fertilizer")
+    # get fertilizer on regional level, then disaggregate to cluster level using cropland as weight
+    fertilizerRegional <- readSource("MagpieFulldataGdx", subtype = "fertilizerRegional")
+
+    clustermap <- readSource("MagpieFulldataGdx", subtype = "clustermap")
+    regionToCluster <- unique(clustermap[, c("region", "cluster")])
+
+    crop <- dimSums(readSource("MagpieFulldataGdx", subtype = "crop"), "water")
+    fertilizer <- toolAggregate(fertilizerRegional, regionToCluster, weight = crop, zeroWeight = "allow")
+    toolExpectLessDiff(dimSums(fertilizerRegional, 1), dimSums(fertilizer, 1), 10^-10,
+                       "Disaggregating to cluster level does not change total fertilizer")
     fertilizer <- add_dimension(fertilizer, dim = 3.1,
                                 add = "category", "fertilizer")
     getSets(fertilizer)[["d3.2"]] <- "data"
-    # clusters without crop area are NA, replace with 0
-    fertilizer[is.na(fertilizer)] <- 0
-    # there are some negative values very close to zero, replace with 0
-    stopifnot(min(fertilizer) >= -10^-10)
-    fertilizer[fertilizer < 0] <- 0
-    # convert from Tg yr-1 to kg yr-1
-    fertilizer <- fertilizer * 10^9
+    stopifnot(min(fertilizer) >= 0)
 
     out <- mbind(woodHarvestWeightSource, woodHarvestWeightType, woodHarvestArea, fertilizer)
   } else {
@@ -62,10 +66,11 @@ calcNonlandInput <- function(input) {
   toolExpectTrue(identical(unname(getSets(out)), c("region", "id", "year", "category", "data")),
                  "Dimensions are named correctly")
   toolExpectTrue(all(out >= 0), "All values are >= 0")
+  toolCheckFertilizer(out[, , "fertilizer"], land)
 
   return(list(x = out,
               isocountries = FALSE,
-              unit = "harvest_weight: kg C yr-1; harvest_area: Mha yr-1; fertilizer: kg yr-1",
+              unit = "harvest_weight: kg C yr-1; harvest_area: Mha yr-1; fertilizer: Tg yr-1",
               min = 0,
               description = "Nonland input data for data harmonization and downscaling pipeline"))
 }

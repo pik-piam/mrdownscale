@@ -3,7 +3,7 @@
 #' Read function for data coming from the MAgPIE model.
 #'
 #' @param subtype type of data to be read in. Available options are
-#' land, crop, woodHarvestWeight, woodHarvestArea, fertilizer, clustermap
+#' land, crop, woodHarvestWeight, woodHarvestArea, fertilizerRegional, clustermap
 #' @author Pascal Sauer, Jan Philipp Dietrich
 readMagpieFulldataGdx <- function(subtype) {
   "!# @monitor magpie4:::land"
@@ -39,16 +39,14 @@ readMagpieFulldataGdx <- function(subtype) {
     stopifnot(identical(getComment(x), " unit: Mha yr-1"))
     unit <- "Mha yr-1"
     description <- "wood harvest area separated by source and age classes"
-  } else if (subtype == "fertilizer") {
-    suppressSpecificWarnings({
-      suppressMessages({
-        x <- magpie4::NitrogenBudget(gdx, level = "cell", cropTypes = TRUE)
-      })
-    }, "due to non-iteration of fertilizer distribution, residual fertilizer deficit is moved to balanceflow.")
+  } else if (subtype == "fertilizerRegional") {
+    # cluster level data applies implausible amounts of fertilizer per hectare
+    # so we use regional data instead
+    x <- magpie4::NitrogenBudget(gdx, level = "reg", cropTypes = TRUE)
     x <- collapseDim(x[, , "fertilizer"])
-    getSets(x) <- c("region", "id", "year", "cropType")
+    getSets(x) <- c("region", "year", "cropType")
     unit <- "Tg yr-1"
-    description <- "fertilization rate per croptype"
+    description <- "fertilizer per croptype"
   } else if (subtype == "clustermap") {
     return(list(x = clustermap, class = "data.frame"))
   } else {

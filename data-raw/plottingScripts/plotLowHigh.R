@@ -24,7 +24,7 @@
 #' @export
 plotLowHigh <- function(variable, year, outputFormat, input, target, ...,
                         range = c(0, 1), xlim = c(-180, 180), ylim = c(-90, 90),
-                        harmonizationPeriod = c(2020, 2060),
+                        harmonizationPeriod = c(2020, 2050),
                         yearsSubset = seq(2015, 2100, 5)) {
   cellArea <- readSource("LUH3", subtype = "cellArea", convert = FALSE)
 
