@@ -26,7 +26,9 @@ calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
 
   xTarget <- calcOutput("NonlandTargetLowRes", input = input, target = target, aggregate = FALSE)
 
-  exFertilizer <- toolExtrapolate(xTarget[, , "fertilizer"], transitionYears, linearModel = FALSE)
+  exFertilizer <- toolExtrapolate(xTarget[, , "fertilizer"], transitionYears)
+  exFertilizer[exFertilizer < 0] <- 0
+  exFertilizer[exFertilizer > max(xTarget[, , "fertilizer"])] <- max(xTarget[, , "fertilizer"])
 
   # calculate kg C per Mha in historical period
   histBioh <- dimSums(xTarget[, , "bioh"], 2)
