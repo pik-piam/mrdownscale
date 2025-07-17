@@ -39,8 +39,9 @@ and high resolution data.
 Wood harvest area is disaggregated using the maximum possible harvest per
 year which is based on the downscaled land data. Bioh
 is disaggregated using the just disaggregated wood harvest area as weight.
-Fertilizer is disaggregated using the downscaled land data. Harvest weight
-type is disaggregated using the nonland target data in the first year of
+Fertilizer is in kg ha-1 yr-1, so we simply use the low res/region value for each
+cell corresponding to that region. Harvest weight type is disaggregated
+using the nonland target data in the first year of
 the harmonization period as weight.
 }
 \examples{

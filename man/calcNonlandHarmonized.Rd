@@ -29,6 +29,8 @@ Wood harvest biomass (bioh) is adapted to the harmonized wood harvest area
 by calculating kg C per mega hectare for input and target data and
 harmonizing it. This is then multiplied by the harmonized wood harvest area
 and scaled so the total harmonized bioh is reached.
+Harmonize absolute fertilizer in Tg yr-1, then convert to fertilizer rate
+in kg ha-1 yr-1.
 }
 \author{
 Pascal Sauer

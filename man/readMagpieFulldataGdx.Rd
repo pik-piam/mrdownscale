@@ -8,7 +8,7 @@ readMagpieFulldataGdx(subtype)
 }
 \arguments{
 \item{subtype}{type of data to be read in. Available options are
-land, crop, woodHarvestWeight, woodHarvestArea, fertilizer, clustermap}
+land, crop, woodHarvestWeight, woodHarvestArea, fertilizerRegional, clustermap}
 }
 \description{
 Read function for data coming from the MAgPIE model.

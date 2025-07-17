@@ -3,7 +3,7 @@
 #' Read function for data coming from the MAgPIE model.
 #'
 #' @param subtype type of data to be read in. Available options are
-#' land, crop, woodHarvestWeight, woodHarvestArea, fertilizer, clustermap
+#' land, crop, woodHarvestWeight, woodHarvestArea, fertilizerRegional, clustermap
 #' @author Pascal Sauer, Jan Philipp Dietrich
 readMagpieFulldataGdx <- function(subtype) {
   "!# @monitor magpie4:::land"
