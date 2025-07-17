@@ -1,7 +1,8 @@
 #' calcNonlandTargetLowRes
 #'
 #' Aggregate target nonland data to the spatial resolution of the input data in
-#' preparation for harmonization.
+#' preparation for harmonization. Fertilizer in Tg yr-1 is aggregated and then
+#' converted to kg ha-1 yr-1.
 #'
 #' @param input name of an input dataset, currently only "magpie"
 #' @param target name of a target dataset, currently only "luh2mod"
@@ -18,6 +19,13 @@ calcNonlandTargetLowRes <- function(input, target) {
   getItems(out, 3, raw = TRUE) <- sub("^(.+?)_(.+)$", "\\2.\\1", getItems(out, 3))
   names(dimnames(out))[3] <- "category.data"
 
+  landTargetLowRes <- calcOutput("LandTargetLowRes", input = input, target = target, aggregate = FALSE)
+  out[, , "fertilizer"] <- toolFertilizerKgPerHa(out[, , "fertilizer"], landTargetLowRes)
+
+  stopifnot(setequal(getItems(xInput, 3), getItems(out, 3)))
+  out <- out[, , getItems(xInput, 3)] # harmonize order
+
+  # checks
   lastYear <- terra::time(xTarget)[length(terra::time(xTarget))]
   mTarget <- as.magpie(xTarget[[terra::time(xTarget) == lastYear]])
   getItems(mTarget, 3, raw = TRUE) <- sub("^(.+?)_(.+)$", "\\2.\\1", getItems(mTarget, 3))
@@ -25,17 +33,15 @@ calcNonlandTargetLowRes <- function(input, target) {
   toolExpectLessDiff(dimSums(mTarget, 1), dimSums(out[, lastYear, ], 1), 10^-5,
                      "total sum is not changed by aggregation")
 
-  stopifnot(setequal(getItems(xInput, 3), getItems(out, 3)))
-  out <- out[, , getItems(xInput, 3)] # harmonize order
-
   toolExpectLessDiff(dimSums(out[, , "bioh"], 3),
                      dimSums(out[, , "harvest_weight_type"], 3),
                      10^5, "Harvest weight types are consistent")
   toolExpectTrue(min(out) >= 0, "All values are >= 0")
+  toolCheckFertilizer(out[, , "fertilizer"])
 
   return(list(x = out,
               isocountries = FALSE,
-              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: Tg yr-1",
+              unit = "harvest_weight & bioh: kg C yr-1; harvest_area: Mha yr-1; fertilizer: kg ha-1 yr-1",
               min = 0,
               description = "Land target data at the same low resolution as the input dataset for harmonization"))
 }
