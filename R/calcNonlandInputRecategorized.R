@@ -15,9 +15,12 @@
 #' @author Pascal Sauer
 calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestArea = 0.95,
                                           youngShareWoodHarvestWeight = 0.5) {
-  landInput <- calcOutput("LandInput", input = input, aggregate = FALSE)
   landMha <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
+  landInput <- calcOutput("LandInput", input = input, aggregate = FALSE)
   nonlandInput <- calcOutput("NonlandInput", input = input, aggregate = FALSE)
+  # in case low res target is used for development
+  landInput <- landInput[getItems(landMha, 1), , ]
+  nonlandInput <- nonlandInput[getItems(landMha, 1), , ]
   resolutionMapping <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
   x <- nonlandInput[unique(resolutionMapping$lowRes), , ]
 

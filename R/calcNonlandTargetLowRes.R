@@ -9,11 +9,27 @@
 #' @return low resolution target nonland data
 #' @author Pascal Sauer
 calcNonlandTargetLowRes <- function(input, target) {
+  if (target %in% c("luh2", "luh2mod")) {
+    cellAreaKm2 <- readSource("LUH2v2h", subtype = "cellArea", convert = FALSE)
+    states <- readSource("LUH2v2h", subtype = "states", convert = FALSE)
+  } else {
+    cellAreaKm2 <- readSource("LUH3", subtype = "cellArea", convert = FALSE)
+    states <- readSource("LUH3", subtype = "states", subset = 1995:2020, convert = FALSE)
+  }
+  cellAreaHa <- cellAreaKm2 * 100
+
   xInput <- calcOutput("NonlandInputRecategorized", input = input, target = target, aggregate = FALSE)
   ref <- as.SpatVector(xInput[, 1, 1])[, c(".region", ".id")]
 
   # get target data in spatial resolution of input data
   xTarget <- calcOutput("NonlandTarget", target = target, aggregate = FALSE)
+
+  # need absolute values for aggregating, convert from kg ha-1 yr-1 to Tg yr-1, assuming ha-1 refers to cropland
+  cropland <- states[[sub("_fertilizer", "", names(xTarget["fertilizer"]))]]
+  fertilizer <- xTarget["fertilizer"] * cellAreaHa * cropland / 10^9
+  terra::units(fertilizer) <- "Tg yr-1"
+  xTarget <- c(xTarget[[grep("fertilizer", names(xTarget), invert = TRUE)]], fertilizer)
+
   out <- terra::extract(xTarget, ref, sum, na.rm = TRUE, bind = TRUE)
   out <- as.magpie(out)
   getItems(out, 3, raw = TRUE) <- sub("^(.+?)_(.+)$", "\\2.\\1", getItems(out, 3))
