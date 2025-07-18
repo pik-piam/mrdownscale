@@ -86,8 +86,13 @@ calcLandTarget <- function(target) {
       pltnsShare <- read.magpie(system.file("extdata/forestryShare.mz", package = "mrdownscale"))
       pltnsShare <- as.SpatRaster(pltnsShare)
       pltnsShare <- terra::crop(pltnsShare, out, extend = TRUE)
-      pltns <- out["secdf"] * pltnsShare
+      pltns <- Reduce(c, lapply(unique(terra::time(out)), function(y) {
+        # find the closest smaller available year, e.g. for 2019 use 2015
+        bestFitYear <- Find(function(a) a <= y, terra::time(pltnsShare), right = TRUE)
+        return(out["secdf"][[terra::time(out) == y]] * pltnsShare[[terra::time(pltnsShare) == bestFitYear]])
+      }))
       names(pltns) <- sub("secdf", "pltns", names(pltns))
+      stopifnot(terra::nlyr(out["secdf"]) == terra::nlyr(pltns))
       secdf <- out["secdf"] - pltns
       out <- c(out[[!grepl("secdf", names(out))]], pltns, secdf)
 
