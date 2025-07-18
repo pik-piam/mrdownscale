@@ -1,8 +1,8 @@
 #' calcNonlandTargetLowRes
 #'
 #' Aggregate target nonland data to the spatial resolution of the input data in
-#' preparation for harmonization. Fertilizer in Tg yr-1 is aggregated and then
-#' converted to kg ha-1 yr-1.
+#' preparation for harmonization. Fertilizer is converted to Tg yr-1, then aggregated and
+#' converted back to kg ha-1 yr-1.
 #'
 #' @param input name of an input dataset, currently only "magpie"
 #' @param target name of a target dataset, currently only "luh2mod"
