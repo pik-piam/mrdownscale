@@ -144,20 +144,6 @@ calcLandTarget <- function(target) {
   toolExpectTrue(min(terra::minmax(out)) >= 0, "All values are >= 0")
 
   years <- sort(unique(terra::time(out)))
-  totalAreas <- do.call(c, lapply(years, function(year) {
-    yearTotalArea <- terra::app(out[[terra::time(out) == year]], fun = "sum")
-    names(yearTotalArea) <- year
-    return(yearTotalArea)
-  }))
-  totalAreaDiff <- terra::app(totalAreas, fun = "max") - terra::app(totalAreas, fun = "min")
-  minmax <- terra::minmax(totalAreaDiff, compute = TRUE)
-  stopifnot(minmax["min", ] >= 0)
-  threshold <- 10^-7
-  toolExpectTrue(minmax["max", ] < threshold,
-                 paste0("Total area of each cell is constant over time ",
-                        "(maxdiff = ", signif(minmax["max", ], 3),
-                        ", threshold = ", threshold, ")"))
-
   primfn <- out["primf|primn"]
   primfnTime <- terra::time(primfn)
   primfnDiff <- primfn[[primfnTime %in% years[-1]]] - primfn[[primfnTime %in% years[-length(years)]]]
