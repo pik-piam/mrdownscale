@@ -16,7 +16,8 @@ low resolution target nonland data
 }
 \description{
 Aggregate target nonland data to the spatial resolution of the input data in
-preparation for harmonization.
+preparation for harmonization. Fertilizer is converted to Tg yr-1, then aggregated and
+converted back to kg ha-1 yr-1.
 }
 \author{
 Pascal Sauer
