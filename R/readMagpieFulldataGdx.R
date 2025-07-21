@@ -39,12 +39,11 @@ readMagpieFulldataGdx <- function(subtype) {
     stopifnot(identical(getComment(x), " unit: Mha yr-1"))
     unit <- "Mha yr-1"
     description <- "wood harvest area separated by source and age classes"
-  } else if (subtype == "fertilizerRegional") {
-    # cluster level data applies implausible amounts of fertilizer per hectare
-    # so we use regional data instead
-    x <- magpie4::NitrogenBudget(gdx, level = "reg", cropTypes = TRUE)
+  } else if (subtype == "fertilizer") {
+    x <- magpie4::NitrogenBudget(gdx, level = "cell", cropTypes = TRUE,
+                                 threshold = 0.001, progress = FALSE)
     x <- collapseDim(x[, , "fertilizer"])
-    getSets(x) <- c("region", "year", "cropType")
+    getSets(x) <- c("region", "id", "year", "data")
     unit <- "Tg yr-1"
     description <- "fertilizer per croptype"
   } else if (subtype == "clustermap") {

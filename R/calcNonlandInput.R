@@ -43,18 +43,13 @@ calcNonlandInput <- function(input) {
                    "Wood harvest area is smaller than land of the corresponding type")
 
     # get fertilizer on regional level, then disaggregate to cluster level using cropland as weight
-    fertilizerRegional <- readSource("MagpieFulldataGdx", subtype = "fertilizerRegional")
-
-    clustermap <- readSource("MagpieFulldataGdx", subtype = "clustermap")
-    regionToCluster <- unique(clustermap[, c("region", "cluster")])
-
-    crop <- dimSums(readSource("MagpieFulldataGdx", subtype = "crop"), "water")
-    fertilizer <- toolAggregate(fertilizerRegional, regionToCluster, weight = crop, zeroWeight = "allow")
-    toolExpectLessDiff(dimSums(fertilizerRegional, 1), dimSums(fertilizer, 1), 10^-10,
-                       "Disaggregating to cluster level does not change total fertilizer")
-    fertilizer <- add_dimension(fertilizer, dim = 3.1,
-                                add = "category", "fertilizer")
-    getSets(fertilizer)[["d3.2"]] <- "data"
+    fertilizerRaw <- readSource("MagpieFulldataGdx", subtype = "fertilizer")
+    fertilizerRaw[is.nan(fertilizerRaw) | fertilizerRaw < 0] <- 0
+    fertilizer <- fertilizerRaw
+    # set fertilizer to zero where there is no cropland
+    cropland <- toolAggregateCropland(land, cropTypes = getItems(fertilizer, 3), keepOthers = FALSE)
+    fertilizer[cropland == 0] <- 0
+    fertilizer <- add_dimension(fertilizer, dim = 3.1, add = "category", "fertilizer")
     stopifnot(min(fertilizer) >= 0)
 
     out <- mbind(woodHarvestWeightSource, woodHarvestWeightType, woodHarvestArea, fertilizer)
@@ -66,6 +61,9 @@ calcNonlandInput <- function(input) {
   toolExpectTrue(identical(unname(getSets(out)), c("region", "id", "year", "category", "data")),
                  "Dimensions are named correctly")
   toolExpectTrue(all(out >= 0), "All values are >= 0")
+  toolExpectLessDiff(fertilizerRaw, fertilizer, 10^-5,
+                     paste0("Setting fertilizer to zero where there is no cropland ",
+                            "does not change fertilizer significantly"))
   toolCheckFertilizer(out[, , "fertilizer"], land)
 
   return(list(x = out,
