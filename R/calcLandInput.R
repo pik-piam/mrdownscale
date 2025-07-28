@@ -14,8 +14,9 @@
 #' biofuel is grown, also 1st gen biofuel is quickly phased out in magpie, so
 #' we fill biofuel_1st_gen with zeros and rely on the harmonization to produce
 #' a plausible 1st gen biofuel time series.
+# TODO witch documentation
 #'
-#' @param input name of an input dataset, options: "magpie"
+#' @param input name of an input dataset, options: "magpie", "witch"
 #' @return land input data
 #' @author Jan Philipp Dietrich, Pascal Sauer
 calcLandInput <- function(input) {
@@ -55,14 +56,70 @@ calcLandInput <- function(input) {
     # see note in the documentation of this function
     out <- add_columns(out, "biofuel_1st_gen", fill = 0)
 
-    expectedCategories <- toolGetMapping("referenceMappings/magpie.csv", where = "mrdownscale")$data
+    expectedSetNames <- c("region", "id", "year", "data")
+    expectedCategories <- unique(toolGetMapping("referenceMappings/magpie.csv", where = "mrdownscale")$data)
     primf <- "primforest"
+  } else if (input == "witch") {
+    x <- readSource("WITCH")
+    stopifnot(length(unique(x$model)) == 1,
+              length(unique(x$scenario)) == 1)
+    x <- x[x$variable %in% c("primf", "secdf", "pltns", "primn", "secdn", "pastr",
+                             "c3ann", "irrig_c3ann", "c4per"), ]
+
+    # check irrig_c3ann is fraction of crop area, need to handle that later
+    stopifnot(identical(unique(x[x$variable == "irrig_c3ann", ]$units),
+                        "fraction of crop area"))
+    x[x$variable == "irrig_c3ann", ]$units <- "fraction of grid cell"
+    stopifnot(identical(unique(x$units), "fraction of grid cell"))
+
+    x <- x[, c("region", "year", "variable", "value")]
+    out <- as.magpie(x, spatial = "region", temporal = "year")
+    if (anyNA(out)) {
+      warning("NAs detected, replacing with 0.")
+      out[is.na(out)] <- 0
+    }
+    if (any(out < 0)) {
+      warning("Negative values detected, replacing with 0.")
+      # TODO this leads to sum of shares > 1, scaling below won't be needed once this is fixed
+      out[out < 0] <- 0
+    }
+    names(dimnames(out))[3] <- "data"
+
+    out <- add_columns(out, c("c3ann_irrigated", "c3ann_rainfed"))
+
+    # convert from fraction of crop area to fraction of grid cell
+    stopifnot(out[, , "irrig_c3ann"] <= 1)
+    out[, , "c3ann_irrigated"] <- out[, , "irrig_c3ann"] * out[, , "c3ann"]
+
+    out[, , "c3ann_rainfed"] <- (1 - out[, , "irrig_c3ann"]) * out[, , "c3ann"]
+    out <- out[, , c("c3ann", "irrig_c3ann"), invert = TRUE]
+
+    shareTotal <- dimSums(out, 3)
+    if (max(shareTotal - 1) > 10^-10) {
+      warning("Scaling land so that land share sum is equal to 1.")
+      shareTotal[shareTotal < 1] <- 1
+      out <- out / shareTotal
+    }
+
+    rest <- magclass::setNames(1 - dimSums(out, 3), "rest")
+    rest[rest < 0] <- 0
+    out <- mbind(out, rest)
+
+    toolExpectLessDiff(dimSums(out, 3), 1, 10^-10,
+                       "land shares sum up to 1")
+
+    # TODO convert from fraction of grid cell to Mha
+
+    expectedSetNames <- c("region", "year", "data")
+    expectedCategories <- c("primf", "secdf", "pltns", "primn", "secdn", "pastr",
+                            "c3ann_irrigated", "c3ann_rainfed", "c4per", "rest")
+    primf <- "primf"
   } else {
     stop("Unsupported input type \"", input, "\"")
   }
 
   # check data for consistency
-  toolExpectTrue(identical(unname(getSets(out)), c("region", "id", "year", "data")),
+  toolExpectTrue(identical(unname(getSets(out)), expectedSetNames),
                  "Dimensions are named correctly")
   toolExpectTrue(setequal(getItems(out, dim = 3), expectedCategories),
                  "Land input categories match expactation")
