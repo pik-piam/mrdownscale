@@ -1,9 +1,9 @@
 readWITCH <- function() {
   if (!requireNamespace("nanoparquet", quietly = TRUE)) {
-    stop("Please install nanoparquet, e.g. with install.packages('nanoparquet')")
+    stop("To read WITCH data please install nanoparquet, e.g. with install.packages('nanoparquet')")
   }
   x <- nanoparquet::read_parquet("db_ssp2_M_luh3.parquet")
-  unique(x$units)
+  x$region <- levels(x$region)[x$region]
   return(list(x = x,
               class = "data.frame",
               unit = paste(unique(x$units), collapse = ", "),
