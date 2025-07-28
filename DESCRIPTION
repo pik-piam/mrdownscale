@@ -32,6 +32,7 @@ Suggests:
     covr,
     knitr,
     mrcommons,
+    nanoparquet,
     rmarkdown,
     testthat,
     usethis
