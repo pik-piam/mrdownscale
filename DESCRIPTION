@@ -27,12 +27,12 @@ Imports:
     mip,
     ncdf4,
     terra,
+    utils,
     withr
 Suggests:
     covr,
     knitr,
     mrcommons,
-    nanoparquet,
     rmarkdown,
     testthat,
     usethis
