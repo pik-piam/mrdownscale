@@ -14,6 +14,8 @@
 #'
 #' @author Pascal Sauer
 calcResolutionMapping <- function(input, target) {
+  targetGrid <- calcOutput("LandTarget", target = target, aggregate = FALSE)
+
   if (input == "magpie") {
     clustermap <- readSource("MagpieFulldataGdx", subtype = "clustermap")
     coords <- strsplit(clustermap$cell, "\\.")
@@ -22,12 +24,18 @@ calcResolutionMapping <- function(input, target) {
     clustermap$cellOriginal <- sub("\\.[A-Z]{3}$", "", clustermap$cell)
     clustermap <- cbind(x = xCoords, y = yCoords, clustermap[, -which(colnames(clustermap) == "cell")])
     colnames(clustermap)[colnames(clustermap) == "cluster"] <- "lowRes"
+
+    mapping <- toolResolutionMapping(clustermap, targetGrid)
+
+    toolExpectTrue(all(mapping$cellOriginal %in% clustermap$cellOriginal),
+                  "a subset of input cells is mapped")
+  } else if (input == "witch") {
+    mapping <- readSource("WITCH", subtype = "resolutionMapping")
+    mapping$lowRes <- mapping$witch17
+    mapping <- mapping[, setdiff(colnames(mapping), "witch17")]
   } else {
     stop("Unsupported input type \"", input, "\"")
   }
-
-  targetGrid <- calcOutput("LandTarget", target = target, aggregate = FALSE)
-  mapping <- toolResolutionMapping(clustermap, targetGrid)
 
   toolExpectTrue(setequal(colnames(mapping), c("x", "y", "lowRes", "region", "country",
                                                "global", "cellOriginal", "cell")),
@@ -38,8 +46,6 @@ calcResolutionMapping <- function(input, target) {
                            sub("\\.", "p", coords$y))
   toolExpectTrue(setequal(mapping$cell, allTargetCells),
                  "all target cells are mapped")
-  toolExpectTrue(all(mapping$cellOriginal %in% clustermap$cellOriginal),
-                 "a subset of input cells is mapped")
 
   return(list(x = mapping,
               class = "data.frame",
