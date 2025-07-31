@@ -72,5 +72,6 @@ calcLandHarmonized <- function(input, target, harmonizationPeriod, harmonization
               isocountries = FALSE,
               unit = "Mha",
               min = 0,
-              description = "Harmonized land data"))
+              description = "Harmonized land data",
+              clean_magpie = FALSE))
 }
