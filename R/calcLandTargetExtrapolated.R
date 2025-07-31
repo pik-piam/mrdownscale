@@ -101,7 +101,8 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
               unit = "Mha",
               min = 0,
               description = "Extrapolated land target data for harmonization",
-              woodHarvestArea = harvest))
+              woodHarvestArea = harvest,
+              clean_magpie = FALSE))
 }
 
 # extra function for better cache utilization
@@ -134,5 +135,6 @@ calcLandTargetExtrapolatedCore <- function(input, target, harmonizationPeriod) {
               isocountries = FALSE,
               unit = "Mha",
               min = 0,
-              description = "Extrapolated land target data for harmonization"))
+              description = "Extrapolated land target data for harmonization",
+              clean_magpie = FALSE))
 }

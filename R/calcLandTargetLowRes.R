@@ -35,5 +35,6 @@ calcLandTargetLowRes <- function(input, target) {
               isocountries = FALSE,
               unit = "Mha",
               min = 0,
-              description = "Land target data at the same low resolution as the input dataset for harmonization"))
+              description = "Land target data at the same low resolution as the input dataset for harmonization",
+              clean_magpie = FALSE))
 }
