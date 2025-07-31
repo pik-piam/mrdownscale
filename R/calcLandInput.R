@@ -114,7 +114,8 @@ calcLandInput <- function(input) {
 
     toolExpectLessDiff(dimSums(out, 3), 1, 10^-10, "land shares sum up to 1")
 
-    # TODO convert from fraction of grid cell to Mha
+    # convert from fraction of grid cell to Mha
+    out <- out * readSource("WITCH", subtype = "regionAreaMha")
 
     expectedSetNames <- c("region", "year", "data")
     expectedCategories <- c("primf", "secdf", "pltns", "primn", "secdn", "pastr",
