@@ -64,8 +64,8 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
     secdfn <- c("secdf", "secdn")
     for (i in match(transitionYears, getYears(out, as.integer = TRUE))) {
       # in toolMaxHarvestPerYear out[, i, ] is only used to determine timestepLength and then thrown away
-      harvest[, i, ] <- pmin(harvestShare * toolMaxHarvestPerYear(out[, c(i - 1, i), ], timestepAdjust = FALSE),
-                             toolMaxHarvestPerYear(out[, c(i - 1, i), ]))
+      harvest[, i, ] <- mpmin(harvestShare * toolMaxHarvestPerYear(out[, c(i - 1, i), ], timestepAdjust = FALSE),
+                              toolMaxHarvestPerYear(out[, c(i - 1, i), ]))
 
       harvestAgg <- toolAggregateWoodHarvest(harvest[, i, ])
       maxPossiblePrim <- out[, i - 1, primfn] - timestepLength * harvestAgg[, , primfn]
@@ -76,7 +76,7 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
       toSecd[toSecd < 0] <- 0
       getItems(toSecd, 3) <- secdfn
       out[, i, secdfn] <- out[, i, secdfn] + toSecd
-      out[, i, primfn] <- pmin(out[, i, primfn], maxPossiblePrim)
+      out[, i, primfn] <- mpmin(out[, i, primfn], maxPossiblePrim)
 
       woodland <- out[, , getItems(harvestAgg, 3)]
       stopifnot(harvestAgg <= woodland[, i - 1, ],
