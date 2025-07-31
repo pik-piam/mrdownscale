@@ -74,11 +74,13 @@ calcLandInput <- function(input) {
 
     x <- x[, c("region", "year", "variable", "value")]
     out <- as.magpie(x, spatial = "region", temporal = "year")
+    out <- out["world", , , invert = TRUE]
+
     if (anyNA(out)) {
       warning("NAs detected, replacing with 0.")
       out[is.na(out)] <- 0
     }
-    if (any(out < 0)) {
+    if (min(out) < 0) {
       warning("Negative values detected, replacing with 0.")
       # TODO this leads to sum of shares > 1, scaling below won't be needed once this is fixed
       out[out < 0] <- 0
@@ -105,8 +107,7 @@ calcLandInput <- function(input) {
     rest[rest < 0] <- 0
     out <- mbind(out, rest)
 
-    toolExpectLessDiff(dimSums(out, 3), 1, 10^-10,
-                       "land shares sum up to 1")
+    toolExpectLessDiff(dimSums(out, 3), 1, 10^-10, "land shares sum up to 1")
 
     # TODO convert from fraction of grid cell to Mha
 

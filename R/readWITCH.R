@@ -6,8 +6,12 @@ readWITCH <- function(subtype = "data") {
                 unit = paste(unique(x$units), collapse = ", "),
                 description = "WITCH data"))
   } else if (subtype == "resolutionMapping") {
-    x <- utils::read.csv("resolution_mapping_witch.csv")
-    return(list(x = x,
+    mapping <- utils::read.csv("resolution_mapping_witch.csv")
+    regions <- unique(mapping$witch17)
+    mapping <- mapping[, setdiff(colnames(mapping), "lowRes")]
+    addId <- data.frame(witch17 = regions, lowRes = paste0(regions, ".", seq_along(regions)))
+    mapping <- merge(mapping, addId, "witch17")
+    return(list(x = mapping,
                 class = "data.frame",
                 description = "WITCH resolution mapping"))
   } else {

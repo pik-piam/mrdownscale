@@ -28,10 +28,9 @@ calcResolutionMapping <- function(input, target) {
     mapping <- toolResolutionMapping(clustermap, targetGrid)
 
     toolExpectTrue(all(mapping$cellOriginal %in% clustermap$cellOriginal),
-                  "a subset of input cells is mapped")
+                   "a subset of input cells is mapped")
   } else if (input == "witch") {
     mapping <- readSource("WITCH", subtype = "resolutionMapping")
-    mapping$lowRes <- mapping$witch17
     mapping <- mapping[, setdiff(colnames(mapping), "witch17")]
   } else {
     stop("Unsupported input type \"", input, "\"")
