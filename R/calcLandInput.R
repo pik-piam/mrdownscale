@@ -76,6 +76,11 @@ calcLandInput <- function(input) {
     out <- as.magpie(x, spatial = "region", temporal = "year")
     out <- out["world", , , invert = TRUE]
 
+    # add artificial region numbers/ids as these are expected later
+    mapping <- readSource("WITCH", subtype = "resolutionMapping")
+    out <- toolAggregate(out, unique(mapping[, c("witch17", "lowRes")]))
+    names(dimnames(out))[1] <- "region.id"
+
     if (anyNA(out)) {
       warning("NAs detected, replacing with 0.")
       out[is.na(out)] <- 0
@@ -134,5 +139,6 @@ calcLandInput <- function(input) {
               isocountries = FALSE,
               unit = "Mha",
               min = 0,
-              description = "Land input data for data harmonization and downscaling pipeline"))
+              description = "Land input data for data harmonization and downscaling pipeline",
+              clean_magpie = FALSE)) # preserve region ids
 }

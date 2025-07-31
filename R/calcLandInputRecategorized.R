@@ -14,11 +14,6 @@
 #' @author Jan Philipp Dietrich, Pascal Sauer
 calcLandInputRecategorized <- function(input, target) {
   x   <- calcOutput("LandInput", input = input, aggregate = FALSE)
-  if (input == "witch") {
-    # add artificial region numbers so addGeometry works
-    mapping <- readSource("WITCH", subtype = "resolutionMapping")
-    x <- toolAggregate(x, unique(mapping[, c("witch17", "lowRes")]))
-  }
 
   resolutionMapping <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
   x <- x[unique(resolutionMapping$lowRes), , ]
@@ -79,5 +74,6 @@ calcLandInputRecategorized <- function(input, target) {
               unit = "Mha",
               min = 0,
               description = "Input data with land categories remapped to categories of target dataset",
-              woodlandMap = woodlandMap))
+              woodlandMap = woodlandMap,
+              clean_magpie = FALSE)) # preserve region ids
 }
