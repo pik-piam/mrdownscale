@@ -61,7 +61,16 @@ calcLandInput <- function(input) {
   } else if (input == "witch") {
     x <- readSource("WITCH")
     stopifnot(length(unique(x$model)) == 1,
-              length(unique(x$scenario)) == 1)
+              length(unique(x$scenario)) == 1,
+              "world" %in% x$region)
+    x <- x[x$region != "world", ]
+
+    stopifnot(x[x$variable == "Land Cover", ]$units == "million ha")
+    regionAreaMha <- x[x$variable == "Land Cover", c("region", "value")]
+    stopifnot(length(unique(regionAreaMha$region)) == nrow(unique(regionAreaMha)))
+    regionAreaMha <- unique(regionAreaMha)
+    regionAreaMha <- collapseDim(as.magpie(regionAreaMha, spatial = "region"))
+
     x <- x[x$variable %in% c("primf", "secdf", "pltns", "primn", "secdn", "pastr",
                              "c3ann", "irrig_c3ann", "c4per"), ]
 
@@ -73,7 +82,6 @@ calcLandInput <- function(input) {
 
     x <- x[, c("region", "year", "variable", "value")]
     out <- as.magpie(x, spatial = "region", temporal = "year")
-    out <- out["world", , , invert = TRUE]
 
     # add artificial region numbers/ids as these are expected later
     mapping <- readSource("WITCH", subtype = "resolutionMapping")
@@ -114,7 +122,7 @@ calcLandInput <- function(input) {
     toolExpectLessDiff(dimSums(out, 3), 1, 10^-10, "land shares sum up to 1")
 
     # convert from fraction of grid cell to Mha
-    out <- out * readSource("WITCH", subtype = "regionAreaMha")
+    out <- out * regionAreaMha
 
     expectedCategories <- c("primf", "secdf", "pltns", "primn", "secdn", "pastr",
                             "c3ann_irrigated", "c3ann_rainfed", "c4per", "rest")

@@ -14,10 +14,6 @@ readWITCH <- function(subtype = "data") {
     return(list(x = mapping,
                 class = "data.frame",
                 description = "WITCH resolution mapping"))
-  } else if (subtype == "regionAreaMha") {
-    return(list(x = read.magpie("witchRegionAreaMha.mz"),
-                unit = "Mha",
-                description = "WITCH region area"))
   } else {
     stop("Unexpected subtype, only data and resolutionMapping are accepted")
   }
