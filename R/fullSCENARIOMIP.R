@@ -42,13 +42,15 @@ fullSCENARIOMIP <- function(rev = numeric_version("0"), ..., input = "magpie", s
              aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
   do.call(toolAddMetadataNC, c(ncFile = ncFile, metadataArgs))
 
-  ncFile <- paste0("multiple-transitions", fileSuffix)
-  calcOutput("TransitionsNC", outputFormat = "ScenarioMIP", input = input,
-             harmonizationPeriod = harmonizationPeriod,
-             yearsSubset = yearsSubset,
-             harmonization = harmonization, downscaling = downscaling,
-             aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
-  do.call(toolAddMetadataNC, c(ncFile = ncFile, metadataArgs))
+  if (input == "magpie") {
+    ncFile <- paste0("multiple-transitions", fileSuffix)
+    calcOutput("TransitionsNC", outputFormat = "ScenarioMIP", input = input,
+               harmonizationPeriod = harmonizationPeriod,
+               yearsSubset = yearsSubset,
+               harmonization = harmonization, downscaling = downscaling,
+               aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
+    do.call(toolAddMetadataNC, c(ncFile = ncFile, metadataArgs))
+  }
 
   toolWriteMadratLog(logPath = "consistencyCheck.log")
 }
