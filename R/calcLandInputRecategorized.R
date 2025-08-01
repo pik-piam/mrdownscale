@@ -42,8 +42,9 @@ calcLandInputRecategorized <- function(input, target) {
     }
   }
 
-  if ("primn" %in% getItems(out, 3)) {
-    # category remapping does not take into account that primn cannot expand, so redistribute:
+  # magpie has other land instead of primn and secdn
+  # category remapping does not take into account that primn cannot expand, so redistribute
+  if (input == "magpie") {
     # if totaln shrinks, shrink primn and secdn according to their proportions in the previous timestep
     # if totaln expands, expand only secdn, primn stays constant
     totaln <- dimSums(out[, , c("primn", "secdn")], 3)
