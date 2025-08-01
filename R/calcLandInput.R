@@ -56,7 +56,6 @@ calcLandInput <- function(input) {
     # see note in the documentation of this function
     out <- add_columns(out, "biofuel_1st_gen", fill = 0)
 
-    expectedSetNames <- c("region", "id", "year", "data")
     expectedCategories <- unique(toolGetMapping("referenceMappings/magpie.csv", where = "mrdownscale")$data)
     primf <- "primforest"
   } else if (input == "witch") {
@@ -117,7 +116,6 @@ calcLandInput <- function(input) {
     # convert from fraction of grid cell to Mha
     out <- out * readSource("WITCH", subtype = "regionAreaMha")
 
-    expectedSetNames <- c("region", "year", "data")
     expectedCategories <- c("primf", "secdf", "pltns", "primn", "secdn", "pastr",
                             "c3ann_irrigated", "c3ann_rainfed", "c4per", "rest")
     primf <- "primf"
@@ -126,7 +124,7 @@ calcLandInput <- function(input) {
   }
 
   # check data for consistency
-  toolExpectTrue(identical(unname(getSets(out)), expectedSetNames),
+  toolExpectTrue(identical(unname(getSets(out)), c("region", "id", "year", "data")),
                  "Dimensions are named correctly")
   toolExpectTrue(setequal(getItems(out, dim = 3), expectedCategories),
                  "Land input categories match expactation")
