@@ -14,12 +14,14 @@
 #' biofuel is grown, also 1st gen biofuel is quickly phased out in magpie, so
 #' we fill biofuel_1st_gen with zeros and rely on the harmonization to produce
 #' a plausible 1st gen biofuel time series.
-# TODO witch documentation
+#' input = "witch": includes a subset of LUH land use categories:
+#' primf, primn, secdn, pastr, c4per, pltns, secdf, c3ann_irrigated, c3ann_rainfed
+#' These are given as shares. A "rest" category is added so shares sum up to 1.
 #'
 #' @param input name of an input dataset, options: "magpie", "witch"
 #' @return land input data
 #' @author Jan Philipp Dietrich, Pascal Sauer
-calcLandInput <- function(input) {
+calcLandInput <- function(input) { # before adding args, consider: many functions @inheritParams from this function
   if (input == "magpie") {
     land <- readSource("MagpieFulldataGdx", subtype = "land")
     crop <- readSource("MagpieFulldataGdx", subtype = "crop")
@@ -94,7 +96,7 @@ calcLandInput <- function(input) {
     }
     if (min(out) < 0) {
       warning("Negative values detected, replacing with 0.")
-      # TODO this leads to sum of shares > 1, scaling below won't be needed once this is fixed
+      # this leads to sum of shares > 1, scaling below won't be needed once this is fixed
       out[out < 0] <- 0
     }
     names(dimnames(out))[3] <- "data"

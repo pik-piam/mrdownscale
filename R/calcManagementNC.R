@@ -4,6 +4,7 @@
 #' in a full function, and set calcOutput's file argument to a .nc file path.
 #'
 #' @param outputFormat options: ESM, ScenarioMIP
+#' @inheritParams calcLandInput
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
@@ -14,8 +15,8 @@
 #' @author Pascal Sauer, Jan Philipp Dietrich
 calcManagementNC <- function(outputFormat, input, harmonizationPeriod, yearsSubset, harmonization, downscaling) {
   x <- calcOutput("LandReport", outputFormat = outputFormat, input = input,
-                     harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
-                     harmonization = harmonization, downscaling = downscaling, aggregate = FALSE)
+                  harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
+                  harmonization = harmonization, downscaling = downscaling, aggregate = FALSE)
 
   if (outputFormat == "ESM") {
     landManagementVariables <- c("crpbf_c3ann", "crpbf_c3nfx", "crpbf_c3per", "crpbf_c4ann", "crpbf_c4per",

@@ -7,6 +7,7 @@
 #' @param rev revision number of the data. If not provided the current date will be used instead.
 #' When called via madrat::retrieveData rev will be converted to numeric_version.
 #' @param ... reserved for future use
+#' @inheritParams calcLandInput
 #' @param scenario scenario name to be included in filenames
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input

@@ -8,7 +8,7 @@
 #' added using a nearest-neighbor approach: These cells are mapped to the same low resolution
 #' cluster/country/region as the closest cell which is already present in the mapping.
 #'
-#' @param input character, the input dataset
+#' @inheritParams calcLandInput
 #' @param target character, the target dataset
 #' @return a list including a data.frame with columns x, y, lowRes, countrycode
 #'

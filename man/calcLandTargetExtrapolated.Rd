@@ -7,7 +7,7 @@
 calcLandTargetExtrapolated(input, target, harmonizationPeriod)
 }
 \arguments{
-\item{input}{character, name of the input data set}
+\item{input}{name of an input dataset, options: "magpie", "witch"}
 
 \item{target}{character, name of the target data set}
 

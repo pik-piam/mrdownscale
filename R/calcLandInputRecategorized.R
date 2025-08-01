@@ -9,7 +9,15 @@
 #' the same reference categories. Thereby a new source or new target can be supported
 #' by supplying a map of that new input and/or target to the reference categories.
 #'
-#' @param input name of the land input source to be used
+#' input = "witch": The "rest" category added in calcLandInput is disaggregated into
+#' all missing land variables using the reference dataset included in mrdownscale.
+#' Thus the following variables are added, but were not at all part of the
+#' input scenario data: range, urban, c4ann_*, c3per_*, c3nfx_*
+#' This allows the harmonization and downscaling pipeline to continue with a complete
+#' dataset, but these variables should not be used or reported (at the very least
+#' they have to be checked extensively).
+#'
+#' @inheritParams calcLandInput
 #' @param target name of the land target source to be used
 #' @author Jan Philipp Dietrich, Pascal Sauer
 calcLandInputRecategorized <- function(input, target) {

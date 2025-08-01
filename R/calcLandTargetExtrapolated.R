@@ -10,7 +10,7 @@
 #' then multiplied by land (already extrapolated). Primary land is then
 #' converted to secondary land, so that total reduction equals harvested area.
 #'
-#' @param input character, name of the input data set
+#' @inheritParams calcLandInput
 #' @param target character, name of the target data set
 #' @param harmonizationPeriod Two integer values, will extrapolate to all years
 #' present in input data between harmonization start and end year

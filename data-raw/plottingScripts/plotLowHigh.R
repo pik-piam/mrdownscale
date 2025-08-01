@@ -10,7 +10,7 @@
 #' @param range range for plot legend
 #' @param xlim min and max x coordinate to plot
 #' @param ylim min and max y coordinate to plot
-#' @param input name of the land input source to be used
+#' @inheritParams calcLandInput
 #' @param target name of the land target source to be used
 #' @param harmonizationPeriod Two integer values defining start and end of
 #' the harmonization

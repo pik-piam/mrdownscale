@@ -14,7 +14,7 @@ calcLandHighRes(
 )
 }
 \arguments{
-\item{input}{name of an input dataset}
+\item{input}{name of an input dataset, options: "magpie", "witch"}
 
 \item{target}{name of a target dataset}
 
