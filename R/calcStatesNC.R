@@ -12,8 +12,8 @@
 #' @param downscaling name of downscaling method, currently only "magpieClassic"
 #' @return data prepared to be written as a LUH-style states.nc file
 #' @author Pascal Sauer, Jan Philipp Dietrich
-calcStatesNC <- function(outputFormat, harmonizationPeriod, yearsSubset, harmonization, downscaling) {
-  x <- calcOutput("LandReport", outputFormat = outputFormat,
+calcStatesNC <- function(outputFormat, input, harmonizationPeriod, yearsSubset, harmonization, downscaling) {
+  x <- calcOutput("LandReport", outputFormat = outputFormat, input = input,
                   harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
                   harmonization = harmonization, downscaling = downscaling, aggregate = FALSE)
 

@@ -19,8 +19,9 @@
 #' @param progress boolean defining whether progress should be printed
 #'
 #' @author Pascal Sauer, Jan Philipp Dietrich
-fullESM <- function(rev = numeric_version("0"), ..., scenario = "", harmonizationPeriod = c(2015, 2050),
-                    yearsSubset = 2015:2100, harmonization = "fade", downscaling = "magpieClassic",
+fullESM <- function(rev = numeric_version("0"), ..., input = "magpie", scenario = "",
+                    harmonizationPeriod = c(2015, 2050), yearsSubset = 2015:2100,
+                    harmonization = "fade", downscaling = "magpieClassic",
                     compression = 2, progress = TRUE) {
   stopifnot(...length() == 0)
 
@@ -45,7 +46,7 @@ fullESM <- function(rev = numeric_version("0"), ..., scenario = "", harmonizatio
                                                "f358ccc1902da769e49c5d52e1085db6b8c797b3/changelog.md"))
 
   ncFile <- paste0("multiple-states", fileSuffix)
-  calcOutput("StatesNC", outputFormat = "ESM",
+  calcOutput("StatesNC", outputFormat = "ESM", input = input,
              harmonizationPeriod = harmonizationPeriod,
              yearsSubset = yearsSubset,
              harmonization = harmonization, downscaling = downscaling,
@@ -53,7 +54,7 @@ fullESM <- function(rev = numeric_version("0"), ..., scenario = "", harmonizatio
   do.call(toolAddMetadataNC, c(ncFile = ncFile, metadataArgs))
 
   ncFile <- paste0("multiple-management", fileSuffix)
-  calcOutput("ManagementNC", outputFormat = "ESM",
+  calcOutput("ManagementNC", outputFormat = "ESM", input = input,
              harmonizationPeriod = harmonizationPeriod,
              yearsSubset = yearsSubset,
              harmonization = harmonization, downscaling = downscaling,
@@ -61,7 +62,7 @@ fullESM <- function(rev = numeric_version("0"), ..., scenario = "", harmonizatio
   do.call(toolAddMetadataNC, c(ncFile = ncFile, metadataArgs))
 
   ncFile <- paste0("multiple-transitions", fileSuffix)
-  calcOutput("TransitionsNC", outputFormat = "ESM",
+  calcOutput("TransitionsNC", outputFormat = "ESM", input = input,
              harmonizationPeriod = harmonizationPeriod,
              yearsSubset = yearsSubset,
              harmonization = harmonization, downscaling = downscaling,
