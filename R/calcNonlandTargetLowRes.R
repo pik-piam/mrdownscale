@@ -4,7 +4,7 @@
 #' preparation for harmonization. Fertilizer is converted to Tg yr-1, then aggregated and
 #' converted back to kg ha-1 yr-1.
 #'
-#' @param input name of an input dataset, currently only "magpie"
+#' @inheritParams calcNonlandInput
 #' @param target name of a target dataset, currently only "luh2mod"
 #' @return low resolution target nonland data
 #' @author Pascal Sauer

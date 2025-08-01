@@ -3,6 +3,7 @@
 #' Convert the downscaled land use data to the format required by the given project.
 #'
 #' @param outputFormat format in which the outputs should be prepared. Options: ESM, ScenarioMIP
+#' @inheritParams calcLandInput
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
@@ -11,9 +12,9 @@
 #' @param downscaling name of downscaling method, currently only "magpieClassic"
 #' @return land use data
 #' @author Pascal Sauer
-calcLandReport <- function(outputFormat, harmonizationPeriod, yearsSubset, harmonization, downscaling) {
+calcLandReport <- function(outputFormat, input, harmonizationPeriod, yearsSubset, harmonization, downscaling) {
   if (outputFormat == "ESM") {
-    native <- calcOutput("LandHighRes", input = "magpie", target = "luh2mod",
+    native <- calcOutput("LandHighRes", input = input, target = "luh2mod",
                          harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
                          downscaling = downscaling, harmonization = harmonization,
                          aggregate = FALSE)
@@ -56,9 +57,10 @@ calcLandReport <- function(outputFormat, harmonizationPeriod, yearsSubset, harmo
                 unit = "1",
                 min = 0,
                 max = 1,
-                description = paste("MAgPIE land use data downscaled to LUH2 resolution")))
+                description = paste("land use data downscaled to LUH2 resolution")))
   } else if (outputFormat == "ScenarioMIP") {
     report <- calcOutput("LandReportScenarioMIP",
+                         input = input,
                          harmonizationPeriod = harmonizationPeriod,
                          yearsSubset = yearsSubset,
                          harmonization = harmonization, downscaling = downscaling,

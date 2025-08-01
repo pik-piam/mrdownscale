@@ -7,7 +7,7 @@
 #' Mappings to reference categories are stored internally in the package and
 #' have to be added to it if new input and/or target data should be supported.
 #'
-#' @param input name of the land input source to be used
+#' @inheritParams calcLandInput
 #' @param target name of the land target source to be used
 #' @author Jan Philipp Dietrich
 #'
@@ -15,6 +15,8 @@ toolLandCategoriesMapping <- function(input, target) {
   .getMap <- function(x) {
     if (x == "magpie") {
       out <- toolGetMapping("referenceMappings/magpie.csv", where = "mrdownscale")
+    } else if (x == "witch") {
+      out <- toolGetMapping("referenceMappings/witch.csv", where = "mrdownscale")
     } else if (x == "landuseinit") {
       out <- toolGetMapping("referenceMappings/landuseinit.csv", where = "mrdownscale")
     } else if (x == "landuseinitchina") {

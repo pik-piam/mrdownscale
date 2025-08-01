@@ -11,7 +11,7 @@
 #' using the nonland target data in the first year of
 #' the harmonization period as weight.
 #'
-#' @param input name of an input dataset, currently only "magpie"
+#' @inheritParams calcNonlandInput
 #' @param target name of a target dataset, currently only "luh2mod"
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input

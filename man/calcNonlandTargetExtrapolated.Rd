@@ -7,7 +7,7 @@
 calcNonlandTargetExtrapolated(input, target, harmonizationPeriod)
 }
 \arguments{
-\item{input}{character, name of the input data set, currently only "magpie"}
+\item{input}{name of an input dataset, currently only "magpie"}
 
 \item{target}{character, name of the target data set, currently only "luh2mod"}
 

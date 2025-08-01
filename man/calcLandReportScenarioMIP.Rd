@@ -5,6 +5,7 @@
 \title{calcLandReportScenarioMIP}
 \usage{
 calcLandReportScenarioMIP(
+  input,
   harmonizationPeriod,
   yearsSubset,
   harmonization,
@@ -12,6 +13,8 @@ calcLandReportScenarioMIP(
 )
 }
 \arguments{
+\item{input}{name of an input dataset, options: "magpie", "witch"}
+
 \item{harmonizationPeriod}{Two integer values, before the first given
 year the target dataset is used, after the second given year the input
 dataset is used, in between harmonize between the two datasets}

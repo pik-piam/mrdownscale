@@ -7,7 +7,7 @@
 calcLandHarmonized(input, target, harmonizationPeriod, harmonization)
 }
 \arguments{
-\item{input}{name of the land input source to be used}
+\item{input}{name of an input dataset, options: "magpie", "witch"}
 
 \item{target}{name of the land target source to be used}
 

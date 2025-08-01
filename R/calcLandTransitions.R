@@ -5,6 +5,7 @@
 #'
 #' @param outputFormat format in which the outputs should be prepared. Currently,
 #' only "ESM" for earth system model compatible input data is available.
+#' @inheritParams calcNonlandInput
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
@@ -19,13 +20,13 @@
 #' period from 1995 to 2015 will be used.
 #' @return land use transition data
 #' @author Jan Philipp Dietrich, Pascal Sauer
-calcLandTransitions <- function(outputFormat, harmonizationPeriod, yearsSubset,
+calcLandTransitions <- function(outputFormat, input, harmonizationPeriod, yearsSubset,
                                 harmonization, downscaling, gross) {
   if (outputFormat != "ESM") {
     stop("Can only report for outputFormat = 'ESM'")
   }
 
-  land <- calcOutput("LandReport", outputFormat = "ESM",
+  land <- calcOutput("LandReport", outputFormat = "ESM", input = input,
                      harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
                      harmonization = harmonization, downscaling = downscaling, aggregate = FALSE)
   land <- land[, , grep("(_|manaf)", getItems(land, dim = 3), invert = TRUE, value = TRUE)]

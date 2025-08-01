@@ -8,7 +8,7 @@
 #' secondary land, the excess is shifted to the other secondary land
 #' (secdf to secdn and vice versa). Remaining excess harvest area is reported.
 #'
-#' @param input name of the input dataset, currently only "magpie"
+#' @inheritParams calcNonlandInput
 #' @param target name of the target dataset, currently only "luh2mod"
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input

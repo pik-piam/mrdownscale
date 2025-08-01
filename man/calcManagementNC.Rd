@@ -6,6 +6,7 @@
 \usage{
 calcManagementNC(
   outputFormat,
+  input,
   harmonizationPeriod,
   yearsSubset,
   harmonization,
@@ -14,6 +15,8 @@ calcManagementNC(
 }
 \arguments{
 \item{outputFormat}{options: ESM, ScenarioMIP}
+
+\item{input}{name of an input dataset, options: "magpie", "witch"}
 
 \item{harmonizationPeriod}{Two integer values, before the first given
 year the target dataset is used, after the second given year the input

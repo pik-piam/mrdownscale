@@ -14,11 +14,14 @@
 #' biofuel is grown, also 1st gen biofuel is quickly phased out in magpie, so
 #' we fill biofuel_1st_gen with zeros and rely on the harmonization to produce
 #' a plausible 1st gen biofuel time series.
+#' input = "witch": includes a subset of LUH land use categories:
+#' primf, primn, secdn, pastr, c4per, pltns, secdf, c3ann_irrigated, c3ann_rainfed
+#' These are given as shares. A "rest" category is added so shares sum up to 1.
 #'
-#' @param input name of an input dataset, options: "magpie"
+#' @param input name of an input dataset, options: "magpie", "witch"
 #' @return land input data
 #' @author Jan Philipp Dietrich, Pascal Sauer
-calcLandInput <- function(input) {
+calcLandInput <- function(input) { # before adding args, consider: many functions @inheritParams from this function
   if (input == "magpie") {
     land <- readSource("MagpieFulldataGdx", subtype = "land")
     crop <- readSource("MagpieFulldataGdx", subtype = "crop")
@@ -55,8 +58,77 @@ calcLandInput <- function(input) {
     # see note in the documentation of this function
     out <- add_columns(out, "biofuel_1st_gen", fill = 0)
 
-    expectedCategories <- toolGetMapping("referenceMappings/magpie.csv", where = "mrdownscale")$data
+    expectedCategories <- unique(toolGetMapping("referenceMappings/magpie.csv", where = "mrdownscale")$data)
     primf <- "primforest"
+  } else if (input == "witch") {
+    x <- readSource("WITCH")
+    stopifnot(length(unique(x$model)) == 1,
+              length(unique(x$scenario)) == 1,
+              "world" %in% x$region)
+    x <- x[x$region != "world", ]
+
+    stopifnot(x[x$variable == "Land Cover", ]$units == "million ha")
+    regionAreaMha <- x[x$variable == "Land Cover", c("region", "value")]
+    stopifnot(length(unique(regionAreaMha$region)) == nrow(unique(regionAreaMha)))
+    regionAreaMha <- unique(regionAreaMha)
+    regionAreaMha <- collapseDim(as.magpie(regionAreaMha, spatial = "region"))
+
+    x <- x[x$variable %in% c("primf", "secdf", "pltns", "primn", "secdn", "pastr",
+                             "c3ann", "irrig_c3ann", "c4per"), ]
+
+    # check irrig_c3ann is fraction of crop area, need to handle that later
+    stopifnot(identical(unique(x[x$variable == "irrig_c3ann", ]$units),
+                        "fraction of crop area"))
+    x[x$variable == "irrig_c3ann", ]$units <- "fraction of grid cell"
+    stopifnot(identical(unique(x$units), "fraction of grid cell"))
+
+    x <- x[, c("region", "year", "variable", "value")]
+    out <- as.magpie(x, spatial = "region", temporal = "year")
+
+    # add artificial region numbers/ids as these are expected later
+    mapping <- readSource("WITCH", subtype = "resolutionMapping")
+    out <- toolAggregate(out, unique(mapping[, c("witch17", "lowRes")]))
+    names(dimnames(out))[1] <- "region.id"
+
+    if (anyNA(out)) {
+      warning("NAs detected, replacing with 0.")
+      out[is.na(out)] <- 0
+    }
+    if (min(out) < 0) {
+      warning("Negative values detected, replacing with 0.")
+      # this leads to sum of shares > 1, scaling below won't be needed once this is fixed
+      out[out < 0] <- 0
+    }
+    names(dimnames(out))[3] <- "data"
+
+    out <- add_columns(out, c("c3ann_irrigated", "c3ann_rainfed"))
+
+    # convert from fraction of crop area to fraction of grid cell
+    stopifnot(out[, , "irrig_c3ann"] <= 1)
+    out[, , "c3ann_irrigated"] <- out[, , "irrig_c3ann"] * out[, , "c3ann"]
+
+    out[, , "c3ann_rainfed"] <- (1 - out[, , "irrig_c3ann"]) * out[, , "c3ann"]
+    out <- out[, , c("c3ann", "irrig_c3ann"), invert = TRUE]
+
+    shareTotal <- dimSums(out, 3)
+    if (max(shareTotal - 1) > 10^-10) {
+      warning("Scaling land so that land share sum is equal to 1.")
+      shareTotal[shareTotal < 1] <- 1
+      out <- out / shareTotal
+    }
+
+    rest <- magclass::setNames(1 - dimSums(out, 3), "rest")
+    rest[rest < 0] <- 0
+    out <- mbind(out, rest)
+
+    toolExpectLessDiff(dimSums(out, 3), 1, 10^-10, "land shares sum up to 1")
+
+    # convert from fraction of grid cell to Mha
+    out <- out * regionAreaMha
+
+    expectedCategories <- c("primf", "secdf", "pltns", "primn", "secdn", "pastr",
+                            "c3ann_irrigated", "c3ann_rainfed", "c4per", "rest")
+    primf <- "primf"
   } else {
     stop("Unsupported input type \"", input, "\"")
   }
@@ -76,5 +148,6 @@ calcLandInput <- function(input) {
               isocountries = FALSE,
               unit = "Mha",
               min = 0,
-              description = "Land input data for data harmonization and downscaling pipeline"))
+              description = "Land input data for data harmonization and downscaling pipeline",
+              clean_magpie = FALSE)) # preserve region ids
 }

@@ -6,7 +6,7 @@
 #' the historical wood harvest rate in kg C per Mha. Fertilizer is extrapolated
 #' and returned in kg ha-1 yr-1.
 #'
-#' @param input character, name of the input data set, currently only "magpie"
+#' @inheritParams calcNonlandInput
 #' @param target character, name of the target data set, currently only "luh2mod"
 #' @param harmonizationPeriod Two integer values, will extrapolate to all years
 #' present in input data between harmonization start and end year

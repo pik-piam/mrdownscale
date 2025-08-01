@@ -12,7 +12,7 @@ calcNonlandInputRecategorized(
 )
 }
 \arguments{
-\item{input}{name of the input dataset, currently only "magpie"}
+\item{input}{name of an input dataset, currently only "magpie"}
 
 \item{target}{name of the target dataset, currently only "luh2"}
 

@@ -6,6 +6,7 @@
 \usage{
 calcLandTransitions(
   outputFormat,
+  input,
   harmonizationPeriod,
   yearsSubset,
   harmonization,
@@ -16,6 +17,8 @@ calcLandTransitions(
 \arguments{
 \item{outputFormat}{format in which the outputs should be prepared. Currently,
 only "ESM" for earth system model compatible input data is available.}
+
+\item{input}{name of an input dataset, currently only "magpie"}
 
 \item{harmonizationPeriod}{Two integer values, before the first given
 year the target dataset is used, after the second given year the input

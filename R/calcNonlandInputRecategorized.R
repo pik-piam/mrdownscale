@@ -5,7 +5,7 @@
 #'
 #' Report and discard wood harvest area if there is zero wood harvest (bioh) or vice versa.
 #'
-#' @param input name of the input dataset, currently only "magpie"
+#' @inheritParams calcNonlandInput
 #' @param target name of the target dataset, currently only "luh2"
 #' @param youngShareWoodHarvestArea share of wood harvest area taken from young (instead of mature) secondary forest;
 #' default value is based on LUH value from 2014; used to disaggregate wood harvest area from secondary forest to
