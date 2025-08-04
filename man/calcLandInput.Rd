@@ -7,7 +7,7 @@
 calcLandInput(input)
 }
 \arguments{
-\item{input}{name of an input dataset, options: "magpie"}
+\item{input}{name of an input dataset, options: "magpie", "witch"}
 }
 \value{
 land input data
@@ -28,6 +28,9 @@ magpie via demand, and because of trade it is unclear on what area 1st gen
 biofuel is grown, also 1st gen biofuel is quickly phased out in magpie, so
 we fill biofuel_1st_gen with zeros and rely on the harmonization to produce
 a plausible 1st gen biofuel time series.
+input = "witch": includes a subset of LUH land use categories:
+primf, primn, secdn, pastr, c4per, pltns, secdf, c3ann_irrigated, c3ann_rainfed
+These are given as shares. A "rest" category is added so shares sum up to 1.
 }
 \author{
 Jan Philipp Dietrich, Pascal Sauer

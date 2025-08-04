@@ -9,21 +9,28 @@
 #' the same reference categories. Thereby a new source or new target can be supported
 #' by supplying a map of that new input and/or target to the reference categories.
 #'
-#' @param input name of the land input source to be used
+#' input = "witch": The "rest" category added in calcLandInput is disaggregated into
+#' all missing land variables using the reference dataset included in mrdownscale.
+#' Thus the following variables are added, but were not at all part of the
+#' input scenario data: range, urban, c4ann_*, c3per_*, c3nfx_*
+#' This allows the harmonization and downscaling pipeline to continue with a complete
+#' dataset, but these variables should not be used or reported (at the very least
+#' they have to be checked extensively).
+#'
+#' @inheritParams calcLandInput
 #' @param target name of the land target source to be used
 #' @author Jan Philipp Dietrich, Pascal Sauer
 calcLandInputRecategorized <- function(input, target) {
-  map <- toolLandCategoriesMapping(input, target)
   x   <- calcOutput("LandInput", input = input, aggregate = FALSE)
 
   resolutionMapping <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
-
   x <- x[unique(resolutionMapping$lowRes), , ]
 
   resolutionMapping$cluster <- resolutionMapping$lowRes
   "!# @monitor magpie4:::addGeometry"
   x <- magpie4::addGeometry(x, resolutionMapping)
 
+  map <- toolLandCategoriesMapping(input, target)
   # get weights for disaggregation to reference categories
   ref <- calcOutput("LandCategorizationWeight", map = map, geometry = attr(x, "geometry"),
                     crs = attr(x, "crs"), aggregate = FALSE)
@@ -43,8 +50,9 @@ calcLandInputRecategorized <- function(input, target) {
     }
   }
 
-  if ("primn" %in% getItems(out, 3)) {
-    # category remapping does not take into account that primn cannot expand, so redistribute:
+  # magpie has other land instead of primn and secdn
+  # category remapping does not take into account that primn cannot expand, so redistribute
+  if (input == "magpie") {
     # if totaln shrinks, shrink primn and secdn according to their proportions in the previous timestep
     # if totaln expands, expand only secdn, primn stays constant
     totaln <- dimSums(out[, , c("primn", "secdn")], 3)
@@ -75,5 +83,6 @@ calcLandInputRecategorized <- function(input, target) {
               unit = "Mha",
               min = 0,
               description = "Input data with land categories remapped to categories of target dataset",
-              woodlandMap = woodlandMap))
+              woodlandMap = woodlandMap,
+              clean_magpie = FALSE)) # preserve region ids
 }

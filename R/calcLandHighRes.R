@@ -4,7 +4,7 @@
 #' from the low resolution input dataset and the high resolution target dataset
 #' using the given downscaling method.
 #'
-#' @param input name of an input dataset
+#' @inheritParams calcLandInput
 #' @param target name of a target dataset
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input

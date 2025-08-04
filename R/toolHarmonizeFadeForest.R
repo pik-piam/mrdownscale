@@ -32,9 +32,15 @@ toolHarmonizeFadeForest <- function(xInput, xTarget, harmonizationPeriod) {
   primf <- xTarget[, hp1, "primf"]
   for (year in years[years > hp1]) {
     p <- linearEx[, year, ]
-    p <- mpmin(p, forest[, year, ])
-    p <- mpmin(p, primf[, nyears(primf), ])
-    p <- setYears(p, year)
+    p <- mpmin(p,
+               magclass::setNames(
+                 forest[, year, ],
+                 "primf"
+               ),
+               setYears(
+                 primf[, nyears(primf), ],
+                 year
+               ))
     primf <- mbind(primf, p)
   }
   primsecdf <- mbind(primf,

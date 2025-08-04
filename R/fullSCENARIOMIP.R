@@ -1,4 +1,4 @@
-fullSCENARIOMIP <- function(rev = numeric_version("0"), ..., scenario = "",
+fullSCENARIOMIP <- function(rev = numeric_version("0"), ..., input = "magpie", scenario = "",
                             harmonizationPeriod = c(2020, 2050),
                             yearsSubset = 1995:2100,
                             harmonization = "fadeForest", downscaling = "magpieClassic",
@@ -27,27 +27,30 @@ fullSCENARIOMIP <- function(rev = numeric_version("0"), ..., scenario = "",
                        furtherInfoUrl = "NA")
 
   ncFile <- paste0("multiple-states", fileSuffix)
-  calcOutput("StatesNC", outputFormat = "ScenarioMIP", harmonizationPeriod = harmonizationPeriod,
+  calcOutput("StatesNC", outputFormat = "ScenarioMIP", input = input,
+             harmonizationPeriod = harmonizationPeriod,
              yearsSubset = yearsSubset,
              harmonization = harmonization, downscaling = downscaling,
              aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
   do.call(toolAddMetadataNC, c(ncFile = ncFile, metadataArgs))
 
   ncFile <- paste0("multiple-management", fileSuffix)
-  calcOutput("ManagementNC", outputFormat = "ScenarioMIP",
+  calcOutput("ManagementNC", outputFormat = "ScenarioMIP", input = input,
              harmonizationPeriod = harmonizationPeriod,
              yearsSubset = yearsSubset,
              harmonization = harmonization, downscaling = downscaling,
              aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
   do.call(toolAddMetadataNC, c(ncFile = ncFile, metadataArgs))
 
-  ncFile <- paste0("multiple-transitions", fileSuffix)
-  calcOutput("TransitionsNC", outputFormat = "ScenarioMIP",
-             harmonizationPeriod = harmonizationPeriod,
-             yearsSubset = yearsSubset,
-             harmonization = harmonization, downscaling = downscaling,
-             aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
-  do.call(toolAddMetadataNC, c(ncFile = ncFile, metadataArgs))
+  if (input == "magpie") {
+    ncFile <- paste0("multiple-transitions", fileSuffix)
+    calcOutput("TransitionsNC", outputFormat = "ScenarioMIP", input = input,
+               harmonizationPeriod = harmonizationPeriod,
+               yearsSubset = yearsSubset,
+               harmonization = harmonization, downscaling = downscaling,
+               aggregate = FALSE, file = ncFile, writeArgs = writeArgs)
+    do.call(toolAddMetadataNC, c(ncFile = ncFile, metadataArgs))
+  }
 
   toolWriteMadratLog(logPath = "consistencyCheck.log")
 }

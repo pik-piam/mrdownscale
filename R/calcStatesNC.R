@@ -4,6 +4,7 @@
 #' in a full function, and set calcOutput's file argument to a .nc file path.
 #'
 #' @param outputFormat options: ESM, ScenarioMIP
+#' @inheritParams calcLandInput
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
@@ -12,8 +13,8 @@
 #' @param downscaling name of downscaling method, currently only "magpieClassic"
 #' @return data prepared to be written as a LUH-style states.nc file
 #' @author Pascal Sauer, Jan Philipp Dietrich
-calcStatesNC <- function(outputFormat, harmonizationPeriod, yearsSubset, harmonization, downscaling) {
-  x <- calcOutput("LandReport", outputFormat = outputFormat,
+calcStatesNC <- function(outputFormat, input, harmonizationPeriod, yearsSubset, harmonization, downscaling) {
+  x <- calcOutput("LandReport", outputFormat = outputFormat, input = input,
                   harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
                   harmonization = harmonization, downscaling = downscaling, aggregate = FALSE)
 

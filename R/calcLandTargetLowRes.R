@@ -3,8 +3,7 @@
 #' Aggregate target land data to the spatial resolution of the input data in
 #' preparation for harmonization.
 #'
-#' @param input name of an input dataset, see \code{\link{calcLandInput}}
-#' available input datasets
+#' @inheritParams calcLandInput
 #' @param target name of a target dataset, see \code{\link{calcLandTarget}}
 #' available target datasets
 #' @return low resolution target land data
@@ -35,5 +34,6 @@ calcLandTargetLowRes <- function(input, target) {
               isocountries = FALSE,
               unit = "Mha",
               min = 0,
-              description = "Land target data at the same low resolution as the input dataset for harmonization"))
+              description = "Land target data at the same low resolution as the input dataset for harmonization",
+              clean_magpie = FALSE))
 }

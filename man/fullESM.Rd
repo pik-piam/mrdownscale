@@ -7,6 +7,7 @@
 fullESM(
   rev = numeric_version("0"),
   ...,
+  input = "magpie",
   scenario = "",
   harmonizationPeriod = c(2015, 2050),
   yearsSubset = 2015:2100,
@@ -21,6 +22,8 @@ fullESM(
 When called via madrat::retrieveData rev will be converted to numeric_version.}
 
 \item{...}{reserved for future use}
+
+\item{input}{name of an input dataset, options: "magpie", "witch"}
 
 \item{scenario}{scenario name to be included in filenames}
 

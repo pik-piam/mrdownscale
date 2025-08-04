@@ -3,6 +3,7 @@
 #' Prepared data to be written as a LUH-style transitions.nc file
 #'
 #' @param outputFormat options: ESM, ScenarioMIP
+#' @inheritParams calcLandInput
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
@@ -11,7 +12,7 @@
 #' @param downscaling name of downscaling method, currently only "magpieClassic"
 #' @return data prepared to be written as a LUH-style transitions.nc file
 #' @author Pascal Sauer, Jan Philipp Dietrich
-calcTransitionsNC <- function(outputFormat, harmonizationPeriod, yearsSubset, harmonization, downscaling) {
+calcTransitionsNC <- function(outputFormat, input, harmonizationPeriod, yearsSubset, harmonization, downscaling) {
   nonland <- calcOutput("NonlandReport", outputFormat = outputFormat,
                         harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
                         harmonization = harmonization, downscaling = downscaling, aggregate = FALSE)
@@ -24,7 +25,7 @@ calcTransitionsNC <- function(outputFormat, harmonizationPeriod, yearsSubset, ha
     transitions <- calcOutput("LandTransitions", outputFormat = outputFormat,
                               harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
                               harmonization = harmonization, downscaling = downscaling,
-                              gross = TRUE, aggregate = FALSE)
+                              input = input, gross = TRUE, aggregate = FALSE)
     getItems(transitions, raw = TRUE, dim = 3) <- sub("\\.", "_to_", getItems(transitions, dim = 3))
     getSets(transitions, fulldim = FALSE)[3] <- "transitions"
     # we use to-semantics for transitions (value for 1994 describes what happens from 1993 to 1994)

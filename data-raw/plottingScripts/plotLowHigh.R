@@ -10,7 +10,7 @@
 #' @param range range for plot legend
 #' @param xlim min and max x coordinate to plot
 #' @param ylim min and max y coordinate to plot
-#' @param input name of the land input source to be used
+#' @inheritParams calcLandInput
 #' @param target name of the land target source to be used
 #' @param harmonizationPeriod Two integer values defining start and end of
 #' the harmonization
@@ -25,11 +25,13 @@
 plotLowHigh <- function(variable, year, outputFormat, input, target, ...,
                         range = c(0, 1), xlim = c(-180, 180), ylim = c(-90, 90),
                         harmonizationPeriod = c(2020, 2050),
-                        yearsSubset = seq(2015, 2100, 5)) {
+                        yearsSubset = seq(2015, 2100, 5),
+                        harmonization = "fadeForest", downscaling = "magpieClassic") {
   cellArea <- readSource("LUH3", subtype = "cellArea", convert = FALSE)
 
-  landHighRes <- calcOutput("LandReport", outputFormat = outputFormat,
+  landHighRes <- calcOutput("LandReport", outputFormat = outputFormat, input = input,
                             harmonizationPeriod = harmonizationPeriod,
+                            harmonization = harmonization, downscaling = downscaling,
                             yearsSubset = yearsSubset, aggregate = FALSE)
 
   variables <- grep(variable, getItems(landHighRes, 3), value = TRUE)
@@ -42,7 +44,8 @@ plotLowHigh <- function(variable, year, outputFormat, input, target, ...,
   highRaster <- as.SpatRaster(dimSums(landHighRes[, year, variables], 3))
 
   landHarmonized <- calcOutput("LandHarmonized", input = input, target = target,
-                               harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
+                               harmonizationPeriod = harmonizationPeriod,
+                               harmonization = harmonization, aggregate = FALSE)
   geometry <- attr(landHarmonized, "geometry")
   low <- landHarmonized[, year, grep(variable, getItems(landHarmonized, 3), value = TRUE)]
   low <- dimSums(low, 3)
