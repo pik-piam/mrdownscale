@@ -4,12 +4,12 @@
 \alias{toolHarmonizeOffset}
 \title{toolHarmonizeOffset}
 \usage{
-toolHarmonizeOffset(input, target, harmonizationPeriod)
+toolHarmonizeOffset(xInput, xTarget, harmonizationPeriod)
 }
 \arguments{
-\item{input}{magpie object to fade to, usually model projections}
+\item{xInput}{magpie object to fade to, usually model projections}
 
-\item{target}{magpie object to fade from, usually historical data, this argument is called "target"
+\item{xTarget}{magpie object to fade from, usually historical data, this argument is called "target"
 for consistency with argument names of other functions, it is somewhat misleading here,
 because data after the harmonizationPeriod will not be taken from target, but from input}
 

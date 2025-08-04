@@ -7,7 +7,7 @@
 calcLandInputRecategorized(input, target)
 }
 \arguments{
-\item{input}{name of the land input source to be used}
+\item{input}{name of an input dataset, options: "magpie", "witch"}
 
 \item{target}{name of the land target source to be used}
 }
@@ -21,6 +21,14 @@ Mapping from input to target categories is achieved via a merge of a land input
 mapping to reference categories and a mapping between land target categories and
 the same reference categories. Thereby a new source or new target can be supported
 by supplying a map of that new input and/or target to the reference categories.
+
+input = "witch": The "rest" category added in calcLandInput is disaggregated into
+all missing land variables using the reference dataset included in mrdownscale.
+Thus the following variables are added, but were not at all part of the
+input scenario data: range, urban, c4ann_*, c3per_*, c3nfx_*
+This allows the harmonization and downscaling pipeline to continue with a complete
+dataset, but these variables should not be used or reported (at the very least
+they have to be checked extensively).
 }
 \author{
 Jan Philipp Dietrich, Pascal Sauer

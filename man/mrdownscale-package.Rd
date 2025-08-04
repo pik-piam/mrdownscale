@@ -6,7 +6,7 @@
 \alias{mrdownscale-package}
 \title{mrdownscale: Downscale and harmonize land use data using high resolution reference data}
 \description{
-Downscale and harmonize land use data (e.g. MAgPIE) using high resolution reference data (e.g. LUH2v2h).
+Downscale and harmonize land use data (e.g. MAgPIE) using high resolution reference data (e.g. LUH).
 }
 \seealso{
 Useful links:

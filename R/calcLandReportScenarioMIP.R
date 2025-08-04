@@ -2,6 +2,7 @@
 #'
 #' Convert the downscaled land use data to the format required by ScenarioMIP.
 #'
+#' @inheritParams calcLandInput
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
@@ -10,8 +11,8 @@
 #' @param downscaling name of downscaling method, currently only "magpieClassic"
 #' @return land use data
 #' @author Pascal Sauer
-calcLandReportScenarioMIP <- function(harmonizationPeriod, yearsSubset, harmonization, downscaling) {
-  landHighRes <- calcOutput("LandHighRes", input = "magpie", target = "luh3",
+calcLandReportScenarioMIP <- function(input, harmonizationPeriod, yearsSubset, harmonization, downscaling) {
+  landHighRes <- calcOutput("LandHighRes", input = input, target = "luh3",
                             harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
                             harmonization = harmonization, downscaling = downscaling,
                             aggregate = FALSE)
@@ -45,5 +46,5 @@ calcLandReportScenarioMIP <- function(harmonizationPeriod, yearsSubset, harmoniz
               unit = "1",
               min = 0,
               max = 1,
-              description = paste("MAgPIE land use data downscaled to 0.25 degree")))
+              description = paste("land use data downscaled to 0.25 degree")))
 }

@@ -7,7 +7,7 @@
 calcResolutionMapping(input, target)
 }
 \arguments{
-\item{input}{character, the input dataset}
+\item{input}{name of an input dataset, options: "magpie", "witch"}
 
 \item{target}{character, the target dataset}
 }

@@ -10,7 +10,7 @@
 #' then multiplied by land (already extrapolated). Primary land is then
 #' converted to secondary land, so that total reduction equals harvested area.
 #'
-#' @param input character, name of the input data set
+#' @inheritParams calcLandInput
 #' @param target character, name of the target data set
 #' @param harmonizationPeriod Two integer values, will extrapolate to all years
 #' present in input data between harmonization start and end year
@@ -31,7 +31,7 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
                     harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
 
   harvest <- NULL
-  if (target %in% c("luh2mod", "luh3")) {
+  if (input %in% c("magpie") && target %in% c("luh2mod", "luh3")) {
     # ------- calculate wood harvest shares -------
     harvestHist <- calcOutput("NonlandTargetLowRes", input = input, target = target, aggregate = FALSE)
     harvestHist <- harvestHist[, , "wood_harvest_area"]
@@ -101,7 +101,8 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
               unit = "Mha",
               min = 0,
               description = "Extrapolated land target data for harmonization",
-              woodHarvestArea = harvest))
+              woodHarvestArea = harvest,
+              clean_magpie = FALSE))
 }
 
 # extra function for better cache utilization
@@ -134,5 +135,6 @@ calcLandTargetExtrapolatedCore <- function(input, target, harmonizationPeriod) {
               isocountries = FALSE,
               unit = "Mha",
               min = 0,
-              description = "Extrapolated land target data for harmonization"))
+              description = "Extrapolated land target data for harmonization",
+              clean_magpie = FALSE))
 }

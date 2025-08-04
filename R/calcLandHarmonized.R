@@ -5,7 +5,7 @@
 #' chosen land target data set (harmonized categories as well as harmonized
 #' transition from historic target data to simulated input data).
 #'
-#' @param input name of the land input source to be used
+#' @inheritParams calcLandInput
 #' @param target name of the land target source to be used
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
@@ -72,5 +72,6 @@ calcLandHarmonized <- function(input, target, harmonizationPeriod, harmonization
               isocountries = FALSE,
               unit = "Mha",
               min = 0,
-              description = "Harmonized land data"))
+              description = "Harmonized land data",
+              clean_magpie = FALSE))
 }

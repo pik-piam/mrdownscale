@@ -10,7 +10,7 @@
 #' Harmonize absolute fertilizer in Tg yr-1, then convert to fertilizer rate
 #' in kg ha-1 yr-1.
 #'
-#' @param input name of the input dataset, currently only "magpie"
+#' @inheritParams calcNonlandInput
 #' @param target name of the target dataset, currently only "luh2"
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
