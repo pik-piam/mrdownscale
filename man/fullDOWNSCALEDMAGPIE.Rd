@@ -6,7 +6,6 @@
 \usage{
 fullDOWNSCALEDMAGPIE(
   rev = numeric_version("0"),
-  ...,
   harmonizationPeriod = c(2015, 2050),
   target = "landuseinit",
   downscaling = "magpieClassic",
@@ -16,8 +15,6 @@ fullDOWNSCALEDMAGPIE(
 \arguments{
 \item{rev}{revision number of the data. If not provided the current date will be used instead.
 When called via madrat::retrieveData rev will be converted to numeric_version.}
-
-\item{...}{reserved for future use}
 
 \item{harmonizationPeriod}{Two integer values, before the first given
 year the target dataset is used, after the second given year the input
