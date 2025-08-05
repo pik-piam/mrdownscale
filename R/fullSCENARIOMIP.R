@@ -1,10 +1,29 @@
-fullSCENARIOMIP <- function(rev = numeric_version("0"), ..., input = "magpie", scenario = "",
+#' fullSCENARIOMIP
+#'
+#' Run the pipeline to generate harmonized and downscaled data to report for ScenarioMIP.
+#' LUH3 is used as historical reference dataset for harmonization and downscaling.
+#' Write .nc files, print full report on consistency checks and write it to report.log.
+#'
+#' @param rev revision number of the data. If not provided the current date will be used instead.
+#' When called via madrat::retrieveData rev will be converted to numeric_version.
+#' @inheritParams calcLandInput
+#' @param scenario scenario name to be included in filenames
+#' @param harmonizationPeriod Two integer values, before the first given
+#' year the target dataset is used, after the second given year the input
+#' dataset is used, in between harmonize between the two datasets
+#' @param yearsSubset remove years from the returned data which are not in yearsSubset
+#' @param harmonization name of harmonization method, see \code{\link{toolGetHarmonizer}}
+#' @param downscaling name of downscaling method, currently only "magpieClassic"
+#' @param compression compression level of the resulting .nc files, possible values are integers from 1-9,
+#' 1 = fastest, 9 = best compression
+#' @param progress boolean defining whether progress should be printed
+#'
+#' @author Pascal Sauer
+fullSCENARIOMIP <- function(rev = numeric_version("0"), input = "magpie", scenario = "",
                             harmonizationPeriod = c(2020, 2050),
                             yearsSubset = 1995:2100,
                             harmonization = "fadeForest", downscaling = "magpieClassic",
                             compression = 2, progress = TRUE) {
-  stopifnot(...length() == 0)
-
   revision <- if (identical(rev, numeric_version("0"))) format(Sys.time(), "%Y-%m-%d") else rev
 
   fileSuffix <- paste0("_input4MIPs_landState_ScenarioMIP_",

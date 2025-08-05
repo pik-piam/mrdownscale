@@ -7,7 +7,6 @@
 #'
 #' @param rev revision number of the data. If not provided the current date will be used instead.
 #' When called via madrat::retrieveData rev will be converted to numeric_version.
-#' @param ... reserved for future use
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
@@ -16,11 +15,9 @@
 #' @param downscaling name of downscaling method, currently only "magpieClassic"
 #'
 #' @author Pascal Sauer
-fullDOWNSCALEDMAGPIE <- function(rev = numeric_version("0"), ...,
+fullDOWNSCALEDMAGPIE <- function(rev = numeric_version("0"),
                                  harmonizationPeriod = c(2015, 2050), target = "landuseinit",
                                  downscaling = "magpieClassic", harmonization = "fade") {
-  stopifnot(...length() == 0)
-
   calcOutput("LandHighRes", input = "magpie", target = target,
              harmonizationPeriod = harmonizationPeriod, yearsSubset = seq(1995, 2100, 5),
              downscaling = downscaling, harmonization = harmonization,

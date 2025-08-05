@@ -36,18 +36,19 @@ calcNonlandTargetLowRes <- function(input, target) {
   names(dimnames(out))[3] <- "category.data"
 
   landTargetLowRes <- calcOutput("LandTargetLowRes", input = input, target = target, aggregate = FALSE)
-  out[, , "fertilizer"] <- toolFertilizerKgPerHa(out[, , "fertilizer"], landTargetLowRes)
 
-  stopifnot(setequal(getItems(xInput, 3), getItems(out, 3)))
-  out <- out[, , getItems(xInput, 3)] # harmonize order
-
-  # checks
   lastYear <- terra::time(xTarget)[length(terra::time(xTarget))]
   mTarget <- as.magpie(xTarget[[terra::time(xTarget) == lastYear]])
   getItems(mTarget, 3, raw = TRUE) <- sub("^(.+?)_(.+)$", "\\2.\\1", getItems(mTarget, 3))
   names(dimnames(mTarget))[3] <- "category.data"
   toolExpectLessDiff(dimSums(mTarget, 1), dimSums(out[, lastYear, ], 1), 10^-5,
                      "total sum is not changed by aggregation")
+
+  out[, , "fertilizer"] <- toolFertilizerKgPerHa(out[, , "fertilizer"], landTargetLowRes)
+
+  stopifnot(setequal(getItems(xInput, 3), getItems(out, 3)))
+  out <- out[, , getItems(xInput, 3)] # harmonize order
+
 
   toolExpectLessDiff(dimSums(out[, , "bioh"], 3),
                      dimSums(out[, , "harvest_weight_type"], 3),

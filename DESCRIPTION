@@ -1,16 +1,17 @@
 Type: Package
 Package: mrdownscale
-Title: Downscale and harmonize land use data using high resolution reference data
-Version: 0.41.0
-Date: 2025-08-01
+Title: Downscale and harmonize land use data using high resolution
+    reference data
+Version: 0.41.1
+Date: 2025-08-04
 Authors@R: c(
     person("Pascal", "Sauer", , "pascal.sauer@pik-potsdam.de", role = c("aut", "cre"),
            comment = c(affiliation = "Potsdam Institute for Climate Impact Research", ORCID = "0000-0002-6856-8239")),
     person("Jan Philipp", "Dietrich", , "dietrich@pik-potsdam.de", role = "aut",
            comment = c(affiliation = "Potsdam Institute for Climate Impact Research", ORCID = "0000-0002-4309-6431"))
   )
-Description: Downscale and harmonize land use data (e.g. MAgPIE or WITCH) using
-    high resolution reference data (e.g. LUH2v2h or LUH3).
+Description: Downscale and harmonize land use data (e.g. MAgPIE or WITCH)
+    using high resolution reference data (e.g. LUH2v2h or LUH3).
 License: LGPL-3
 URL: https://github.com/pik-piam/mrdownscale,
     https://doi.org/10.5281/zenodo.11244475
@@ -35,7 +36,8 @@ Suggests:
     rmarkdown,
     testthat,
     usethis
+VignetteBuilder:
+    knitr
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.2
-VignetteBuilder: knitr
