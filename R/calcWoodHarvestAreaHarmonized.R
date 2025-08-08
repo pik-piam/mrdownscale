@@ -78,9 +78,9 @@ calcWoodHarvestAreaHarmonized <- function(input, target, harmonizationPeriod, ha
 
   potentialHarvestLeft <- maxSecdHarv - secdHarv
   stopifnot(potentialHarvestLeft >= 0)
-  smallest <- mpmin(potentialHarvestLeft[, , "secdf"],
-                    potentialHarvestLeft[, , "secdn"],
-                    potentialHarvestLeft[, , "pltns"])
+  smallest <- mpmin(collapseDim(potentialHarvestLeft[, , "secdf"]),
+                    collapseDim(potentialHarvestLeft[, , "secdn"]),
+                    collapseDim(potentialHarvestLeft[, , "pltns"]))
   stopifnot(smallest[excessSecdHarvest > 0] == 0)
 
   secdHarv <- mpmin(secdHarv + excessSecdHarvest, maxSecdHarv)

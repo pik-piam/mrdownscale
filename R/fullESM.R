@@ -6,7 +6,6 @@
 #'
 #' @param rev revision number of the data. If not provided the current date will be used instead.
 #' When called via madrat::retrieveData rev will be converted to numeric_version.
-#' @param ... reserved for future use
 #' @inheritParams calcLandInput
 #' @param scenario scenario name to be included in filenames
 #' @param harmonizationPeriod Two integer values, before the first given
@@ -20,12 +19,10 @@
 #' @param progress boolean defining whether progress should be printed
 #'
 #' @author Pascal Sauer, Jan Philipp Dietrich
-fullESM <- function(rev = numeric_version("0"), ..., input = "magpie", scenario = "",
+fullESM <- function(rev = numeric_version("0"), input = "magpie", scenario = "",
                     harmonizationPeriod = c(2015, 2050), yearsSubset = 2015:2100,
                     harmonization = "fade", downscaling = "magpieClassic",
                     compression = 2, progress = TRUE) {
-  stopifnot(...length() == 0)
-
   revision <- if (identical(rev, numeric_version("0"))) format(Sys.time(), "%Y-%m-%d") else rev
 
   fileSuffix <- paste0("_input4MIPs_landState_RESCUE_PIK-MAgPIE-4-7-",
