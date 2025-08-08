@@ -129,6 +129,9 @@ calcLandInput <- function(input) { # before adding args, consider: many function
     expectedCategories <- c("primf", "secdf", "pltns", "primn", "secdn", "pastr",
                             "c3ann_irrigated", "c3ann_rainfed", "c4per", "rest")
     primf <- "primf"
+  } else if (input == "coffee") {
+    x <- readSource("COFFEE")
+    browser()
   } else {
     stop("Unsupported input type \"", input, "\"")
   }
