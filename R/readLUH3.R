@@ -17,7 +17,7 @@ readLUH3 <- function(subtype, subset) {
     return(list(x = cellArea, class = "SpatRaster", cache = FALSE, unit = "km2"))
   }
 
-  years <- subset
+  years <- intersect(subset, 850:2024)
 
   readLayers <- function(nc, variables, years) {
     yearIndizes <- years - 849 # LUH data starts in 850
