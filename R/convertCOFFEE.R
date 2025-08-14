@@ -1,4 +1,7 @@
-convertCOFFEE <- function(x) {
+convertCOFFEE <- function(x, subtype = "data") {
+  if (subtype != "data") {
+    stop("for subtype != data pass convert = FALSE")
+  }
   columns <- c("Model", "Scenario", "Region", "Variable", "Unit")
   stopifnot(colnames(x) %in% columns | startsWith(colnames(x), "X"))
   x$Year <- NA

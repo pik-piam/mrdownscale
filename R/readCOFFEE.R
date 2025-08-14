@@ -5,6 +5,17 @@ readCOFFEE <- function(subtype = "data") {
                 class = "data.frame",
                 unit = paste(unique(x$Unit), collapse = ", "),
                 description = "COFFEE data"))
+  } else if (subtype == "regionMapping") {
+    mapping <- utils::read.csv("COFFEE Regional Definition.csv")
+    mapping <- mapping[, c("Native.Region.Code", "ISO.Code")]
+    mapping <- rbind(mapping, c("CA", "CUW"))
+    regions <- unique(mapping$Native.Region.Code)
+    addId <- data.frame(Native.Region.Code = regions, lowRes = paste0(regions, ".", seq_along(regions)))
+    mapping <- merge(mapping, addId, "Native.Region.Code")
+
+    return(list(x = mapping,
+                class = "data.frame",
+                description = "COFFEE resolution mapping"))
   } else {
     stop("Unexpected subtype, only data is accepted")
   }

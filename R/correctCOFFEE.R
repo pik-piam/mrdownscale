@@ -1,4 +1,7 @@
-correctCOFFEE <- function(x) {
+correctCOFFEE <- function(x, subtype = "data") {
+  if (subtype != "data") {
+    stop("for subtype != data pass convert = FALSE")
+  }
   if (all(is.na(x[1, ]) | x[1, ] == "")) {
     x <- x[-1, ]
     rownames(x) <- seq_len(nrow(x))

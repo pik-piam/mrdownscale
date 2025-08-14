@@ -10,11 +10,15 @@
 #'
 #' @inheritParams calcLandInput
 #' @param target character, the target dataset
-#' @return a list including a data.frame with columns x, y, lowRes, countrycode
+#' @return a list including a data.frame with columns x, y, lowRes, country
 #'
 #' @author Pascal Sauer
 calcResolutionMapping <- function(input, target) {
-  targetGrid <- calcOutput("LandTarget", target = target, aggregate = FALSE)
+  if (target == "luh3") {
+    targetGrid <- readSource("LUH3", subtype = "states", subset = 2000)
+  } else {
+    targetGrid <- calcOutput("LandTarget", target = target, aggregate = FALSE)
+  }
 
   if (input == "magpie") {
     clustermap <- readSource("MagpieFulldataGdx", subtype = "clustermap")
@@ -32,6 +36,15 @@ calcResolutionMapping <- function(input, target) {
   } else if (input == "witch") {
     mapping <- readSource("WITCH", subtype = "resolutionMapping")
     mapping <- mapping[, setdiff(colnames(mapping), "witch17")]
+  } else if (input == "coffee") {
+    mapping <- readSource("COFFEE", subtype = "regionMapping", convert = FALSE)
+
+    magpie <- calcOutput("ResolutionMapping", input = "magpie", target = target, aggregate = FALSE)
+    magpie <- magpie[, setdiff(colnames(magpie), c("region", "lowRes"))]
+
+    mapping <- merge(magpie, mapping, by.x = "country", by.y = "ISO.Code")
+    mapping$region <- mapping$Native.Region.Code
+    mapping$Native.Region.Code <- NULL
   } else {
     stop("Unsupported input type \"", input, "\"")
   }
@@ -49,5 +62,5 @@ calcResolutionMapping <- function(input, target) {
   return(list(x = mapping,
               class = "data.frame",
               unit = NA,
-              description = "mapping of high to low resolution and countrycode"))
+              description = "mapping of high to low resolution and country"))
 }
