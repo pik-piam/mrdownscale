@@ -91,11 +91,11 @@ calcLandInput <- function(input) { # before adding args, consider: many function
     names(dimnames(out))[1] <- "region.id"
 
     if (anyNA(out)) {
-      warning("NAs detected, replacing with 0.")
+      toolStatusMessage("warn", "NAs detected, replacing with 0.")
       out[is.na(out)] <- 0
     }
     if (min(out) < 0) {
-      warning("Negative values detected, replacing with 0.")
+      toolStatusMessage("warn", "Negative values detected, replacing with 0.")
       # this leads to sum of shares > 1, scaling below won't be needed once this is fixed
       out[out < 0] <- 0
     }
@@ -112,7 +112,7 @@ calcLandInput <- function(input) { # before adding args, consider: many function
 
     shareTotal <- dimSums(out, 3)
     if (max(shareTotal - 1) > 10^-10) {
-      warning("Scaling land so that land share sum is equal to 1.")
+      toolStatusMessage("warn", "Scaling land so that land share sum is equal to 1.")
       shareTotal[shareTotal < 1] <- 1
       out <- out / shareTotal
     }
@@ -131,7 +131,40 @@ calcLandInput <- function(input) { # before adding args, consider: many function
     primf <- "primf"
   } else if (input == "coffee") {
     x <- readSource("COFFEE")
-    browser()
+
+    stopifnot(length(unique(x$Model)) == 1,
+              length(unique(x$Scenario)) == 1,
+              "World" %in% x$Region,
+              x$Unit == "Mha")
+
+    if (min(x$Value) < 0) {
+      toolStatusMessage("warn", "Negative values detected, replacing with 0.")
+      negative <- x[x$Value < 0, ]
+      print(utils::head(negative[order(negative$Value), ], n = 5))
+      x$Value[x$Value < 0] <- 0
+    }
+
+    x <- x[x$Region != "World", ]
+
+    x <- x[, c("Region", "Year", "Variable", "Value")]
+    out <- as.magpie(x, spatial = "Region", temporal = "Year")
+
+    # add artificial region numbers/ids as these are expected later
+    mapping <- readSource("COFFEE", subtype = "regionMapping", convert = FALSE)
+    out <- toolAggregate(out, unique(mapping[, c("Native.Region.Code", "lowRes")]))
+    names(dimnames(out)) <- c("region.id", "year", "data")
+
+    refmap <- toolGetMapping("referenceMappings/coffee.csv", where = "mrdownscale")
+    vars <- setdiff(unique(refmap$data), "rest")
+    # TODO add 10% to Land Cover as hotfix so it is larger than sum of the other Variables
+    rest <- magclass::setNames(1.1 * out[, , "Land Cover"] - dimSums(out[, , vars], 3), "rest")
+    stopifnot(rest >= 0)
+    out <- mbind(out, rest)
+
+    out <- out[, , unique(refmap$data)]
+
+    expectedCategories <- unique(refmap$data)
+    primf <- "Land Cover|Forest|Primary"
   } else {
     stop("Unsupported input type \"", input, "\"")
   }
