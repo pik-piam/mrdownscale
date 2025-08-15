@@ -12,7 +12,7 @@ calcResolutionMapping(input, target)
 \item{target}{character, the target dataset}
 }
 \value{
-a list including a data.frame with columns x, y, lowRes, countrycode
+a list including a data.frame with columns x, y, lowRes, country
 }
 \description{
 Calculate a complete mapping from low (input dataset, clusters/countries/regions)
