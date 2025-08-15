@@ -11,6 +11,7 @@ convertCOFFEE <- function(x, subtype = "data") {
     colnames(a)[ncol(a)] <- "Value"
     return(a)
   }))
+  x$Variable <- gsub("[ |]", "_", x$Variable)
   return(list(x = x,
               class = "data.frame",
               unit = paste(unique(x$Unit), collapse = ", "),

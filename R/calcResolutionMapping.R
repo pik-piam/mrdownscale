@@ -42,9 +42,7 @@ calcResolutionMapping <- function(input, target) {
     magpie <- calcOutput("ResolutionMapping", input = "magpie", target = target, aggregate = FALSE)
     magpie <- magpie[, setdiff(colnames(magpie), c("region", "lowRes"))]
 
-    mapping <- merge(magpie, mapping, by.x = "country", by.y = "ISO.Code")
-    mapping$region <- mapping$Native.Region.Code
-    mapping$Native.Region.Code <- NULL
+    mapping <- merge(magpie, mapping, by = "country")
   } else {
     stop("Unsupported input type \"", input, "\"")
   }

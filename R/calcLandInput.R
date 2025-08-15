@@ -151,20 +151,20 @@ calcLandInput <- function(input) { # before adding args, consider: many function
 
     # add artificial region numbers/ids as these are expected later
     mapping <- readSource("COFFEE", subtype = "regionMapping", convert = FALSE)
-    out <- toolAggregate(out, unique(mapping[, c("Native.Region.Code", "lowRes")]))
+    out <- toolAggregate(out, unique(mapping[, c("region", "lowRes")]))
     names(dimnames(out)) <- c("region.id", "year", "data")
 
     refmap <- toolGetMapping("referenceMappings/coffee.csv", where = "mrdownscale")
     vars <- setdiff(unique(refmap$data), "rest")
     # TODO add 10% to Land Cover as hotfix so it is larger than sum of the other Variables
-    rest <- magclass::setNames(1.1 * out[, , "Land Cover"] - dimSums(out[, , vars], 3), "rest")
+    rest <- magclass::setNames(1.1 * out[, , "Land_Cover"] - dimSums(out[, , vars], 3), "rest")
     stopifnot(rest >= 0)
     out <- mbind(out, rest)
 
     out <- out[, , unique(refmap$data)]
 
     expectedCategories <- unique(refmap$data)
-    primf <- "Land Cover|Forest|Primary"
+    primf <- "Land_Cover_Forest_Primary"
   } else {
     stop("Unsupported input type \"", input, "\"")
   }

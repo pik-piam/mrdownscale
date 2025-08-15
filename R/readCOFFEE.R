@@ -8,10 +8,11 @@ readCOFFEE <- function(subtype = "data") {
   } else if (subtype == "regionMapping") {
     mapping <- utils::read.csv("COFFEE Regional Definition.csv")
     mapping <- mapping[, c("Native.Region.Code", "ISO.Code")]
+    colnames(mapping) <- c("region", "country")
     mapping <- rbind(mapping, c("CA", "CUW"))
-    regions <- unique(mapping$Native.Region.Code)
-    addId <- data.frame(Native.Region.Code = regions, lowRes = paste0(regions, ".", seq_along(regions)))
-    mapping <- merge(mapping, addId, "Native.Region.Code")
+    regions <- unique(mapping$region)
+    addId <- data.frame(region = regions, lowRes = paste0(regions, ".", seq_along(regions)))
+    mapping <- merge(mapping, addId, "region")
 
     return(list(x = mapping,
                 class = "data.frame",
