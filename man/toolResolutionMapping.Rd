@@ -12,7 +12,7 @@ toolResolutionMapping(mapping, targetGrid)
 \item{targetGrid}{a terra SpatRaster with the target resolution}
 }
 \value{
-a data.frame with columns x, y, lowRes, countrycode
+a data.frame with columns x, y, lowRes, country
 }
 \description{
 See description of \code{\link{calcResolutionMapping}}. Here we are
