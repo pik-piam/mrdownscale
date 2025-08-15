@@ -5,7 +5,7 @@
 #'
 #' @param mapping a data.frame with columns x, y, lowRes
 #' @param targetGrid a terra SpatRaster with the target resolution
-#' @return a data.frame with columns x, y, lowRes, countrycode
+#' @return a data.frame with columns x, y, lowRes, country
 #'
 #' @author Pascal Sauer
 #' @export

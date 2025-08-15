@@ -91,11 +91,11 @@ calcLandInput <- function(input) { # before adding args, consider: many function
     names(dimnames(out))[1] <- "region.id"
 
     if (anyNA(out)) {
-      warning("NAs detected, replacing with 0.")
+      toolStatusMessage("warn", "NAs detected, replacing with 0.")
       out[is.na(out)] <- 0
     }
     if (min(out) < 0) {
-      warning("Negative values detected, replacing with 0.")
+      toolStatusMessage("warn", "Negative values detected, replacing with 0.")
       # this leads to sum of shares > 1, scaling below won't be needed once this is fixed
       out[out < 0] <- 0
     }
@@ -112,7 +112,7 @@ calcLandInput <- function(input) { # before adding args, consider: many function
 
     shareTotal <- dimSums(out, 3)
     if (max(shareTotal - 1) > 10^-10) {
-      warning("Scaling land so that land share sum is equal to 1.")
+      toolStatusMessage("warn", "Scaling land so that land share sum is equal to 1.")
       shareTotal[shareTotal < 1] <- 1
       out <- out / shareTotal
     }

@@ -10,11 +10,15 @@
 #'
 #' @inheritParams calcLandInput
 #' @param target character, the target dataset
-#' @return a list including a data.frame with columns x, y, lowRes, countrycode
+#' @return a list including a data.frame with columns x, y, lowRes, country
 #'
 #' @author Pascal Sauer
 calcResolutionMapping <- function(input, target) {
-  targetGrid <- calcOutput("LandTarget", target = target, aggregate = FALSE)
+  if (target == "luh3") {
+    targetGrid <- readSource("LUH3", subtype = "states", subset = 2000)
+  } else {
+    targetGrid <- calcOutput("LandTarget", target = target, aggregate = FALSE)
+  }
 
   if (input == "magpie") {
     clustermap <- readSource("MagpieFulldataGdx", subtype = "clustermap")
@@ -49,5 +53,5 @@ calcResolutionMapping <- function(input, target) {
   return(list(x = mapping,
               class = "data.frame",
               unit = NA,
-              description = "mapping of high to low resolution and countrycode"))
+              description = "mapping of high to low resolution and country"))
 }
