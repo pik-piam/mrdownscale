@@ -4,7 +4,7 @@
 \name{mrdownscale-package}
 \alias{mrdownscale}
 \alias{mrdownscale-package}
-\title{mrdownscale: Downscale and harmonize land use data using high resolution reference data}
+\title{mrdownscale: Downscale and harmonize land use data}
 \description{
 Downscale and harmonize land use data (e.g. MAgPIE or WITCH) using high resolution reference data (e.g. LUH2v2h or LUH3).
 }
