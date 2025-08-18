@@ -1,7 +1,6 @@
 Type: Package
 Package: mrdownscale
-Title: Downscale and harmonize land use data using high resolution
-    reference data
+Title: Downscale and harmonize land use data
 Version: 0.41.2
 Date: 2025-08-15
 Authors@R: c(
