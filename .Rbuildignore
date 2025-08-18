@@ -15,4 +15,4 @@
 ^doc$
 ^Meta$
 ^vignettes/.lintr$
-^COPYING.LESSER$
+^LICENSE\.md$

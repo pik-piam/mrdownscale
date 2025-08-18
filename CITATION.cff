@@ -17,7 +17,7 @@ authors:
   email: dietrich@pik-potsdam.de
   orcid: https://orcid.org/0000-0002-4309-6431
   affiliation: Potsdam Institute for Climate Impact Research
-license: LGPL-3.0
+license: LGPL (>= 3)
 repository-code: https://github.com/pik-piam/mrdownscale
 doi: 10.5281/zenodo.11244475
 
