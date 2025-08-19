@@ -36,6 +36,13 @@ calcResolutionMapping <- function(input, target) {
   } else if (input == "witch") {
     mapping <- readSource("WITCH", subtype = "resolutionMapping")
     mapping <- mapping[, setdiff(colnames(mapping), "witch17")]
+  } else if (input == "coffee") {
+    mapping <- readSource("COFFEE", subtype = "regionMapping", convert = FALSE)
+
+    magpie <- calcOutput("ResolutionMapping", input = "magpie", target = target, aggregate = FALSE)
+    magpie <- magpie[, setdiff(colnames(magpie), c("region", "lowRes"))]
+
+    mapping <- merge(magpie, mapping, by = "country")
   } else {
     stop("Unsupported input type \"", input, "\"")
   }

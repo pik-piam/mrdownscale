@@ -1,0 +1,19 @@
+convertCOFFEE <- function(x, subtype = "data") {
+  if (subtype != "data") {
+    stop("for subtype != data pass convert = FALSE")
+  }
+  columns <- c("Model", "Scenario", "Region", "Variable", "Unit")
+  stopifnot(colnames(x) %in% columns | startsWith(colnames(x), "X"))
+  x$Year <- NA
+  x <- Reduce(rbind, lapply(grep("^X", colnames(x), value = TRUE), function(year) {
+    a <- x[, c(columns, "Year", year)]
+    a$Year <- as.integer(sub("^X", "", year))
+    colnames(a)[ncol(a)] <- "Value"
+    return(a)
+  }))
+  x$Variable <- gsub("[ |]", "_", x$Variable)
+  return(list(x = x,
+              class = "data.frame",
+              unit = paste(unique(x$Unit), collapse = ", "),
+              description = "COFFEE data"))
+}
