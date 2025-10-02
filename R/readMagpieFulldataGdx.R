@@ -41,7 +41,7 @@ readMagpieFulldataGdx <- function(subtype) {
     description <- "wood harvest area separated by source and age classes"
   } else if (subtype == "fertilizer") {
     x <- magpie4::NitrogenBudget(gdx, level = "cell", cropTypes = TRUE,
-                                 threshold = 0.001, progress = FALSE)
+                                 threshold = 0.005, progress = FALSE)
     x <- collapseDim(x[, , "fertilizer"])
     getSets(x) <- c("region", "id", "year", "data")
     unit <- "Tg yr-1"
