@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: If you use this software, please cite it using the metadata from this file.
 type: software
 title: 'mrdownscale: Downscale and harmonize land use data'
-version: 0.41.4
+version: 0.41.5
 date-released: '2025-10-02'
 abstract: Downscale and harmonize land use data (e.g. MAgPIE or WITCH) using high
   resolution reference data (e.g. LUH2v2h or LUH3).
