@@ -21,7 +21,7 @@
 #' @param target name of the land target source to be used
 #' @author Jan Philipp Dietrich, Pascal Sauer
 calcLandInputRecategorized <- function(input, target) {
-  x   <- calcOutput("LandInput", input = input, aggregate = FALSE)
+  x <- calcOutput("LandInput", input = input, aggregate = FALSE)
 
   resolutionMapping <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
   x <- x[unique(resolutionMapping$lowRes), , ]
@@ -52,7 +52,7 @@ calcLandInputRecategorized <- function(input, target) {
 
   # magpie has other land instead of primn and secdn
   # category remapping does not take into account that primn cannot expand, so redistribute
-  if (input == "magpie") {
+  if (input == "magpie" && "primn" %in% getItems(out, 3)) {
     # if totaln shrinks, shrink primn and secdn according to their proportions in the previous timestep
     # if totaln expands, expand only secdn, primn stays constant
     totaln <- dimSums(out[, , c("primn", "secdn")], 3)
