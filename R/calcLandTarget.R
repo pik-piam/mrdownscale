@@ -110,7 +110,7 @@ calcLandTarget <- function(target) {
     out <- toolReplaceExpansion(out, "primf", "secdf")
     out <- as.SpatRaster(out)
 
-    expectedCategories <- c("crop", "past", "pltns", "primf", "secdf", "urban",  "other")
+    expectedCategories <- c("crop", "past", "forestry", "primf", "secdf", "urban",  "other")
   } else if (target == "landuseinitchina") {
     out <- readSource("LanduseInit")
     chinaCrops <- readSource("ChinaCrops")
@@ -131,7 +131,7 @@ calcLandTarget <- function(target) {
     out <- toolReplaceExpansion(out, "primf", "secdf")
     out <- as.SpatRaster(out)
 
-    expectedCategories <- c("past", "pltns", "primforest", "secdforest", "urban", "other",
+    expectedCategories <- c("past", "forestry", "primforest", "secdforest", "urban", "other",
                             "rice_pro", "tece", "maiz", "other_crop")
   } else {
     stop("Unsupported output type \"", target, "\"")
