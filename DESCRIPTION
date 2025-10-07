@@ -1,7 +1,7 @@
 Type: Package
 Package: mrdownscale
 Title: Downscale and harmonize land use data
-Version: 0.41.6
+Version: 0.41.6.9001
 Date: 2025-10-06
 Authors@R: c(
     person("Pascal", "Sauer", , "pascal.sauer@pik-potsdam.de", role = c("aut", "cre"),

@@ -18,11 +18,12 @@
 fullDOWNSCALEDMAGPIE <- function(rev = numeric_version("0"),
                                  harmonizationPeriod = c(2015, 2050), target = "landuseinit",
                                  downscaling = "magpieClassic", harmonization = "fade") {
-  calcOutput("LandHighRes", input = "magpie", target = target,
+  stopifnot(target == "landuseinit") # LandReport has landuseinit hardcoded
+
+  calcOutput("LandReport", outputFormat = "downscaledmagpie", input = "magpie",
              harmonizationPeriod = harmonizationPeriod, yearsSubset = seq(1995, 2100, 5),
-             downscaling = downscaling, harmonization = harmonization,
-             aggregate = FALSE,
-             file = "downscaledMAgPIE0.5.mz")
+             harmonization = harmonization, downscaling = downscaling,
+             aggregate = FALSE, file = "cell.land_0.5.mz")
 
   toolWriteMadratLog(logPath = "consistencyCheck.log")
 }

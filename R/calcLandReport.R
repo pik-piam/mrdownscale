@@ -2,7 +2,7 @@
 #'
 #' Convert the downscaled land use data to the format required by the given project.
 #'
-#' @param outputFormat format in which the outputs should be prepared. Options: ESM, ScenarioMIP
+#' @param outputFormat format in which the outputs should be prepared. Options: ESM, ScenarioMIP, downscaledmagpie
 #' @inheritParams calcLandInput
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
@@ -71,6 +71,35 @@ calcLandReport <- function(outputFormat, input, harmonizationPeriod, yearsSubset
                 min = report$min,
                 max = report$max,
                 description = report$description))
+  } else if (outputFormat == "downscaledmagpie") {
+    target <- "landuseinit"
+    x <- calcOutput("LandHighRes", input = input, target = target,
+                    harmonizationPeriod = harmonizationPeriod, yearsSubset = seq(1995, 2100, 5),
+                    downscaling = downscaling, harmonization = harmonization, aggregate = FALSE)
+
+    # add iso
+    mapping <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
+    stopifnot(all(getItems(x, 1) %in% mapping$cell))
+    mapping <- mapping[match(getItems(x, 1), mapping$cell), c("cell", "country")]
+    getItems(x, 1, raw = TRUE) <- paste0(mapping$cell, ".", mapping$country)
+    names(dimnames(x))[1] <- "x.y.iso"
+
+    # rename primf/secdf to primforest/secdforest
+    getItems(x, 3) <- sub("primf", "primforest", getItems(x, 3))
+    getItems(x, 3) <- sub("secdf", "secdforest", getItems(x, 3))
+
+    # original unchanged LanduseInit 1995 -> 1985 in output
+    x <- mbind(setYears(readSource("LanduseInit")[, 1995, ],
+                        1985),
+               x)
+
+    return(list(x = x,
+                isocountries = FALSE,
+                unit = "Mha",
+                min = 0,
+                max = 1,
+                description = paste0("MAgPIE data harmonized and downscaled using landuseinit as reference ",
+                                     "for further processing in magpie4")))
   } else {
     stop("Can only report for outputFormat = ESM/ScenarioMIP")
   }
