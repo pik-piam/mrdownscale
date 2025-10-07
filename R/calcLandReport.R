@@ -82,7 +82,8 @@ calcLandReport <- function(outputFormat, input, harmonizationPeriod, yearsSubset
     stopifnot(all(getItems(x, 1) %in% mapping$cell))
     mapping <- mapping[match(getItems(x, 1), mapping$cell), c("cell", "country")]
     getItems(x, 1, raw = TRUE) <- paste0(mapping$cell, ".", mapping$country)
-    names(dimnames(x))[1] <- "x.y.iso"
+
+    names(dimnames(x)) <- c("x.y.iso", "year", "data")
 
     # rename primf/secdf to primforest/secdforest
     getItems(x, 3) <- sub("primf", "primforest", getItems(x, 3))
