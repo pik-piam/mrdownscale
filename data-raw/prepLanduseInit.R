@@ -1,3 +1,4 @@
+# run this on PIK HPC in the LanduseInit madrat source folder
 withr::with_package("mrmagpie", {
   x <- calcOutput("LanduseInitialisation", nclasses = "seven",
                   aggregate = FALSE, cellular = TRUE, cells = "lpjcell",
