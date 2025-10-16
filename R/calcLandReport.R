@@ -83,7 +83,6 @@ calcLandReport <- function(outputFormat, input, harmonizationPeriod, yearsSubset
     mapping <- mapping[match(getItems(x, 1), mapping$cell), c("cell", "country")]
     getItems(x, 1, raw = TRUE) <- paste0(mapping$cell, ".", mapping$country)
 
-    names(dimnames(x)) <- c("x.y.iso", "year", "data")
 
     # rename primf/secdf to primforest/secdforest
     getItems(x, 3) <- sub("primf", "primforest", getItems(x, 3))
@@ -93,6 +92,8 @@ calcLandReport <- function(outputFormat, input, harmonizationPeriod, yearsSubset
     x <- mbind(setYears(readSource("LanduseInit")[, 1995, ],
                         1985),
                x)
+
+    names(dimnames(x)) <- c("x.y.iso", "year", "data")
 
     return(list(x = x,
                 isocountries = FALSE,
