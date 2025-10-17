@@ -18,8 +18,11 @@
 fullDOWNSCALEDMAGPIE <- function(rev = numeric_version("0"),
                                  harmonizationPeriod = c(2015, 2050), target = "landuseinit",
                                  downscaling = "magpieClassic", harmonization = "fade") {
-  stopifnot(target == "landuseinit") # LandReport has landuseinit hardcoded
+  if (target != "landuseinit") {
+    stop("currently only target = landuseinit is supported")
+  }
 
+  # LandReport with outputFormat = downscaledmagpie assumes target = landuseinit
   calcOutput("LandReport", outputFormat = "downscaledmagpie", input = "magpie",
              harmonizationPeriod = harmonizationPeriod, yearsSubset = seq(1995, 2100, 5),
              harmonization = harmonization, downscaling = downscaling,
