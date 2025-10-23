@@ -14,7 +14,7 @@ calcLandReport(
 )
 }
 \arguments{
-\item{outputFormat}{format in which the outputs should be prepared. Options: ESM, ScenarioMIP}
+\item{outputFormat}{format in which the outputs should be prepared. Options: ESM, ScenarioMIP, downscaledmagpie}
 
 \item{input}{name of an input dataset, options: "magpie", "witch"}
 

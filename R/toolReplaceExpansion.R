@@ -17,6 +17,7 @@
 #' @param level passed to toolStatusMessage
 #' @return a magpie object with expansion of 'from' replaced by 'to'
 #' @author Pascal Sauer
+#' @export
 toolReplaceExpansion <- function(x, from, to, ..., noteThreshold = 10^-10, warnThreshold = 10^-5, level = 1) {
   if (!from %in% getItems(x, dim = 3)) {
     return(x)
