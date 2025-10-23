@@ -106,7 +106,7 @@ toolTransitionsBasic <- function(x, gross = FALSE) {
     opt2 <- setItems(grossOptions[, 1:(dim(grossOptions)[2] - 1), ], dim = 2, years)[, , getItems(opt1, dim = 3)]
     opt3 <- setItems(opt1, dim = 3, invItems, raw = TRUE)[, , getItems(opt1, dim = 3)]
     opt4 <- setItems(opt2, dim = 3, invItems, raw = TRUE)[, , getItems(opt1, dim = 3)]
-    gross <- mpmin(opt1, opt2, opt3, opt4)
+    gross <- pmin(opt1, opt2, opt3, opt4)
     out[, , getItems(gross, dim = 3)] <- out[, , getItems(opt1, dim = 3)] + gross
   }
 
