@@ -18,6 +18,12 @@
 #' 1 = fastest, 9 = best compression
 #' @param progress boolean defining whether progress should be printed
 #'
+#' @examples
+#' \dontrun{
+#'   retrieveData("SCENARIOMIP", input = "coffee", harmonization = "fade",
+#'                downscaling = "magpieClassic",
+#'                harmonizationPeriod = c(2020, 2050), puc = FALSE)
+#' }
 #' @author Pascal Sauer
 fullSCENARIOMIP <- function(rev = numeric_version("0"), input = "magpie", scenario = "",
                             harmonizationPeriod = c(2020, 2050),
