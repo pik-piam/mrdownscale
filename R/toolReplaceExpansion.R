@@ -32,8 +32,8 @@ toolReplaceExpansion <- function(x, from, to, ..., noteThreshold = 10^-10, warnT
     difference <- x[, i, from] - setYears(x[, i - 1, from], getYears(x)[i])
     difference[difference < 0] <- 0
     maxDiff <- max(maxDiff, max(difference))
-    # use mpmin instead of subtracting to avoid tiny expansions due to numerical imprecision
-    x[, i, from] <- mpmin(x[, i, from], setYears(x[, i - 1, from], getYears(x)[i]))
+    # use pmin instead of subtracting to avoid tiny expansions due to numerical imprecision
+    x[, i, from] <- pmin(x[, i, from], setYears(x[, i - 1, from], getYears(x)[i]))
     x[, i, to] <- x[, i, to] + magclass::setNames(difference, to)
   }
 
