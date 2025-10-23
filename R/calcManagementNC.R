@@ -51,19 +51,16 @@ calcManagementNC <- function(outputFormat, input, harmonizationPeriod, yearsSubs
   x <- setYears(x, getYears(x, as.integer = TRUE) - 1970)
 
   if (outputFormat == "ScenarioMIP") {
+    unit <- "1"
+    expectedVariables <- c("irrig_c3ann", "irrig_c3per", "irrig_c4ann", "irrig_c4per", "irrig_c3nfx",
+                           "cpbf1_c3ann", "cpbf1_c4ann", "cpbf1_c3per", "cpbf1_c4per", "cpbf1_c3nfx",
+                           "cpbf2_c3per", "cpbf2_c4per")
     if (input == "magpie") {
-      expectedVariables <- c("irrig_c3ann", "irrig_c3per", "irrig_c4ann", "irrig_c4per", "irrig_c3nfx",
+      expectedVariables <- c(expectedVariables,
                              "fertl_c3ann", "fertl_c4ann", "fertl_c3per", "fertl_c4per", "fertl_c3nfx",
-                             "cpbf1_c3ann", "cpbf1_c4ann", "cpbf1_c3per", "cpbf1_c4per", "cpbf1_c3nfx",
-                             "cpbf2_c3per", "cpbf2_c4per",
                              "rndwd", "fulwd",
                              "pltns_wdprd", "pltns_bfuel")
       unit <- "1, except fertl: kg ha-1 yr-1"
-    } else if (input == "witch") {
-      expectedVariables <- c("irrig_c3ann", "irrig_c3per", "irrig_c4ann", "irrig_c4per", "irrig_c3nfx",
-                             "cpbf1_c3ann", "cpbf1_c4ann", "cpbf1_c3per", "cpbf1_c4per", "cpbf1_c3nfx",
-                             "cpbf2_c3per", "cpbf2_c4per")
-      unit <- "1"
     }
 
     toolExpectTrue(setequal(getItems(x, 3), expectedVariables), "variable names are as expected")
