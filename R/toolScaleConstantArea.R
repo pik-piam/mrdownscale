@@ -9,7 +9,9 @@
 #' @param warnThreshold if the maximum difference between the scaled and the
 #' original data is greater than this, a warning is triggered
 #' @return x scaled
+#'
 #' @author Pascal Sauer
+#' @export
 toolScaleConstantArea <- function(x, ..., noteThreshold = 10^-10, warnThreshold = 10^-5) {
   stopifnot(nyears(x) >= 2, ...length() == 0, noteThreshold <= warnThreshold)
 
