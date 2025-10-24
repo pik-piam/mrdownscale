@@ -43,7 +43,8 @@ toolReplaceExpansion <- function(x, from, to, ..., noteThreshold = 10^-10, warnT
   }
 
   if (maxDiff > noteThreshold) {
-    toolStatusMessage("note", paste("replaced", from, "expansion with", to, "expansion"), level = level)
+    toolStatusMessage("note", paste0("replaced ", from, " expansion (max expansion: ", signif(maxDiff, 3), ") with ",
+                                     to, " expansion"), level = level)
   }
 
   return(x)
