@@ -84,7 +84,7 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   biohRenamed <- x[, , "bioh"]
   getItems(biohRenamed, 3.1) <- sub("bioh", "wood_harvest_area", getItems(biohRenamed, 3.1))
   problematic <- x[, , "wood_harvest_area"] > 0 & biohRenamed == 0
-  stopifnot(setequalDims(x[, , "wood_harvest_area"], problematic))
+  stopifnot(sameDims(x[, , "wood_harvest_area"], problematic))
   if (any(problematic)) {
     maxWha <- max(x[, , "wood_harvest_area"][problematic])
     toolStatusMessage(if (maxWha > 10^-10) "warn" else "note",
@@ -97,7 +97,7 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   whaRenamed <- x[, , "wood_harvest_area"]
   getItems(whaRenamed, 3.1) <- sub("wood_harvest_area", "bioh", getItems(whaRenamed, 3.1))
   problematic <- x[, , "bioh"] > 0 & whaRenamed == 0
-  stopifnot(setequalDims(x[, , "bioh"], problematic))
+  stopifnot(sameDims(x[, , "bioh"], problematic))
   if (any(problematic)) {
     maxBioh <- max(x[, , "bioh"][problematic])
     toolStatusMessage(if (maxBioh > 1) "warn" else "note",

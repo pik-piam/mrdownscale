@@ -9,7 +9,9 @@
 #' @param warnThreshold if the maximum difference between the scaled and the
 #' original data is greater than this, a warning is triggered
 #' @return x scaled
+#'
 #' @author Pascal Sauer
+#' @export
 toolScaleConstantArea <- function(x, ..., noteThreshold = 10^-10, warnThreshold = 10^-5) {
   stopifnot(nyears(x) >= 2, ...length() == 0, noteThreshold <= warnThreshold)
 
@@ -28,8 +30,8 @@ toolScaleConstantArea <- function(x, ..., noteThreshold = 10^-10, warnThreshold 
 
   if (maxDiff > noteThreshold) {
     toolStatusMessage("note", paste0("area was scaled to make it constant over time ",
-                                     "(min factor: ", round(min(scalingFactor), 2),
-                                     ", max factor: ", round(max(scalingFactor), 2), ")"), level = 1)
+                                     "(min factor: 1-", signif(1 - min(scalingFactor), 3),
+                                     ", max factor: 1+", signif(max(scalingFactor) - 1, 3), ")"), level = 1)
   }
 
   return(scaledX)
