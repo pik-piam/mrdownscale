@@ -14,6 +14,55 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(mrdownscale)
+## starting point
+You have regional (i.e non-gridded) land use data produced by integrated assessment
+model (we use "yourmodel" as placeholder name here) that should be harmonized and
+downscaled. This requires a high resolution reference/target dataset, currently
+LUH3, LUH2v2h, and landuseinit (MAgPIE initialization data) are available.
+
+It is assumed that data from yourmodel was not processed in mrdownscale
+before (currently MAgPIE, WITCH, COFFEE are already supported). This tutorial does
+not cover harmonization or downscaling of nonland variables like fertilizer, even
+though mrdownscale is capable of handling those (implemented for MAgPIE).
+
+## requirements/preparation
+- dataset file (in a format R can read)
+- region mapping (from country/gridcell to region)
+- install R: https://cran.rstudio.com/
+
+```{r, echo = TRUE, eval = FALSE}
+options(repos = c(runiverse = "https://pik-piam.r-universe.dev",
+                  CRAN = "https://cran.rstudio.com/"))
+install.packages(c("mrdownscale", "pkgload"))
+```
+
+## integrating into mrdownscale
+see the following PR how this looked like for COFFEE
+https://github.com/pik-piam/mrdownscale/pull/38
+
+### reference mapping
+create map from non-overlapping land variable names to fine reference variables
+link to other documentation that explains how category remapping works
+
+### read/correct/convert
+reference madrat vignette
+read in data
+
+### calcLandInput
+ensure values >= 0, not NA/missing
+ensure non-overlapping categories
+ensure total area is constant over time (might need to add "rest" variable)
+convert to magclass
+variable names must match those in reference mapping
+
+### calcResolutionMapping
+based on your region mapping, create mapping between regional level and target grid level
+
+### toolLandCategoriesMapping
+add yourmodel to if-else like the other models
+
+## running harmonization and downscaling
+```{r, echo = TRUE, eval = FALSE}
+calcOutput("LandHarmonized")
+retrieveData("SCENARIOMIP", input = "yourmodel")
 ```
