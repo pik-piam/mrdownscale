@@ -15,21 +15,22 @@ knitr::opts_chunk$set(
 ```
 
 ## starting point
-You have regional (i.e non-gridded) land use data produced by integrated assessment
+You have regional (i.e non-gridded) land use data produced by an integrated assessment
 model (we use "yourmodel" as placeholder name here) that should be harmonized and
-downscaled. This requires a high resolution reference/target dataset, currently
-LUH3, LUH2v2h, and landuseinit (MAgPIE initialization data) are available.
+downscaled to one of the high resolution reference/target datasets currently
+available in mrdownscale: LUH3, LUH2v2h, landuseinit (MAgPIE initialization data)
 
 It is assumed that data from yourmodel was not processed in mrdownscale
-before (currently MAgPIE, WITCH, COFFEE are already supported). This tutorial does
+before (currently MAgPIE, WITCH, COFFEE are already supported). This tutorial
+describes how to modify mrdownscale to process yourmodel data, but does
 not cover harmonization or downscaling of nonland variables like fertilizer, even
 though mrdownscale is capable of handling those (implemented for MAgPIE).
 
 ## requirements/preparation
-- dataset file (in a format R can read)
+- yourmodel dataset file (in a format R can read)
 - region mapping (from country/gridcell to region)
 - install R: https://cran.rstudio.com/
-
+- install mrdownscale incl. dependencies, pkgload for development:
 ```{r, echo = TRUE, eval = FALSE}
 options(repos = c(runiverse = "https://pik-piam.r-universe.dev",
                   CRAN = "https://cran.rstudio.com/"))
@@ -37,8 +38,17 @@ install.packages(c("mrdownscale", "pkgload"))
 ```
 
 ## integrating into mrdownscale
-see the following PR how this looked like for COFFEE
-https://github.com/pik-piam/mrdownscale/pull/38
+Currently mrdownscale itself needs to be modified to integrate a new model.
+To do so, we recommend creating a fork of the
+[mrdownscale repo](https://github.com/pik-piam/mrdownscale), then clone
+your fork to a folder on your local machine. Apply the changes explained
+in the following sections in that folder. To test your changes, always start
+a fresh R session (!) in that folder and run `pkgload::load_all()` to
+load your local mrdownscale directly from the source files.
+
+To get an overview what changes are needed check
+[this PR](https://github.com/pik-piam/mrdownscale/pull/38) which enabled
+mrdownscale to process data from the COFFEE model.
 
 ### reference mapping
 create map from non-overlapping land variable names to fine reference variables
