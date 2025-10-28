@@ -5,7 +5,7 @@
 #' @param subtype one of states, management, transitions, cellArea
 #' @return metadata list with URL, title, description, author, unit, version, release date
 #' @author Pascal Sauer
-downloadLUH3 <- function(subtype = NULL) {
+downloadLUH3 <- function(subtype) {
   baseUrl <- paste0("https://esgf-node.ornl.gov/thredds/fileServer/user_pub_work/input4MIPs/",
                     "CMIP7/CMIP/UofMD/UofMD-landState-3-1-1/land/")
   urls <- c(states = paste0(baseUrl, "yr/multiple-states/gn/v20250325/",
@@ -27,8 +27,8 @@ downloadLUH3 <- function(subtype = NULL) {
 
   return(list(url          = paste0("https://aims2.llnl.gov/search?project=input4MIPs&activeFacets=",
                                     "%7B%22institution_id%22%3A%22UofMD%22%2C%22mip_era%22%3A%22CMIP7%22%7D"),
-              title        = "LUH3 historical data",
-              description  = "LUH3 historical data from 850 to 2024.",
+              title        = paste0("LUH3 historical data ", subtype),
+              description  = paste0("LUH3 historical data ", subtype),
               author       = "Hurtt, Chini et al.",
               unit         = "1",
               version      = "3.1.1",
