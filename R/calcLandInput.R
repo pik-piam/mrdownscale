@@ -156,8 +156,13 @@ calcLandInput <- function(input) { # before adding args, consider: many function
 
     refmap <- toolGetMapping("referenceMappings/coffee.csv", where = "mrdownscale")
     vars <- setdiff(unique(refmap$data), "rest")
-    # TODO add 10% to Land Cover as hotfix so it is larger than sum of the other Variables
-    rest <- magclass::setNames(1.1 * out[, , "Land_Cover"] - dimSums(out[, , vars], 3), "rest")
+    if (any(out[, , "Land_Cover"] - dimSums(out[, , vars], 3) < 0)) {
+      warning("Land Cover is smaller than sum of other variables, ",
+              "so multiply by 1.1 until this is fixed in the input data")
+      rest <- magclass::setNames(1.1 * out[, , "Land_Cover"] - dimSums(out[, , vars], 3), "rest")
+    } else {
+      rest <- magclass::setNames(out[, , "Land_Cover"] - dimSums(out[, , vars], 3), "rest")
+    }
     stopifnot(rest >= 0)
     out <- mbind(out, rest)
 
