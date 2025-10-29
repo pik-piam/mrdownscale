@@ -17,12 +17,9 @@ knitr::opts_chunk$set(
 ## starting point
 You have regional (i.e non-gridded) land use data produced by an integrated assessment
 model (we use "yourmodel" as placeholder name here) that should be harmonized and
-downscaled to one of the high resolution reference/target datasets currently
-available in mrdownscale: LUH3, LUH2v2h, landuseinit (MAgPIE initialization data)
+downscaled using LUH3 as historical high resolution reference dataset.
 
-It is assumed that data from yourmodel was not processed in mrdownscale
-before (currently MAgPIE, WITCH, COFFEE are already supported). This tutorial
-describes how to modify mrdownscale to process yourmodel data, but does
+This tutorial describes how to modify mrdownscale to process yourmodel data, but does
 not cover harmonization or downscaling of nonland variables like fertilizer, even
 though mrdownscale is capable of handling those (implemented for MAgPIE).
 
@@ -51,11 +48,19 @@ To get an overview what changes are needed check
 mrdownscale to process data from the COFFEE model.
 
 ### reference mapping
-create map from non-overlapping land variable names to fine reference variables
-link to other documentation that explains how category remapping works
+To map from yourmodel variables to the variables of any of the supported
+target datasets a mapping from yourmodel variables to fine reference variables
+is needed. In case yourmodel variables do not cover the entire land
+area (e.g. if urban is missing) add a variable called "rest". Put your mapping
+csv file into inst/extdata/referenceMappings. In that folder look into
+coffee.csv to see how it should look like.
+For more details on how the variable mapping works check
+[this](https://github.com/pik-piam/mrdownscale/blob/main/R/calcLandInputRecategorized.R).
 
 ### read/correct/convert
-reference madrat vignette
+mrdownscale uses the madrat framework, if you want to learn more about madrat check this
+[vignette](https://pik-piam.r-universe.dev/articles/madrat/madrat.html). Reading that
+vignette should not be necessary to follow this tutorial though.
 read in data
 
 ### calcLandInput
