@@ -50,18 +50,9 @@ calcLandInputRecategorized <- function(input, target) {
     }
   }
 
-  # magpie has other land instead of primn and secdn
+  # in some cases other land is mapped to primn and secdn
   # category remapping does not take into account that primn cannot expand, so redistribute
-  if (input == "magpie" && "primn" %in% getItems(out, 3)) {
-    # if totaln shrinks, shrink primn and secdn according to their proportions in the previous timestep
-    # if totaln expands, expand only secdn, primn stays constant
-    totaln <- dimSums(out[, , c("primn", "secdn")], 3)
-    out <- toolReplaceExpansion(out, "primn", "secdn", warnThreshold = 100)
-
-    toolExpectLessDiff(dimSums(out[, , c("primn", "secdn")], 3), totaln, 10^-5,
-                       paste("No change in sum of primn and secdn after replacing",
-                             "primn expansion with secdn expansion"))
-  }
+  out <- toolReplaceExpansion(out, "primn", "secdn", warnThreshold = 100)
 
   attr(out, "crs") <- attr(x, "crs")
   attr(out, "geometry") <- attr(x, "geometry")
