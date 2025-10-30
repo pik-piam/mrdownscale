@@ -129,6 +129,47 @@ calcLandInput <- function(input) { # before adding args, consider: many function
     expectedCategories <- c("primf", "secdf", "pltns", "primn", "secdn", "pastr",
                             "c3ann_irrigated", "c3ann_rainfed", "c4per", "rest")
     primf <- "primf"
+  } else if (input == "coffee") {
+    x <- readSource("COFFEE")
+
+    stopifnot(length(unique(x$Model)) == 1,
+              length(unique(x$Scenario)) == 1,
+              "World" %in% x$Region,
+              x$Unit == "Mha")
+
+    if (min(x$Value) < 0) {
+      toolStatusMessage("warn", "Negative values detected, replacing with 0.")
+      negative <- x[x$Value < 0, ]
+      print(utils::head(negative[order(negative$Value), ], n = 5))
+      x$Value[x$Value < 0] <- 0
+    }
+
+    x <- x[x$Region != "World", ]
+
+    x <- x[, c("Region", "Year", "Variable", "Value")]
+    out <- as.magpie(x, spatial = "Region", temporal = "Year")
+
+    # add artificial region numbers/ids as these are expected later
+    mapping <- readSource("COFFEE", subtype = "regionMapping", convert = FALSE)
+    out <- toolAggregate(out, unique(mapping[, c("region", "lowRes")]))
+    names(dimnames(out)) <- c("region.id", "year", "data")
+
+    refmap <- toolGetMapping("referenceMappings/coffee.csv", where = "mrdownscale")
+    vars <- setdiff(unique(refmap$data), "rest")
+    if (any(out[, , "Land_Cover"] - dimSums(out[, , vars], 3) < 0)) {
+      warning("Land Cover is smaller than sum of other variables, ",
+              "so multiply by 1.1 until this is fixed in the input data")
+      rest <- magclass::setNames(1.1 * out[, , "Land_Cover"] - dimSums(out[, , vars], 3), "rest")
+    } else {
+      rest <- magclass::setNames(out[, , "Land_Cover"] - dimSums(out[, , vars], 3), "rest")
+    }
+    stopifnot(rest >= 0)
+    out <- mbind(out, rest)
+
+    out <- out[, , unique(refmap$data)]
+
+    expectedCategories <- unique(refmap$data)
+    primf <- "Land_Cover_Forest_Primary"
   } else {
     stop("Unsupported input type \"", input, "\"")
   }
