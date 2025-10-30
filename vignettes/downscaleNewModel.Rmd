@@ -16,15 +16,15 @@ knitr::opts_chunk$set(
 
 ## starting point
 You have regional (i.e non-gridded) land use data produced by an integrated assessment
-model (we use "yourmodel" as placeholder name here) that should be harmonized and
+model (we use "CoolNewModel" as placeholder name here) that should be harmonized and
 downscaled using LUH3 as historical high resolution reference dataset.
 
-This tutorial describes how to modify mrdownscale to process yourmodel data, but does
+This tutorial describes how to modify mrdownscale to process CoolNewModel data, but does
 not cover harmonization or downscaling of nonland variables like fertilizer, even
 though mrdownscale is capable of handling those (implemented for MAgPIE).
 
 ## requirements/preparation
-- yourmodel dataset file (in a format R can read)
+- CoolNewModel dataset file (in a format R can read)
 - region mapping (from country/gridcell to region)
 - install R: https://cran.rstudio.com/
 - install mrdownscale incl. dependencies, pkgload for development:
@@ -33,6 +33,7 @@ options(repos = c(runiverse = "https://pik-piam.r-universe.dev",
                   CRAN = "https://cran.rstudio.com/"))
 install.packages(c("mrdownscale", "pkgload"))
 ```
+- TODO: set madrat mainfolder
 
 ## integrating into mrdownscale
 Currently mrdownscale itself needs to be modified to integrate a new model.
@@ -48,20 +49,62 @@ To get an overview what changes are needed check
 mrdownscale to process data from the COFFEE model.
 
 ### reference mapping
-To map from yourmodel variables to the variables of any of the supported
-target datasets a mapping from yourmodel variables to fine reference variables
-is needed. In case yourmodel variables do not cover the entire land
-area (e.g. if urban is missing) add a variable called "rest". Put your mapping
-csv file into inst/extdata/referenceMappings. In that folder look into
-coffee.csv to see how it should look like.
-For more details on how the variable mapping works check
-[this](https://github.com/pik-piam/mrdownscale/blob/main/R/calcLandInputRecategorized.R).
+A mapping from CoolNewModel variables to fine reference variables
+is needed in order to map from CoolNewModel variables to the variables
+of any of the supported target datasets. In case CoolNewModel variables
+do not cover the entire land area, e.g. if urban is missing, map these
+to a variable called "rest". Put your mapping csv file into
+inst/extdata/referenceMappings. Check the reference mapping for COFFEE
+for an example (that file is also located in inst/extdata/referenceMappings):
 
-### read/correct/convert
+```{r, echo = TRUE}
+cat(readLines(system.file("extdata/referenceMappings/coffee.csv",
+                          package = "mrdownscale"), n = 30), sep = "\n")
+```
+
+
+Some more details on how the variable mapping works (feel free to skip):
+```{r, echo = TRUE}
+?mrdownscale:::calcLandInputRecategorized
+```
+
+### read function
 mrdownscale uses the madrat framework, if you want to learn more about madrat check this
 [vignette](https://pik-piam.r-universe.dev/articles/madrat/madrat.html). Reading that
 vignette should not be necessary to follow this tutorial though.
-read in data
+
+Before you can read your data via madrat your files need to be put into the
+expected place:
+```{r, echo = TRUE}
+madrat::getConfig("sourcefolder", verbose = FALSE)
+```
+In this folder there's a subfolder for each dataset that can be read via
+madrat. Create a new folder called CoolNewModel there and put your data
+file and the region mapping file into it.
+
+
+Write a function that reads in your data as a data frame. The function name
+must start with `read` and the rest of the function name must match the name
+of the source folder you created earlier, so call it `readCoolNewModel`.
+For an example read function check readWITCH:
+```{r, echo = TRUE}
+mrdownscale:::readWITCH
+```
+
+To test your source folder and read function setup, start a new R session and run the following:
+```{r, echo = TRUE, eval = FALSE}
+pkgload::load_all("/path/to/mrdownscale")
+x <- readSource("CoolNewModel", subtype = "data")
+print(x)
+map <- readSource("CoolNewModel", subtype = "resolutionMapping")
+print(map)
+```
+`readCoolNewModel` is not (and should never be) called directly,
+but instead indirectly via `readSource` which will, among other things,
+change the working directoy to the corresponding source folder
+first and also store results into the cache and load them from there if
+nothing relevant changed.
+
 
 ### calcLandInput
 ensure values >= 0, not NA/missing
@@ -74,10 +117,10 @@ variable names must match those in reference mapping
 based on your region mapping, create mapping between regional level and target grid level
 
 ### toolLandCategoriesMapping
-add yourmodel to if-else like the other models
+add CoolNewModel to if-else like the other models
 
 ## running harmonization and downscaling
 ```{r, echo = TRUE, eval = FALSE}
 calcOutput("LandHarmonized")
-retrieveData("SCENARIOMIP", input = "yourmodel")
+retrieveData("SCENARIOMIP", input = "CoolNewModel")
 ```
