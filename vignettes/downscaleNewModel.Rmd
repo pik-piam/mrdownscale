@@ -24,16 +24,30 @@ not cover harmonization or downscaling of nonland variables like fertilizer, eve
 though mrdownscale is capable of handling those (implemented for MAgPIE).
 
 ## requirements/preparation
+
+### needed files
 - CoolNewModel dataset file (in a format R can read)
-- region mapping (from country/gridcell to region)
+- region mapping (which country/gridcell belongs to which region?)
+
+### software setup
 - install R: https://cran.rstudio.com/
-- install mrdownscale incl. dependencies, pkgload for development:
+- open R and find your home directory with
+```{r, echo = TRUE, eval = FALSE}
+normalizePath("~")
+```
+- in that folder create/edit a file called ".Rprofile" and put in the
+following, so you can install mrdownscale, and madrat knows where to
+store its data:
 ```{r, echo = TRUE, eval = FALSE}
 options(repos = c(runiverse = "https://pik-piam.r-universe.dev",
                   CRAN = "https://cran.rstudio.com/"))
+options(MADRAT_MAINFOLDER = file.path(normalizePath("~"), "madrat_mainfolder"))
+```
+
+- start a fresh R session and install mrdownscale incl. dependencies, pkgload for development:
+```{r, echo = TRUE, eval = FALSE}
 install.packages(c("mrdownscale", "pkgload"))
 ```
-- TODO: set madrat mainfolder
 
 ## integrating into mrdownscale
 Currently mrdownscale itself needs to be modified to integrate a new model.
