@@ -125,11 +125,24 @@ nothing relevant changed.
 
 
 ### calcLandInput
-ensure values >= 0, not NA/missing
-ensure non-overlapping categories
-ensure total area is constant over time (might need to add "rest" variable)
-convert to magclass
-variable names must match those in reference mapping
+Add another `if` branch in `R/calcLandInput.R`:
+```{r, echo = TRUE, eval = FALSE}
+if (input == "magpie") {
+  # ...
+} else if (input == "CoolNewModel") {
+  x <- readSource("CoolNewModel")
+  # here
+}
+```
+Here is the place to fix/adapat your data to what mrdownscale expects at the
+end of calcLandInput (consistency checks):
+- no NA/missing values
+- values >= 0
+- non-overlapping categories (i.e. not forest & primary forest & secondary forest)
+- total area (sum over all variables) is constant over time
+(add "rest" variable, in case some variables e.g. urban are missing)
+- convert to magclass/magpie object (`as.magpie(x)`)
+- variable names must match those in reference mapping
 
 ### calcResolutionMapping
 based on your region mapping, create mapping between regional level and target grid level
