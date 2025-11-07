@@ -16,7 +16,7 @@ URL: https://github.com/pik-piam/mrdownscale,
     https://doi.org/10.5281/zenodo.11244475
 BugReports: https://github.com/pik-piam/mrdownscale/issues
 Depends:
-    madrat (>= 3.23.0),
+    madrat (>= 3.27.0),
     magclass (>= 7.0.0),
     mstools (>= 0.8.0),
     R (>= 4.0.0)
