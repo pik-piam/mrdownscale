@@ -19,13 +19,15 @@ You have regional (i.e non-gridded) land use data produced by an integrated asse
 model (we use "CoolNewModel" as placeholder name here) that should be harmonized and
 downscaled using LUH3 as historical high resolution reference dataset.
 
-This tutorial describes how to modify mrdownscale to process CoolNewModel data, but does
-not cover harmonization or downscaling of nonland variables like fertilizer, even
-though mrdownscale is capable of handling those (implemented for MAgPIE).
+This vignette describes how to modify mrdownscale to process CoolNewModel
+land data, but does not cover harmonization or downscaling of nonland variables
+like fertilizer, even though mrdownscale is capable of handling those
+(implemented for MAgPIE). If you you have questions or run into trouble feel
+free to contact the mrdownscale developers (mail address in DESCRIPTION file).
 
 ## requirements/preparation
 
-### needed files
+### files
 - CoolNewModel dataset file (in a format R can read)
 - region mapping (which country/gridcell belongs to which region?)
 
@@ -36,8 +38,10 @@ though mrdownscale is capable of handling those (implemented for MAgPIE).
 normalizePath("~")
 ```
 - in that folder create/edit a file called ".Rprofile" and put in the
-following, so you can install mrdownscale, and madrat knows where to
-store its data:
+following, so
+  - you can install mrdownscale from the piam repository
+(it's not on the central R package repo called "CRAN")
+  - madrat knows where to store its data:
 ```{r, echo = TRUE, eval = FALSE}
 options(repos = c(runiverse = "https://pik-piam.r-universe.dev",
                   CRAN = "https://cran.rstudio.com/"))
