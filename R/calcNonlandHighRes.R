@@ -42,12 +42,13 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
                             harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
                             harmonization = harmonization, downscaling = downscaling, aggregate = FALSE)
 
+  message("downscaling wood harvest area...")
   harvestArea <- x[, futureYears, "wood_harvest_area"]
   harvestAreaWeight <- toolMaxHarvestPerYear(landHighRes)[, futureYears, ]
   harvestAreaDownscaled <- toolAggregate(harvestArea, resmap, weight = harvestAreaWeight,
                                          from = "lowRes", to = "cell", dim = 1, zeroWeight = "fix")
 
-
+  message("downscaling wood harvest mass...")
   bioh <- x[, futureYears, "bioh"]
   weightBioh <- harvestAreaDownscaled
   getItems(weightBioh, 3.1) <- sub("wood_harvest_area$", "bioh", getItems(weightBioh, 3.1))
@@ -64,6 +65,7 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
   getItems(nonlandTarget, 3, raw = TRUE) <- sub("^(.+?)_(.+)$", "\\2.\\1", getItems(nonlandTarget, 3))
   names(dimnames(nonlandTarget))[3] <- "category.data"
 
+  message("downscaling wood harvest weight type...")
   harvestType <- x[, futureYears, "harvest_weight_type"]
   weightHarvestType <- collapseDim(nonlandTarget[, harmonizationPeriod[1], "harvest_weight_type"])
   harvestTypeDownscaled <- toolAggregate(harvestType, resmap, weight = weightHarvestType,
