@@ -30,6 +30,8 @@ free to contact the mrdownscale developers (mail address in DESCRIPTION file).
 ### files
 - CoolNewModel dataset file (in a format R can read)
 - region mapping (which country/gridcell belongs to which region?)
+- variable mapping (mapping your variables to fine-grained reference variables,
+see csv files in `inst/extdata/referenceMappings`)
 
 ### software setup
 - install R: https://cran.rstudio.com/
@@ -162,7 +164,10 @@ the target grid level. This was done for COFFEE, see the `input == "coffee"`
 if-branch in `R/calcResolutionMapping.R`.
 
 ### toolLandCategoriesMapping
-add CoolNewModel to if-else like the other models
+Put your variable mapping (mapping your variables to fine-grained reference
+variables) next to the other csv files in `inst/extdata/referenceMappings`.
+Add CoolNewModel to the if-else statement in `R/toolLandCategoriesMapping.R`
+just like the other models.
 
 ## running harmonization and downscaling
 ```{r, echo = TRUE, eval = FALSE}
