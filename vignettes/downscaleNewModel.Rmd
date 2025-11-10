@@ -101,10 +101,11 @@ madrat. Create a new folder called CoolNewModel there and put your data
 file and the region mapping file into it.
 
 
-Write a function that reads in your data as a data frame. The function name
-must start with `read` and the rest of the function name must match the name
-of the source folder you created earlier, so call it `readCoolNewModel`.
-For an example read function check readWITCH:
+Write a function that reads in your data (`subtype = "data"`) and your
+resolution mapping (`subtype = "resolutionMapping"`) as a data frame. The
+function name must start with `read` and the rest of the function name must
+match the name of the source folder you created earlier, so
+call it `readCoolNewModel`. Here's an example read function:
 ```{r, echo = TRUE}
 mrdownscale:::readWITCH
 ```
@@ -145,7 +146,20 @@ end of calcLandInput (consistency checks):
 - variable names must match those in reference mapping
 
 ### calcResolutionMapping
-based on your region mapping, create mapping between regional level and target grid level
+Add another `if` branch in `R/calcResolutionMapping.R`:
+```{r, echo = TRUE, eval = FALSE}
+if (input == "magpie") {
+  # ...
+} else if (input == "CoolNewModel") {
+  x <- readSource("CoolNewModel", subtype = "resolutionMapping")
+  # here
+}
+```
+Based on your resolution mapping, create mapping between regional level and
+target grid level. In case you have a mapping from country to region you can
+use the existing magpie mapping which includes a mapping from countries to
+the target grid level. This was done for COFFEE, see the `input == "coffee"`
+if-branch in `R/calcResolutionMapping.R`.
 
 ### toolLandCategoriesMapping
 add CoolNewModel to if-else like the other models
