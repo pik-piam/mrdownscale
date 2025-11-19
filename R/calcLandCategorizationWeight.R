@@ -12,8 +12,10 @@
 #' for calc- but not tool-functions. If tool-functions might support caching in the future
 #' as well as a conversion to a tool function might become a sensible option.
 #'
-#' @param map a map in form of a 2 column data.frame containing a mapping between
-#' input categories and output categories for the data dimension of a magpie object
+#' @param map a map in form of a data.frame containing a mapping between
+#' reference categories (column name "reference"),
+#' input categories (column name "dataInput") and merged categories
+#' (column name "merge") for the data dimension of a magpie object
 #' @param geometry the geometry of the magpie object for which the categories should
 #' be mapped as given in the geometry attribute of a magpie object with
 #' geometry information \code{attr(x, "geometry")}.
@@ -21,6 +23,8 @@
 #' a magpie object with coordinates information.
 #' @author Jan Philipp Dietrich
 calcLandCategorizationWeight <- function(map, geometry, crs) {
+  stopifnot(c("reference", "dataInput", "merge") %in% colnames(map))
+
   .getTarget <- function(geometry, crs) {
     target <- new.magpie(names(geometry), sets = c("id", "temporal", "data"))
     attr(target, "geometry") <- geometry
@@ -99,7 +103,7 @@ calcLandCategorizationWeight <- function(map, geometry, crs) {
 
   out <- mbind(mluh2, mtoolbox, .dummy(mtoolbox, map, c(getItems(mluh2, dim = 3),
                                                         getItems(mtoolbox, dim = 3))))
-  out <- toolFixWeight(out, map, from = "dataInput", to = "merge", dim = 3)
+  out <- toolFixWeight(out, map[, c("dataInput", "merge")], dim = 3)
   attr(out, "crs") <- crs
   attr(out, "geometry") <- geometry
 
