@@ -7,8 +7,10 @@
 calcLandCategorizationWeight(map, geometry, crs)
 }
 \arguments{
-\item{map}{a map in form of a 2 column data.frame containing a mapping between
-input categories and output categories for the data dimension of a magpie object}
+\item{map}{a map in form of a data.frame containing a mapping between
+reference categories (column name "reference"),
+input categories (column name "dataInput") and merged categories
+(column name "merge") for the data dimension of a magpie object}
 
 \item{geometry}{the geometry of the magpie object for which the categories should
 be mapped as given in the geometry attribute of a magpie object with
