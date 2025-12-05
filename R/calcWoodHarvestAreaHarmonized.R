@@ -108,8 +108,8 @@ calcWoodHarvestAreaHarmonized <- function(input, target, harmonizationPeriod, ha
   map <- toolWoodHarvestMapping()
   map$harvest <- sub("wood_harvest_area\\.", "", map$harvest)
   out <- toolAggregate(out, map,
-                       weight = xTarget[, harmonizationPeriod[1], ] + 10^-30,
-                       from = "land", to = "harvest", dim = 3)
+                       weight = xTarget[, harmonizationPeriod[1], ],
+                       from = "land", to = "harvest", dim = 3, zeroWeight = "fix")
   out <- add_dimension(out, dim = 3.1, add = "category", nm = "wood_harvest_area")
 
   out <- mbind(xTarget[, histYears, ], out)

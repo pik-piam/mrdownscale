@@ -157,8 +157,8 @@ toolRecategorizeFertilizer <- function(x, ref, map, landInput) {
   cropMap <- toolCropMapping(landInput, cropTypes = getItems(x, "data"))
   cropMap <- cropMap[cropMap$coarse %in% getItems(x, "data"), ]
 
-  weight <- toolFixWeight(landInput[, , unique(cropMap$fine)], cropMap, from = "coarse", to = "fine", dim = 3)
-  x <- toolAggregate(x, cropMap, weight = weight, dim = 3)
+  weight <- landInput[, , unique(cropMap$fine)]
+  x <- toolAggregate(x, cropMap, weight = weight, dim = 3, zeroWeight = "fix")
   x <- add_columns(x, setdiff(unique(map$dataInput), getItems(x, 3)), fill = 0)
 
   xMerge <- toolAggregate(x, map, dim = 3, from = "dataInput", to = "merge", weight = ref)
