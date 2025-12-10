@@ -169,8 +169,19 @@ variables) next to the other csv files in `inst/extdata/referenceMappings`.
 Add CoolNewModel to the if-else statement in `R/toolLandCategoriesMapping.R`
 just like the other models.
 
-## running harmonization and downscaling
+## running harmonization
+To calculate harmonized data (on model-native/regional resolution) and write it to a csv file:
 ```{r, echo = TRUE, eval = FALSE}
-calcOutput("LandHarmonized")
-retrieveData("SCENARIOMIP", input = "CoolNewModel")
+harmonized <- calcOutput("LandHarmonized", input = "CoolNewModel", target = "luh3",
+                         harmonizationPeriod = c(2020, 2050), harmonization = "fadeForest")
+write.magpie(harmonized, "harmonized.csv")
 ```
+
+## running downscaling / the full pipeline
+To run the full pipeline including harmonization and downscaling, and then unpack the resulting tgz archive:
+```{r, echo = TRUE, eval = FALSE}
+pathToTgz <- retrieveData("SCENARIOMIP", input = "CoolNewModel")
+untar(pathToTgz)
+```
+After running this there should be netcdf files (`.nc`) in your working
+directory that contain harmonized and downscaled data on grid resolution.
