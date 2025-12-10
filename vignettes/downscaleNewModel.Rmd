@@ -22,7 +22,7 @@ downscaled using LUH3 as historical high resolution reference dataset.
 This vignette describes how to modify mrdownscale to process CoolNewModel
 land data, but does not cover harmonization or downscaling of nonland variables
 like fertilizer, even though mrdownscale is capable of handling those
-(implemented for MAgPIE). If you you have questions or run into trouble feel
+(implemented for MAgPIE). If you have questions or run into trouble feel
 free to contact the mrdownscale developers (mail address in DESCRIPTION file).
 
 ## requirements/preparation
@@ -69,7 +69,7 @@ To get an overview what changes are needed check
 mrdownscale to process data from the COFFEE model.
 
 ### reference mapping
-A mapping from CoolNewModel variables to fine reference variables
+A mapping from CoolNewModel variables to fine-grained reference variables
 is needed in order to map from CoolNewModel variables to the variables
 of any of the supported target datasets. In case CoolNewModel variables
 do not cover the entire land area, e.g. if urban is missing, map these
@@ -83,7 +83,7 @@ cat(readLines(system.file("extdata/referenceMappings/coffee.csv",
 ```
 
 
-Some more details on how the variable mapping works (feel free to skip):
+Some more details on how the variable mapping works:
 ```{r, echo = TRUE}
 ?mrdownscale:::calcLandInputRecategorized
 ```
@@ -122,7 +122,7 @@ print(map)
 ```
 `readCoolNewModel` is not (and should never be) called directly,
 but instead indirectly via `readSource` which will, among other things,
-change the working directoy to the corresponding source folder
+change the working directory to the corresponding source folder
 first and also store results into the cache and load them from there if
 nothing relevant changed.
 
