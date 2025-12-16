@@ -22,10 +22,10 @@ be harmonized and downscaled using LUH3 as a historical high-resolution
 reference dataset.
 
 This vignette describes how to modify mrdownscale to process CoolNewModel land
-data. It focuses on land variables only and does not cover downscaling of
-non-land variables like fertilizer, even though mrdownscale is capable of
-handling those (as implemented for MAgPIE). If you have questions or run
-into trouble, please contact the mrdownscale developers
+data. It focuses on land variables (e.g. urban, primary forest) only and
+does not cover downscaling of non-land variables (e.g. fertilizer), even though
+mrdownscale is capable of handling those (as implemented for MAgPIE). If you
+have questions or run into trouble, please contact the mrdownscale developers
 (mail address in the DESCRIPTION file).
 
 ## Overview
@@ -227,7 +227,7 @@ Add your reference mapping file to the tool function in
 1. Place your variable mapping CSV file in `inst/extdata/referenceMappings/` (you created this in Step 1)
 2. Add a new condition to the if-else statement in `toolLandCategoriesMapping.R` that returns your mapping for your model, following the pattern used for other models
 
-## Running Harmonization
+## Running the Harmonization
 
 Once all integration steps are complete, you can calculate harmonized data on
 your model's native regional resolution:
@@ -246,7 +246,7 @@ model's regional resolution. The harmonization period specifies the time
 range to harmonize, and the harmonization method determines how your model
 data is modified to smoothly continue from historical observations.
 
-## Running the Full Pipeline
+## Running the Full Pipeline - Harmonization and Downscaling
 
 To run the complete pipeline including both harmonization and downscaling to grid resolution:
 
@@ -266,8 +266,7 @@ Before running harmonization or downscaling, verify that you have completed the 
 - Created reference mapping file: `inst/extdata/referenceMappings/coolnewmodel.csv`
 - Created read function: `R/readCoolNewModel.R` (reads both "data" and "resolutionMapping" subtypes)
 - Tested read function with `readSource("CoolNewModel", subtype = "data")` and `readSource("CoolNewModel", subtype = "resolutionMapping")`
-- Added branch to `R/calcLandInput.R` with all consistency checks and transformations
+- Added branch to `R/calcLandInput.R` with transformations, so all consistency checks pass
 - Data has no missing values, all values >= 0, non-overlapping categories, and matches reference mapping variable names
 - Added branch to `R/calcResolutionMapping.R` to map regions to grid cells
 - Added condition to `R/toolLandCategoriesMapping.R` to register the reference mapping
-- Tested with a fresh R session using `pkgload::load_all()`
