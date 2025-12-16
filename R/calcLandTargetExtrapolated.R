@@ -18,14 +18,15 @@
 #' supplementary = TRUE and target is luh2mod wood harvest area is also returned
 #' @author Pascal Sauer
 calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
-  hp1 <- harmonizationPeriod[1]
   xInput <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
   inputYears <- getYears(xInput, as.integer = TRUE)
-  transitionYears <- inputYears[inputYears > hp1 & inputYears < harmonizationPeriod[2]]
 
   xTarget <- calcOutput("LandTargetLowRes", input = input, target = target, aggregate = FALSE)
   histYears <- getYears(xTarget, as.integer = TRUE)
   targetArea <- dimSums(setYears(xTarget[, max(histYears), ], NULL), dim = 3)
+
+  transitionYears <- inputYears[inputYears > min(harmonizationPeriod[1], max(histYears))
+                                & inputYears < harmonizationPeriod[2]]
 
   out <- calcOutput("LandTargetExtrapolatedCore", input = input, target = target,
                     harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
@@ -112,10 +113,12 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
 calcLandTargetExtrapolatedCore <- function(input, target, harmonizationPeriod) {
   xInput <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
   inputYears <- getYears(xInput, as.integer = TRUE)
-  transitionYears <- inputYears[inputYears > harmonizationPeriod[1] & inputYears < harmonizationPeriod[2]]
 
   xTarget <- calcOutput("LandTargetLowRes", input = input, target = target, aggregate = FALSE)
   histYears <- getYears(xTarget, as.integer = TRUE)
+
+  transitionYears <- inputYears[inputYears > min(harmonizationPeriod[1], max(histYears))
+                                & inputYears < harmonizationPeriod[2]]
 
   # ---------- extrapolate -------------
   exTarget <- toolExtrapolate(xTarget, transitionYears)

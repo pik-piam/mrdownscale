@@ -20,6 +20,8 @@ toolHarmonizeFade <- function(xInput, xTarget, harmonizationPeriod, level = 3) {
   inputYears <- getYears(xInput, as.integer = TRUE)
   targetYears <- getYears(xTarget, as.integer = TRUE)
   transitionYears <- inputYears[inputYears > a & inputYears < b]
+  transitionYears <- inputYears[inputYears > min(a, max(targetYears))
+                                & inputYears < b]
   stopifnot(length(harmonizationPeriod) == 2,
             round(harmonizationPeriod) == harmonizationPeriod,
             b > a,
