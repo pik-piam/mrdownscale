@@ -36,7 +36,7 @@ instructions for each follow in the sections below.
 
 | Step | Component | File | Purpose |
 |------|-----------|---------|---------|
-| 1 | Reference mapping | `inst/extdata/referenceMappings/coolnewmodel.csv` | Map your model's land use variables to fine-grained reference variables |
+| 1 | Reference mapping | `inst/extdata/referenceMappings/coolnewmodel.csv` | Map CoolNewModel variables to fine-grained reference variables |
 | 2 | Read function | `R/readCoolNewModel.R` | Load your model's data and region mapping via the madrat framework |
 | 3 | Land input calculation | `R/calcLandInput.R` | Read and validate your data for consistency |
 | 4 | Resolution mapping | `R/calcResolutionMapping.R` | Map from regional level to grid level |
@@ -50,7 +50,7 @@ Before starting, prepare the following files:
 
 - **CoolNewModel dataset file** - Your regional land use data in a format R can read (e.g. CSV)
 - **Region mapping file** - Defines which countries/grid cells belong to which region
-- **Variable mapping file** - Maps your variables to fine-grained reference variables (see examples in `inst/extdata/referenceMappings`)
+- **Variable mapping file** - Maps CoolNewModel variables to fine-grained reference variables (see examples in `inst/extdata/referenceMappings`)
 
 ### Software Setup
 
@@ -101,13 +101,13 @@ the COFFEE model into mrdownscale.
 
 ### Step 1: Create Reference Mapping
 
-A reference mapping file defines how your model's land use variables map to
+A reference mapping file defines how CoolNewModel variables map to
 fine-grained reference variables. This mapping enables mrdownscale to
-translate your variables to any supported target dataset format.
+translate CoolNewModel variables to any supported target dataset format.
 
 Create a CSV file named `coolnewmodel.csv` in
-`inst/extdata/referenceMappings/`. The file should have two columns: your
-model's variable names and the corresponding reference variable names.
+`inst/extdata/referenceMappings/`. The file should have two columns:
+CoolNewModel variable names and the corresponding reference variable names.
 
 If your model does not cover all land categories
 (for example, if urban areas are not included), map missing categories to a
@@ -195,9 +195,9 @@ In this section, apply the following consistency checks and transformations to
 ensure your data meets mrdownscale's requirements:
 
 1. **No missing values** - Ensure there are no NA or NaN values in your data
-2. **Non-negative values** - All land area values must be >= 0
-3. **Non-overlapping categories** - Variables should not overlap (e.g. avoid having both "forest" and "primary forest" as separate categories that sum to more than the total forest area)
-4. **Constant total area over time** - The sum of all land use variables should remain constant across all years. If needed, add a "rest" category to account for missing land use types
+2. **Non-negative values** - All variables must be >= 0
+3. **Non-overlapping categories** - Variables should not overlap (e.g. avoid having both "forest" and "primary forest" as separate categories that sum to more than total forest area)
+4. **Constant total area over time** - The sum of all variables should remain constant across all years. If needed, add a "rest" category to account for missing land use types
 5. **Convert to magpie format** - Use `as.magpie(x)` to convert your data to the magpie object format
 6. **Match variable names** - Ensure all variable names exactly match those in your reference mapping file
 
