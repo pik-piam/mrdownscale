@@ -41,8 +41,10 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
               setequal(getItems(harvestHist[, -1, ], 2), getItems(maxHarvestHist, 2)),
               setequal(getItems(harvestHist, 3), getItems(maxHarvestHist, 3)))
 
+    endOfHistory <- max(getYears(harvestHist, as.integer = TRUE))
+
     # calculate share: wood harvest area / max possible harvest
-    harvestShare <- harvestHist[, hp1, ] / maxHarvestHist[, hp1, ]
+    harvestShare <- harvestHist[, endOfHistory, ] / maxHarvestHist[, endOfHistory, ]
     harvestShare[is.nan(harvestShare)] <- 0
     harvestShare[harvestShare > 1] <- 1
 
@@ -88,7 +90,7 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
     toolExpectLessDiff(harvest[, histYears, ], harvestHist, 0,
                        "In historical period, wood harvest area was not changed")
     toolExpectTrue(min(harvest) >= 0, "wood harvest area is >= 0")
-    toolCheckWoodHarvestArea(harvest, out, hp1)
+    toolCheckWoodHarvestArea(harvest, out, endOfHistory)
   }
 
   # consistency checks land

@@ -237,7 +237,7 @@ your model's native regional resolution:
 harmonized <- calcOutput("LandHarmonized",
                          input = "CoolNewModel",
                          target = "luh3",
-                         harmonizationPeriod = c(2020, 2050),
+                         harmonizationPeriod = c(2025, 2050),
                          harmonization = "fadeForest")
 write.magpie(harmonized, "harmonized.csv")
 ```

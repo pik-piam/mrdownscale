@@ -14,7 +14,7 @@ calcNonlandTargetLowRes <- function(input, target) {
     states <- readSource("LUH2v2h", subtype = "states", convert = FALSE)
   } else {
     cellAreaKm2 <- readSource("LUH3", subtype = "cellArea", convert = FALSE)
-    states <- readSource("LUH3", subtype = "states", subset = 1995:2020, convert = FALSE)
+    states <- readSource("LUH3", subtype = "states", subset = 1995:2024, convert = FALSE)
   }
   cellAreaHa <- cellAreaKm2 * 100
 

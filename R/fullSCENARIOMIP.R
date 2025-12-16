@@ -20,7 +20,7 @@
 #'
 #' @author Pascal Sauer
 fullSCENARIOMIP <- function(rev = numeric_version("0"), input = "magpie", scenario = "",
-                            harmonizationPeriod = c(2020, 2050),
+                            harmonizationPeriod = c(2025, 2050),
                             yearsSubset = 1995:2100,
                             harmonization = "fadeForest", downscaling = "magpieClassic",
                             compression = 2, progress = TRUE) {

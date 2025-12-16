@@ -14,8 +14,8 @@ calcNonlandTarget <- function(target) {
       transitions <- readSource("LUH2v2h", subtype = "transitions", convert = FALSE)
     } else {
       cellAreaKm2 <- readSource("LUH3", subtype = "cellArea", convert = FALSE)
-      management <- readSource("LUH3", subtype = "management", subset = 1995:2020, convert = FALSE)
-      transitions <- readSource("LUH3", subtype = "transitions", subset = 1995:2020, convert = FALSE)
+      management <- readSource("LUH3", subtype = "management", subset = 1995:2024, convert = FALSE)
+      transitions <- readSource("LUH3", subtype = "transitions", subset = 1995:2024, convert = FALSE)
     }
 
     # convert from km2 to Mha

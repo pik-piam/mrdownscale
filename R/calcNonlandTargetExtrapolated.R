@@ -15,7 +15,7 @@
 #' @examples
 #' \dontrun{
 #'   calcOutput("NonlandTargetExtrapolated", input = "magpie",
-#'              target = "luh2mod", harmonizationPeriod = c(2020, 2050))
+#'              target = "luh3", harmonizationPeriod = c(2025, 2050))
 #' }
 #' @author Pascal Sauer
 calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {

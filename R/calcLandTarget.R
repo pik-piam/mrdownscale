@@ -13,7 +13,7 @@ calcLandTarget <- function(target) {
     per <- c("c3per", "c4per")
 
     if (target == "luh3") {
-      states <- readSource("LUH3", subtype = "states", subset = 1995:2020)
+      states <- readSource("LUH3", subtype = "states", subset = 1995:2024)
     } else {
       states <- readSource("LUH2v2h", subtype = "states")
     }
@@ -22,7 +22,7 @@ calcLandTarget <- function(target) {
     states <- spatRasterToDataset(states)
 
     if (target == "luh3") {
-      man <- readSource("LUH3", subtype = "management", subset = 1995:2020, convert = FALSE)
+      man <- readSource("LUH3", subtype = "management", subset = 1995:2024, convert = FALSE)
       man <- man["irrig|cpbf1"]
       man <- spatRasterToDataset(man)
       cpbf1Category <- "cpbf1"
