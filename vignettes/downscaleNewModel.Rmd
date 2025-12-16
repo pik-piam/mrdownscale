@@ -167,7 +167,7 @@ mrdownscale:::readWITCH
 Start a fresh R session and verify your setup works:
 
 ```{r, echo = TRUE, eval = FALSE}
-pkgload::load_all("/path/to/mrdownscale")
+pkgload::load_all("path/to/mrdownscale")
 x <- readSource("CoolNewModel", subtype = "data")
 print(x)
 map <- readSource("CoolNewModel", subtype = "resolutionMapping")
