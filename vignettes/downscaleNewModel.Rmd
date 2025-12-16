@@ -22,7 +22,8 @@ be harmonized and downscaled using LUH3 as a historical high-resolution
 reference dataset.
 
 This vignette describes how to modify mrdownscale to process CoolNewModel land
-data. It focuses on land variables (e.g. urban, primary forest) only and
+data. It focuses on land variables representing the distribution of land area
+across the different land use types (e.g. urban, primary forest) only and
 does not cover downscaling of non-land variables (e.g. fertilizer), even though
 mrdownscale is capable of handling those (as implemented for MAgPIE). If you
 have questions or run into trouble, please contact the mrdownscale developers
