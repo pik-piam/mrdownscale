@@ -60,12 +60,12 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
     # calculate wood harvest area, reduce primf and primn so they are consistent with harvest
     harvest <- add_columns(harvestHist, paste0("y", transitionYears), dim = 2)
 
-    timestepLength <- unique(diff(transitionYears))
-    stopifnot(identical(getYears(harvest), getYears(out)),
-              length(timestepLength) == 1, timestepLength > 0)
+    stopifnot(identical(getYears(harvest), getYears(out)))
     primfn <- c("primf", "primn")
     secdfn <- c("secdf", "secdn")
+    outYears <- getYears(out, as.integer = TRUE)
     for (i in match(transitionYears, getYears(out, as.integer = TRUE))) {
+      timestepLength <- outYears[i] - outYears[i - 1]
       # in toolMaxHarvestPerYear out[, i, ] is only used to determine timestepLength and then thrown away
       maxHarvestPerYear <- toolMaxHarvestPerYear(out[, c(i - 1, i), ], timestepAdjust = FALSE)
       harvest[, i, ] <- pmin(maxHarvestPerYear * collapseDim(harvestShare),
