@@ -137,7 +137,7 @@ if (input == "magpie") {
   # here
 }
 ```
-Here is the place to fix/adapat your data to what mrdownscale expects at the
+Here is the place to fix/adapt your data to what mrdownscale expects at the
 end of calcLandInput (consistency checks):
 - no NA/missing values
 - values >= 0
