@@ -7,7 +7,7 @@
 #' luh2mod/luh3 will split secdf into pltns and secdf
 #' @return land target data
 #' @author Pascal Sauer
-calcLandTarget <- function(target) {
+calcLandTarget <- function(target) { # TODO read in years up to but not beyond hp1
   if (target %in% c("luh2", "luh2mod", "luh3")) {
     cropTypes <- c("c3ann", "c3nfx", "c3per", "c4ann", "c4per")
     per <- c("c3per", "c4per")

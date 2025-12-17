@@ -33,8 +33,13 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
                   harmonizationPeriod = harmonizationPeriod, harmonization = harmonization, aggregate = FALSE)
   x <- x[, getYears(x, as.integer = TRUE) %in% yearsSubset, ]
 
-  futureYears <- getYears(x, as.integer = TRUE)
-  futureYears <- futureYears[futureYears > harmonizationPeriod[1]]
+  nonlandTarget <- calcOutput("NonlandTarget", target = target, aggregate = FALSE)
+  nonlandTarget <- as.magpie(nonlandTarget[[terra::time(nonlandTarget) <= harmonizationPeriod[1] &
+                                              terra::time(nonlandTarget) %in% yearsSubset]])
+  getItems(nonlandTarget, 3, raw = TRUE) <- sub("^(.+?)_(.+)$", "\\2.\\1", getItems(nonlandTarget, 3))
+  names(dimnames(nonlandTarget))[3] <- "category.data"
+
+  futureYears <- setdiff(getYears(x, TRUE), getYears(nonlandTarget, TRUE))
 
   resmap <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
 
@@ -59,15 +64,9 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
   # fertilizer is in kg ha-1 yr-1 already, use low res/region value for each cell corresponding to that region
   fertilizerDownscaled <- setCells(x[resmap$lowRes, futureYears, "fertilizer"], resmap$cell)
 
-  nonlandTarget <- calcOutput("NonlandTarget", target = target, aggregate = FALSE)
-  nonlandTarget <- as.magpie(nonlandTarget[[terra::time(nonlandTarget) <= harmonizationPeriod[1] &
-                                              terra::time(nonlandTarget) %in% yearsSubset]])
-  getItems(nonlandTarget, 3, raw = TRUE) <- sub("^(.+?)_(.+)$", "\\2.\\1", getItems(nonlandTarget, 3))
-  names(dimnames(nonlandTarget))[3] <- "category.data"
-
   message("downscaling wood harvest weight type...")
   harvestType <- x[, futureYears, "harvest_weight_type"]
-  weightHarvestType <- collapseDim(nonlandTarget[, harmonizationPeriod[1], "harvest_weight_type"])
+  weightHarvestType <- collapseDim(nonlandTarget[, nyears(nonlandTarget), "harvest_weight_type"])
   harvestTypeDownscaled <- toolAggregate(harvestType, resmap, weight = weightHarvestType,
                                          from = "lowRes", to = "cell", dim = 1, zeroWeight = "fix")
 
