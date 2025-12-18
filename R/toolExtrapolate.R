@@ -2,18 +2,20 @@
 #'
 #' Extrapolate a dataset into the future. A linear model is fitted for
 #' each combination of spatial entity and category, and then used to predict
-#' future values. If the linear model is not significant (p > 0.05) or
-#' linearModel is FALSE, the mean value is used for all years instead
-#' (constant extrapolation).
+#' the value of the last requested extrapolation year. A spline-based
+#' interpolation ensures a smooth transition from historical values to the
+#' predicted value. If the linear model is not significant (p > 0.05) or
+#' linearModel is FALSE, the same value is used for all years instead
+#' (constant extrapolation, see argument called fallback).
 #'
 #' @param x A magpie object with "year" as the temporal dimension and
 #' without any NAs
 #' @param years A vector of years to extrapolate to
 #' @param linearModel If TRUE, a linear model is fitted for each
 #' combination of spatial entity and category.
-#' @param fallback What to constant value to use for all years if the linear
+#' @param fallback What constant value to use for all years if the linear
 #' model is disabled or not significant. Either "mean" or "last". If "mean",
-#' the mean value of x is used. If "last", use the value of the last year in x.
+#' use the mean value of x. If "last", use the value of the last year in x.
 #' @return A magpie object like x but with the extrapolated years only
 #' @author Pascal Sauer
 toolExtrapolate <- function(x, years, linearModel = TRUE, fallback = "mean") {
@@ -41,7 +43,16 @@ toolExtrapolate <- function(x, years, linearModel = TRUE, fallback = "mean") {
 
         # use linear trend only if signicant
         if (summary(model)$coefficients["year", "Pr(>|t|)"] <= 0.05) {
-          prediction$.value <- stats::predict(model, newdata = prediction[, "year", drop = FALSE])
+          # only predict last year using linear model
+          # then spline interpolation from last historical year to predicted year
+          lastYear <- data.frame(year = years[length(years)])
+          prediction$.value <- stats::spline(x = c(d$year,
+                                                   as.numeric(lastYear),
+                                                   as.numeric(lastYear) + 1), # add extra year to bend spline
+                                             y = c(d$.value,
+                                                   stats::predict(model, newdata = lastYear),
+                                                   stats::predict(model, newdata = lastYear + 1)),
+                                             xout = prediction$year)$y
         }
       }
 
