@@ -43,15 +43,14 @@ toolExtrapolate <- function(x, years, linearModel = TRUE, fallback = "mean") {
 
         # use linear trend only if signicant
         if (summary(model)$coefficients["year", "Pr(>|t|)"] <= 0.05) {
-          # only predict last year using linear model
+          # predict last year using linear model
           # then spline interpolation from last historical year to predicted year
           lastYear <- data.frame(year = years[length(years)])
+          lastYear <- rbind(lastYear, lastYear + 1) # add extra year to bend spline
           prediction$.value <- stats::spline(x = c(d$year,
-                                                   as.numeric(lastYear),
-                                                   as.numeric(lastYear) + 1), # add extra year to bend spline
+                                                   lastYear$year),
                                              y = c(d$.value,
-                                                   stats::predict(model, newdata = lastYear),
-                                                   stats::predict(model, newdata = lastYear + 1)),
+                                                   stats::predict(model, newdata = lastYear)),
                                              xout = prediction$year)$y
         }
       }

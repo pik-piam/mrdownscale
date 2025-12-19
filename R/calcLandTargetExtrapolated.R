@@ -122,8 +122,8 @@ calcLandTargetExtrapolatedCore <- function(input, target, harmonizationPeriod) {
 
   # ---------- extrapolate -------------
   exTarget <- toolExtrapolate(xTarget, transitionYears)
-  toolWarnIfExpansion(exTarget, c("primf", "primn"))
   exTarget[exTarget < 0] <- 0
+  # might have expanding prim here, will be replaced at the end
 
   # ---------- normalize -------------
   # normalize exTarget so that its total sum over all layers agrees for all time steps
@@ -134,7 +134,7 @@ calcLandTargetExtrapolatedCore <- function(input, target, harmonizationPeriod) {
   exTarget[is.na(exTarget)] <- 0
   out <- mbind(xTarget, exTarget)
 
-  # normalization can introduce prim expansion
+  # extrapolation and normalization can introduce prim expansion, replace that here
   out <- toolReplaceExpansion(out, "primf", "secdf", noteThreshold = 100, warnThreshold = 100)
   out <- toolReplaceExpansion(out, "primn", "secdn", noteThreshold = 100, warnThreshold = 100)
   return(list(x = out,
