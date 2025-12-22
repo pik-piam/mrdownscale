@@ -14,19 +14,17 @@
 #' harmonization period and a smooth transition in between.
 #' @author Jan Philipp Dietrich, Pascal Sauer
 toolHarmonizeFade <- function(xInput, xTarget, harmonizationPeriod, level = 3) {
-  a <- harmonizationPeriod[1]
-  b <- harmonizationPeriod[2]
+  hp <- harmonizationPeriod
 
   inputYears <- getYears(xInput, as.integer = TRUE)
   targetYears <- getYears(xTarget, as.integer = TRUE)
-  transitionYears <- inputYears[inputYears > a & inputYears < b]
-  transitionYears <- inputYears[inputYears > min(a, max(targetYears))
-                                & inputYears < b]
+  transitionYears <- inputYears[inputYears > hp[1] & inputYears < hp[2]]
+
   stopifnot(length(harmonizationPeriod) == 2,
             round(harmonizationPeriod) == harmonizationPeriod,
-            b > a,
-            a %in% targetYears,
-            b %in% inputYears,
+            hp[2] > hp[1],
+            hp %in% targetYears,
+            hp %in% inputYears,
             transitionYears %in% inputYears,
             transitionYears %in% targetYears,
             setequal(getItems(xInput, dim = 1), getItems(xTarget, dim = 1)),
@@ -35,7 +33,7 @@ toolHarmonizeFade <- function(xInput, xTarget, harmonizationPeriod, level = 3) {
 
   # fade over from extrapolated target data to input data
   out <- convergence(xTarget[, transitionYears, ], xInput[, transitionYears, ],
-                     start_year = a, end_year = b, type = "s")
+                     start_year = hp[1], end_year = hp[2], type = "s")
   outYears <- getYears(out, as.integer = TRUE)
 
   out <- mbind(xTarget[, targetYears < min(outYears), ],

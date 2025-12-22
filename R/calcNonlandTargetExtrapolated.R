@@ -27,7 +27,7 @@ calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
   xTarget <- calcOutput("NonlandTargetLowRes", input = input, target = target,
                         endOfHistory = hp[1], aggregate = FALSE)
 
-  transitionYears <- inputYears[inputYears > min(hp[1], max(getYears(xTarget, TRUE)))
+  transitionYears <- inputYears[inputYears > max(getYears(xTarget, TRUE))
                                 & inputYears < hp[2]]
 
   exFertilizer <- toolExtrapolate(xTarget[, , "fertilizer"], transitionYears)

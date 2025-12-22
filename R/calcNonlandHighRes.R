@@ -36,8 +36,7 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
   x <- x[, getYears(x, as.integer = TRUE) %in% yearsSubset, ]
 
   nonlandTarget <- calcOutput("NonlandTarget", target = target, endOfHistory = hp[1], aggregate = FALSE)
-  nonlandTarget <- as.magpie(nonlandTarget[[terra::time(nonlandTarget) <= hp[1] &
-                                              terra::time(nonlandTarget) %in% yearsSubset]])
+  nonlandTarget <- as.magpie(nonlandTarget[[terra::time(nonlandTarget) %in% yearsSubset]])
   getItems(nonlandTarget, 3, raw = TRUE) <- sub("^(.+?)_(.+)$", "\\2.\\1", getItems(nonlandTarget, 3))
   names(dimnames(nonlandTarget))[3] <- "category.data"
 
