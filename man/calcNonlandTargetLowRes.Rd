@@ -4,12 +4,14 @@
 \alias{calcNonlandTargetLowRes}
 \title{calcNonlandTargetLowRes}
 \usage{
-calcNonlandTargetLowRes(input, target)
+calcNonlandTargetLowRes(input, target, endOfHistory)
 }
 \arguments{
 \item{input}{name of an input dataset, currently only "magpie"}
 
-\item{target}{name of a target dataset, currently only "luh2mod"}
+\item{target}{name of a target dataset}
+
+\item{endOfHistory}{years later than this are not returned}
 }
 \value{
 low resolution target nonland data

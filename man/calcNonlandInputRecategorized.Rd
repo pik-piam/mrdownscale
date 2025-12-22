@@ -14,7 +14,8 @@ calcNonlandInputRecategorized(
 \arguments{
 \item{input}{name of an input dataset, currently only "magpie"}
 
-\item{target}{name of the target dataset, currently only "luh2"}
+\item{target}{name of a target dataset, see \code{\link{calcLandTarget}}
+for available target datasets}
 
 \item{youngShareWoodHarvestArea}{share of wood harvest area taken from young (instead of mature) secondary forest;
 default value is based on LUH value from 2014; used to disaggregate wood harvest area from secondary forest to

@@ -4,13 +4,15 @@
 \alias{calcLandTargetLowRes}
 \title{calcLandTargetLowRes}
 \usage{
-calcLandTargetLowRes(input, target)
+calcLandTargetLowRes(input, target, endOfHistory)
 }
 \arguments{
 \item{input}{name of an input dataset, options: "magpie", "witch"}
 
 \item{target}{name of a target dataset, see \code{\link{calcLandTarget}}
-available target datasets}
+for available target datasets}
+
+\item{endOfHistory}{years later than this are not returned}
 }
 \value{
 low resolution target land data

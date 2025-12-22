@@ -9,7 +9,8 @@ calcNonlandTargetExtrapolated(input, target, harmonizationPeriod)
 \arguments{
 \item{input}{name of an input dataset, currently only "magpie"}
 
-\item{target}{character, name of the target data set, currently only "luh2mod"}
+\item{target}{name of a target dataset, see \code{\link{calcLandTarget}}
+for available target datasets}
 
 \item{harmonizationPeriod}{Two integer values, will extrapolate to all years
 present in input data between harmonization start and end year}
@@ -27,7 +28,7 @@ and returned in kg ha-1 yr-1.
 \examples{
 \dontrun{
   calcOutput("NonlandTargetExtrapolated", input = "magpie",
-             target = "luh2mod", harmonizationPeriod = c(2020, 2050))
+             target = "luh3", harmonizationPeriod = c(2025, 2050))
 }
 }
 \author{

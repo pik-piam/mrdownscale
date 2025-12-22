@@ -4,20 +4,13 @@
 \alias{toolExtrapolate}
 \title{toolExtrapolate}
 \usage{
-toolExtrapolate(x, years, linearModel = TRUE, fallback = "mean")
+toolExtrapolate(x, years)
 }
 \arguments{
 \item{x}{A magpie object with "year" as the temporal dimension and
 without any NAs}
 
 \item{years}{A vector of years to extrapolate to}
-
-\item{linearModel}{If TRUE, a linear model is fitted for each
-combination of spatial entity and category.}
-
-\item{fallback}{What to constant value to use for all years if the linear
-model is disabled or not significant. Either "mean" or "last". If "mean",
-the mean value of x is used. If "last", use the value of the last year in x.}
 }
 \value{
 A magpie object like x but with the extrapolated years only
@@ -25,9 +18,10 @@ A magpie object like x but with the extrapolated years only
 \description{
 Extrapolate a dataset into the future. A linear model is fitted for
 each combination of spatial entity and category, and then used to predict
-future values. If the linear model is not significant (p > 0.05) or
-linearModel is FALSE, the mean value is used for all years instead
-(constant extrapolation).
+the value of the last requested extrapolation year. If the linear model
+is not significant (p > 0.05) the historical mean is used instead.
+A spline-based interpolation is used to create a smooth transition from
+historical values to the predicted value.
 }
 \author{
 Pascal Sauer
