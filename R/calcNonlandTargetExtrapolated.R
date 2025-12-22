@@ -23,7 +23,8 @@ calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
   xInput <- calcOutput("NonlandInputRecategorized", input = input, target = target, aggregate = FALSE)
   inputYears <- getYears(xInput, as.integer = TRUE)
 
-  xTarget <- calcOutput("NonlandTargetLowRes", input = input, target = target, aggregate = FALSE)
+  xTarget <- calcOutput("NonlandTargetLowRes", input = input, target = target,
+                        endOfHistory = hp[1], aggregate = FALSE)
 
   transitionYears <- inputYears[inputYears > min(hp[1], max(getYears(xTarget, TRUE)))
                                 & inputYears < hp[2]]

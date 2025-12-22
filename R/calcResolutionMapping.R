@@ -17,7 +17,7 @@ calcResolutionMapping <- function(input, target) {
   if (target == "luh3") {
     targetGrid <- readSource("LUH3", subtype = "states", subset = 2000)
   } else {
-    targetGrid <- calcOutput("LandTarget", target = target, aggregate = FALSE)
+    targetGrid <- calcOutput("LandTargetComplete", target = target, aggregate = FALSE)
   }
 
   if (input == "magpie") {

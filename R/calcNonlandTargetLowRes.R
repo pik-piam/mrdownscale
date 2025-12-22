@@ -5,16 +5,18 @@
 #' converted back to kg ha-1 yr-1.
 #'
 #' @inheritParams calcNonlandInput
-#' @param target name of a target dataset, currently only "luh2mod"
+#' @param target name of a target dataset
+#' @param endOfHistory years later than this are not returned
 #' @return low resolution target nonland data
 #' @author Pascal Sauer
-calcNonlandTargetLowRes <- function(input, target) {
+calcNonlandTargetLowRes <- function(input, target, endOfHistory) {
   if (target %in% c("luh2", "luh2mod")) {
     cellAreaKm2 <- readSource("LUH2v2h", subtype = "cellArea", convert = FALSE)
     states <- readSource("LUH2v2h", subtype = "states", convert = FALSE)
   } else {
     cellAreaKm2 <- readSource("LUH3", subtype = "cellArea", convert = FALSE)
     states <- readSource("LUH3", subtype = "states", subset = 1995:2024, convert = FALSE)
+    states <- states[[terra::time(states) <= endOfHistory]]
   }
   cellAreaHa <- cellAreaKm2 * 100
 
@@ -22,7 +24,7 @@ calcNonlandTargetLowRes <- function(input, target) {
   ref <- as.SpatVector(xInput[, 1, 1])[, c(".region", ".id")]
 
   # get target data in spatial resolution of input data
-  xTarget <- calcOutput("NonlandTarget", target = target, aggregate = FALSE)
+  xTarget <- calcOutput("NonlandTarget", target = target, endOfHistory = endOfHistory, aggregate = FALSE)
 
   # need absolute values for aggregating, convert from kg ha-1 yr-1 to Tg yr-1, assuming ha-1 refers to cropland
   cropland <- states[[sub("_fertilizer", "", names(xTarget["fertilizer"]))]]
@@ -35,7 +37,8 @@ calcNonlandTargetLowRes <- function(input, target) {
   getItems(out, 3, raw = TRUE) <- sub("^(.+?)_(.+)$", "\\2.\\1", getItems(out, 3))
   names(dimnames(out))[3] <- "category.data"
 
-  landTargetLowRes <- calcOutput("LandTargetLowRes", input = input, target = target, aggregate = FALSE)
+  landTargetLowRes <- calcOutput("LandTargetLowRes", input = input, target = target,
+                                 endOfHistory = endOfHistory, aggregate = FALSE)
 
   lastYear <- terra::time(xTarget)[length(terra::time(xTarget))]
   mTarget <- as.magpie(xTarget[[terra::time(xTarget) == lastYear]])

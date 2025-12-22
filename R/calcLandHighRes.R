@@ -22,7 +22,7 @@ calcLandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, har
 
   hp1 <- harmonizationPeriod[1]
 
-  xTarget <- calcOutput("LandTarget", target = target, aggregate = FALSE)
+  xTarget <- calcOutput("LandTarget", target = target, endOfHistory = hp1, aggregate = FALSE)
   xTarget <- as.magpie(xTarget[[terra::time(xTarget) %in% yearsSubset]])
 
   histYears <- intersect(getYears(x, as.integer = TRUE),
@@ -30,7 +30,8 @@ calcLandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, har
 
   x <- x[, , getItems(xTarget, 3)]
 
-  landTargetLowRes <- calcOutput("LandTargetLowRes", input = input, target = target, aggregate = FALSE)
+  landTargetLowRes <- calcOutput("LandTargetLowRes", input = input, target = target,
+                                 endOfHistory = hp1, aggregate = FALSE)
   landTargetLowRes <- landTargetLowRes[, max(histYears), getItems(x, 3)]
   stopifnot(setequal(getItems(landTargetLowRes, 1), getItems(x, 1)))
 

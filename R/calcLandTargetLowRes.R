@@ -5,13 +5,14 @@
 #'
 #' @inheritParams calcLandInput
 #' @param target name of a target dataset, see \code{\link{calcLandTarget}}
-#' available target datasets
+#' for available target datasets
+#' @param endOfHistory years later than this are not returned
 #' @return low resolution target land data
 #' @author Pascal Sauer
-calcLandTargetLowRes <- function(input, target) {
+calcLandTargetLowRes <- function(input, target, endOfHistory) {
   xInput <- calcOutput("LandInputRecategorized", input = input,
                        target = target, aggregate = FALSE)
-  xTargetIn <- calcOutput("LandTarget", target = target, aggregate = FALSE)
+  xTargetIn <- calcOutput("LandTarget", target = target, endOfHistory = endOfHistory, aggregate = FALSE)
 
   # bring target data to spatial resolution of input data
   ref    <- as.SpatVector(xInput[, 1, 1])[, c(".region", ".id")]

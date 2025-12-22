@@ -29,12 +29,13 @@
 #' }
 #' @author Pascal Sauer
 calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, harmonization, downscaling) {
+  hp <- harmonizationPeriod
   x <- calcOutput("NonlandHarmonized", input = input, target = target,
-                  harmonizationPeriod = harmonizationPeriod, harmonization = harmonization, aggregate = FALSE)
+                  harmonizationPeriod = hp, harmonization = harmonization, aggregate = FALSE)
   x <- x[, getYears(x, as.integer = TRUE) %in% yearsSubset, ]
 
-  nonlandTarget <- calcOutput("NonlandTarget", target = target, aggregate = FALSE)
-  nonlandTarget <- as.magpie(nonlandTarget[[terra::time(nonlandTarget) <= harmonizationPeriod[1] &
+  nonlandTarget <- calcOutput("NonlandTarget", target = target, endOfHistory = hp[1], aggregate = FALSE)
+  nonlandTarget <- as.magpie(nonlandTarget[[terra::time(nonlandTarget) <= hp[1] &
                                               terra::time(nonlandTarget) %in% yearsSubset]])
   getItems(nonlandTarget, 3, raw = TRUE) <- sub("^(.+?)_(.+)$", "\\2.\\1", getItems(nonlandTarget, 3))
   names(dimnames(nonlandTarget))[3] <- "category.data"
@@ -44,7 +45,7 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
   resmap <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
 
   landHighRes <- calcOutput("LandHighRes", input = input, target = target,
-                            harmonizationPeriod = harmonizationPeriod, yearsSubset = yearsSubset,
+                            harmonizationPeriod = hp, yearsSubset = yearsSubset,
                             harmonization = harmonization, downscaling = downscaling, aggregate = FALSE)
 
   message("downscaling wood harvest area...")
@@ -86,7 +87,7 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
 
   # for years after harmonization make sure that total global fertilizer matches input
   years <- getYears(out, TRUE)
-  years <- years[years >= harmonizationPeriod[2]]
+  years <- years[years >= hp[2]]
   fertilizerInput <- dimSums(fertilizerInput[, years, "fertilizer"], 1)
   fertilizerOutput <- toolFertilizerTg(out[, years, "fertilizer"], landHighRes[, years, ])
   toolExpectLessDiff(fertilizerInput, dimSums(fertilizerOutput, 1), 10^-5,
@@ -97,7 +98,7 @@ calcNonlandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, 
                  "Nonland categories remain unchanged")
   toolExpectTrue(min(out) >= 0, "All values are >= 0")
 
-  toolCheckWoodHarvestArea(out[, , "wood_harvest_area"], landHighRes, harmonizationPeriod[1])
+  toolCheckWoodHarvestArea(out[, , "wood_harvest_area"], landHighRes, hp[1])
 
   return(list(x = out,
               min = 0,

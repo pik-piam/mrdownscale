@@ -21,7 +21,8 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
   xInput <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
   inputYears <- getYears(xInput, as.integer = TRUE)
 
-  xTarget <- calcOutput("LandTargetLowRes", input = input, target = target, aggregate = FALSE)
+  xTarget <- calcOutput("LandTargetLowRes", input = input, target = target,
+                        endOfHistory = harmonizationPeriod[1], aggregate = FALSE)
   histYears <- getYears(xTarget, as.integer = TRUE)
   targetArea <- dimSums(setYears(xTarget[, max(histYears), ], NULL), dim = 3)
 
@@ -34,7 +35,8 @@ calcLandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
   harvest <- NULL
   if (input %in% c("magpie") && target %in% c("luh2mod", "luh3")) {
     # ------- calculate wood harvest shares -------
-    harvestHist <- calcOutput("NonlandTargetLowRes", input = input, target = target, aggregate = FALSE)
+    harvestHist <- calcOutput("NonlandTargetLowRes", input = input, target = target,
+                              endOfHistory = harmonizationPeriod[1], aggregate = FALSE)
     harvestHist <- harvestHist[, , "wood_harvest_area"]
     maxHarvestHist <- toolMaxHarvestPerYear(xTarget, timestepAdjust = FALSE)
 
@@ -114,7 +116,8 @@ calcLandTargetExtrapolatedCore <- function(input, target, harmonizationPeriod) {
   xInput <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
   inputYears <- getYears(xInput, as.integer = TRUE)
 
-  xTarget <- calcOutput("LandTargetLowRes", input = input, target = target, aggregate = FALSE)
+  xTarget <- calcOutput("LandTargetLowRes", input = input, target = target,
+                        endOfHistory = harmonizationPeriod[1], aggregate = FALSE)
   histYears <- getYears(xTarget, as.integer = TRUE)
 
   transitionYears <- inputYears[inputYears > min(harmonizationPeriod[1], max(histYears))

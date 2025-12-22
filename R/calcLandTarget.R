@@ -5,9 +5,18 @@
 #'
 #' @param target name of the target dataset
 #' luh2mod/luh3 will split secdf into pltns and secdf
+#' @param endOfHistory years later than this are not returned
 #' @return land target data
 #' @author Pascal Sauer
-calcLandTarget <- function(target) { # TODO read in years up to but not beyond hp1
+calcLandTarget <- function(target, endOfHistory) {
+  x <- calcOutput("LandTargetComplete", target = target, aggregate = FALSE, supplementary = TRUE)
+  x$x <- x$x[[terra::time(x$x) <= endOfHistory]]
+  out <- x[c("x", "class", "unit", "description")]
+  out$cache <- FALSE
+  return(out)
+}
+
+calcLandTargetComplete <- function(target) {
   if (target %in% c("luh2", "luh2mod", "luh3")) {
     cropTypes <- c("c3ann", "c3nfx", "c3per", "c4ann", "c4per")
     per <- c("c3per", "c4per")
