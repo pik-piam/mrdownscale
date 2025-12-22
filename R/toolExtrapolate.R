@@ -31,28 +31,29 @@ toolExtrapolate <- function(x, years, linearModel = TRUE, fallback = "mean") {
       prediction <- d[rep(1, length(years)), ]
       prediction$year <- years
       if (fallback == "mean") {
-        prediction$.value <- mean(d$.value)
+        fallbackValue <- mean(d$.value)
       } else if (fallback == "last") {
-        prediction$.value <- d[d$year == max(d$year), ".value"]
+        fallbackValue <- d[d$year == max(d$year), ".value"]
       } else {
         stop("Invalid fallback method")
       }
+      prediction$.value <- fallbackValue
 
       if (!all(d$.value == d$.value[1]) && linearModel) {
         model <- stats::lm(.value ~ year, data = d)
 
-        # use linear trend only if signicant
+        # predict last year using linear model if significant, fallback otherwise
+        lastYear <- data.frame(year = years[length(years)])
+        lastYear <- rbind(lastYear, lastYear + 1) # add extra year to bend spline
         if (summary(model)$coefficients["year", "Pr(>|t|)"] <= 0.05) {
-          # predict last year using linear model
-          # then spline interpolation from last historical year to predicted year
-          lastYear <- data.frame(year = years[length(years)])
-          lastYear <- rbind(lastYear, lastYear + 1) # add extra year to bend spline
-          prediction$.value <- stats::spline(x = c(d$year,
-                                                   lastYear$year),
-                                             y = c(d$.value,
-                                                   stats::predict(model, newdata = lastYear)),
-                                             xout = prediction$year)$y
+          y <- c(d$.value, stats::predict(model, newdata = lastYear))
+        } else {
+          y <- c(d$.value, fallbackValue, fallbackValue)
         }
+        # spline interpolation from last historical year to predicted year
+        prediction$.value <- stats::spline(x = c(d$year, lastYear$year),
+                                           y = y,
+                                           xout = prediction$year)$y
       }
 
       return(as.magpie(prediction, spatial = spatial, temporal = "year"))
