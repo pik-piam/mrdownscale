@@ -3,10 +3,20 @@
 #' Prepare the high resolution nonland target dataset for
 #' harmonization and downscaling, checking data for consistency before returning.
 #'
-#' @param target name of the target dataset, currently only "luh2" and "luh2mod" are supported
+#' @param target name of a target dataset, see \code{\link{calcLandTarget}}
+#' for available target datasets
+#' @param endOfHistory years later than this are not returned
 #' @return nonland target data
 #' @author Pascal Sauer
-calcNonlandTarget <- function(target) {
+calcNonlandTarget <- function(target, endOfHistory) {
+  x <- calcOutput("NonlandTargetComplete", target = target, aggregate = FALSE, supplementary = TRUE)
+  x$x <- x$x[[terra::time(x$x) <= endOfHistory]]
+  out <- x[c("x", "class", "unit", "description")]
+  out$cache <- FALSE
+  return(out)
+}
+
+calcNonlandTargetComplete <- function(target) {
   if (target %in% c("luh2", "luh2mod", "luh3")) {
     if (target %in% c("luh2", "luh2mod")) {
       cellAreaKm2 <- readSource("LUH2v2h", subtype = "cellArea", convert = FALSE)
@@ -14,8 +24,8 @@ calcNonlandTarget <- function(target) {
       transitions <- readSource("LUH2v2h", subtype = "transitions", convert = FALSE)
     } else {
       cellAreaKm2 <- readSource("LUH3", subtype = "cellArea", convert = FALSE)
-      management <- readSource("LUH3", subtype = "management", subset = 1995:2020, convert = FALSE)
-      transitions <- readSource("LUH3", subtype = "transitions", subset = 1995:2020, convert = FALSE)
+      management <- readSource("LUH3", subtype = "management", subset = 1995:2024, convert = FALSE)
+      transitions <- readSource("LUH3", subtype = "transitions", subset = 1995:2024, convert = FALSE)
     }
 
     # convert from km2 to Mha

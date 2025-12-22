@@ -4,10 +4,13 @@
 \alias{calcNonlandTarget}
 \title{calcNonlandTarget}
 \usage{
-calcNonlandTarget(target)
+calcNonlandTarget(target, endOfHistory)
 }
 \arguments{
-\item{target}{name of the target dataset, currently only "luh2" and "luh2mod" are supported}
+\item{target}{name of a target dataset, see \code{\link{calcLandTarget}}
+for available target datasets}
+
+\item{endOfHistory}{years later than this are not returned}
 }
 \value{
 nonland target data

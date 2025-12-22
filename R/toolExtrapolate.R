@@ -2,21 +2,18 @@
 #'
 #' Extrapolate a dataset into the future. A linear model is fitted for
 #' each combination of spatial entity and category, and then used to predict
-#' future values. If the linear model is not significant (p > 0.05) or
-#' linearModel is FALSE, the mean value is used for all years instead
-#' (constant extrapolation).
+#' the value of the last requested extrapolation year. If the linear model
+#' is not significant (p > 0.05) the historical mean is used instead.
+#' A spline-based interpolation is used to create a smooth transition from
+#' historical values to the predicted value.
 #'
 #' @param x A magpie object with "year" as the temporal dimension and
 #' without any NAs
 #' @param years A vector of years to extrapolate to
-#' @param linearModel If TRUE, a linear model is fitted for each
-#' combination of spatial entity and category.
-#' @param fallback What to constant value to use for all years if the linear
-#' model is disabled or not significant. Either "mean" or "last". If "mean",
-#' the mean value of x is used. If "last", use the value of the last year in x.
 #' @return A magpie object like x but with the extrapolated years only
+#'
 #' @author Pascal Sauer
-toolExtrapolate <- function(x, years, linearModel = TRUE, fallback = "mean") {
+toolExtrapolate <- function(x, years) {
   stopifnot(names(dimnames(x))[2] == "year",
             !is.na(x),
             !years %in% getYears(x, as.integer = TRUE))
@@ -26,23 +23,26 @@ toolExtrapolate <- function(x, years, linearModel = TRUE, fallback = "mean") {
   return(do.call(mbind, lapply(getItems(x, 1), function(location) {
     return(do.call(mbind, lapply(getItems(x, 3), function(category) {
       d <- as.data.frame(x[location, , category], rev = 3)
+      fallbackValue <- mean(d$.value)
       prediction <- d[rep(1, length(years)), ]
       prediction$year <- years
-      if (fallback == "mean") {
-        prediction$.value <- mean(d$.value)
-      } else if (fallback == "last") {
-        prediction$.value <- d[d$year == max(d$year), ".value"]
-      } else {
-        stop("Invalid fallback method")
-      }
+      prediction$.value <- fallbackValue
 
-      if (!all(d$.value == d$.value[1]) && linearModel) {
+      if (!all(d$.value == d$.value[1])) {
         model <- stats::lm(.value ~ year, data = d)
 
-        # use linear trend only if signicant
+        # predict last year using linear model if significant, fallback otherwise
+        lastYear <- data.frame(year = years[length(years)])
+        lastYear <- rbind(lastYear, lastYear + 1) # add extra year to bend spline
         if (summary(model)$coefficients["year", "Pr(>|t|)"] <= 0.05) {
-          prediction$.value <- stats::predict(model, newdata = prediction[, "year", drop = FALSE])
+          y <- c(d$.value, stats::predict(model, newdata = lastYear))
+        } else {
+          y <- c(d$.value, fallbackValue, fallbackValue)
         }
+        # spline interpolation from last historical year to predicted year
+        prediction$.value <- stats::spline(x = c(d$year, lastYear$year),
+                                           y = y,
+                                           xout = prediction$year)$y
       }
 
       return(as.magpie(prediction, spatial = spatial, temporal = "year"))

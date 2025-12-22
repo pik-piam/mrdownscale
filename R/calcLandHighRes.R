@@ -22,31 +22,32 @@ calcLandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, har
 
   hp1 <- harmonizationPeriod[1]
 
-  xTarget <- calcOutput("LandTarget", target = target, aggregate = FALSE)
+  xTarget <- calcOutput("LandTarget", target = target, endOfHistory = hp1, aggregate = FALSE)
   xTarget <- as.magpie(xTarget[[terra::time(xTarget) %in% yearsSubset]])
-  stopifnot(hp1 %in% getYears(xTarget, as.integer = TRUE))
+
+  histYears <- intersect(getYears(x, as.integer = TRUE),
+                         getYears(xTarget, as.integer = TRUE))
 
   x <- x[, , getItems(xTarget, 3)]
 
-  landTargetLowRes <- calcOutput("LandTargetLowRes", input = input, target = target, aggregate = FALSE)
-  landTargetLowRes <- landTargetLowRes[, hp1, getItems(x, 3)]
+  landTargetLowRes <- calcOutput("LandTargetLowRes", input = input, target = target,
+                                 endOfHistory = hp1, aggregate = FALSE)
+  landTargetLowRes <- landTargetLowRes[, max(histYears), getItems(x, 3)]
   stopifnot(setequal(getItems(landTargetLowRes, 1), getItems(x, 1)))
 
   mapping <- calcOutput("ResolutionMapping", input = input, target = target, aggregate = FALSE)
 
   if (downscaling == "magpieClassic") {
-    out <- toolDownscaleMagpieClassic(x[, getYears(x, as.integer = TRUE) >= hp1, ],
-                                      xTarget[, hp1, ],
+    out <- toolDownscaleMagpieClassic(x[, getYears(x, as.integer = TRUE) >= max(histYears), ],
+                                      xTarget[, max(histYears), ],
                                       xTargetLowRes = landTargetLowRes,
                                       mapping = mapping)
+    out <- out[, getYears(out, as.integer = TRUE) > max(histYears), ]
   } else {
     stop("Unsupported downscaling method \"", downscaling, "\"")
   }
-  histYears <- getYears(x, as.integer = TRUE)
-  histYears <- histYears[histYears < hp1]
-  if (length(histYears) > 0) {
-    out <- mbind(xTarget[, histYears, ], out)
-  }
+
+  out <- mbind(xTarget[, histYears, ], out)
 
   out <- toolReplaceExpansion(out, "primf", "secdf", warnThreshold = 100)
   out <- toolReplaceExpansion(out, "primn", "secdn", warnThreshold = 100)
@@ -55,8 +56,8 @@ calcLandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, har
                  "Dimensions are named correctly")
   toolExpectTrue(setequal(getItems(out, dim = 3), getItems(x, dim = 3)),
                  "Land categories remain unchanged")
-  toolExpectLessDiff(out[, hp1, ], xTarget[, hp1, ], 10^-5,
-                     paste("In", hp1, "output equals target"))
+  toolExpectLessDiff(out[, max(histYears), ], xTarget[, max(histYears), ], 10^-5,
+                     paste("In", max(histYears), "output equals target"))
   toolExpectTrue(all(out >= 0), "All values are >= 0")
 
   outSum <- dimSums(out, dim = 3)

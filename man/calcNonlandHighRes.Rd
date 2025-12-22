@@ -16,7 +16,8 @@ calcNonlandHighRes(
 \arguments{
 \item{input}{name of an input dataset, currently only "magpie"}
 
-\item{target}{name of a target dataset, currently only "luh2mod"}
+\item{target}{name of a target dataset, see \code{\link{calcLandTarget}}
+for available target datasets}
 
 \item{harmonizationPeriod}{Two integer values, before the first given
 year the target dataset is used, after the second given year the input

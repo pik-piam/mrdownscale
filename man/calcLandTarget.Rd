@@ -4,11 +4,13 @@
 \alias{calcLandTarget}
 \title{calcLandTarget}
 \usage{
-calcLandTarget(target)
+calcLandTarget(target, endOfHistory)
 }
 \arguments{
-\item{target}{name of the target dataset
+\item{target}{name of the target dataset, one of luh2, luh2mod, luh3
 luh2mod/luh3 will split secdf into pltns and secdf}
+
+\item{endOfHistory}{years later than this are not returned}
 }
 \value{
 land target data

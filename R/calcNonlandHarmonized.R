@@ -11,7 +11,7 @@
 #' in kg ha-1 yr-1.
 #'
 #' @inheritParams calcNonlandInput
-#' @param target name of the target dataset, currently only "luh2"
+#' @param target name of the target dataset
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets

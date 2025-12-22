@@ -7,7 +7,8 @@
 #' and returned in kg ha-1 yr-1.
 #'
 #' @inheritParams calcNonlandInput
-#' @param target character, name of the target data set, currently only "luh2mod"
+#' @param target name of a target dataset, see \code{\link{calcLandTarget}}
+#' for available target datasets
 #' @param harmonizationPeriod Two integer values, will extrapolate to all years
 #' present in input data between harmonization start and end year
 #' @return extrapolated nonland target data
@@ -15,16 +16,19 @@
 #' @examples
 #' \dontrun{
 #'   calcOutput("NonlandTargetExtrapolated", input = "magpie",
-#'              target = "luh2mod", harmonizationPeriod = c(2020, 2050))
+#'              target = "luh3", harmonizationPeriod = c(2025, 2050))
 #' }
 #' @author Pascal Sauer
 calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
   hp <- harmonizationPeriod
   xInput <- calcOutput("NonlandInputRecategorized", input = input, target = target, aggregate = FALSE)
   inputYears <- getYears(xInput, as.integer = TRUE)
-  transitionYears <- inputYears[inputYears > hp[1] & inputYears < hp[2]]
 
-  xTarget <- calcOutput("NonlandTargetLowRes", input = input, target = target, aggregate = FALSE)
+  xTarget <- calcOutput("NonlandTargetLowRes", input = input, target = target,
+                        endOfHistory = hp[1], aggregate = FALSE)
+
+  transitionYears <- inputYears[inputYears > max(getYears(xTarget, TRUE))
+                                & inputYears < hp[2]]
 
   exFertilizer <- toolExtrapolate(xTarget[, , "fertilizer"], transitionYears)
   exFertilizer[exFertilizer < 0] <- 0
