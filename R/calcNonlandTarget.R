@@ -3,7 +3,8 @@
 #' Prepare the high resolution nonland target dataset for
 #' harmonization and downscaling, checking data for consistency before returning.
 #'
-#' @param target name of the target dataset, currently only "luh2" and "luh2mod" are supported
+#' @param target name of a target dataset, see \code{\link{calcLandTarget}}
+#' for available target datasets
 #' @param endOfHistory years later than this are not returned
 #' @return nonland target data
 #' @author Pascal Sauer

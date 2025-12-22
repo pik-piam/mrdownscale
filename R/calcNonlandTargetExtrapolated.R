@@ -7,7 +7,8 @@
 #' and returned in kg ha-1 yr-1.
 #'
 #' @inheritParams calcNonlandInput
-#' @param target character, name of the target data set, currently only "luh2mod"
+#' @param target name of a target dataset, see \code{\link{calcLandTarget}}
+#' for available target datasets
 #' @param harmonizationPeriod Two integer values, will extrapolate to all years
 #' present in input data between harmonization start and end year
 #' @return extrapolated nonland target data

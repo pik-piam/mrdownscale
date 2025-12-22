@@ -12,7 +12,8 @@
 #' the harmonization period as weight.
 #'
 #' @inheritParams calcNonlandInput
-#' @param target name of a target dataset, currently only "luh2mod"
+#' @param target name of a target dataset, see \code{\link{calcLandTarget}}
+#' for available target datasets
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
