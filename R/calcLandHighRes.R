@@ -42,7 +42,7 @@ calcLandHighRes <- function(input, target, harmonizationPeriod, yearsSubset, har
                                       xTarget[, max(histYears), ],
                                       xTargetLowRes = landTargetLowRes,
                                       mapping = mapping)
-    out <- out[, getYears(out, as.integer = TRUE) >= hp1, ]
+    out <- out[, getYears(out, as.integer = TRUE) > max(histYears), ]
   } else {
     stop("Unsupported downscaling method \"", downscaling, "\"")
   }
