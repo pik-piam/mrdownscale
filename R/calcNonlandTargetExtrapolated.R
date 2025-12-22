@@ -66,8 +66,8 @@ calcNonlandTargetExtrapolated <- function(input, target, harmonizationPeriod) {
                      dimSums(out[, , "harvest_weight_type"], 3),
                      10^5, "Harvest weight types are consistent")
   toolExpectTrue(min(out) >= 0, "All values are >= 0")
-  toolExpectLessDiff(out[, getYears(out, as.integer = TRUE) <= hp[1], ],
-                     xTarget[, getYears(xTarget, as.integer = TRUE) <= hp[1], ],
+  toolExpectLessDiff(out[, getYears(xTarget), ],
+                     xTarget,
                      10^-5, "Returning reference data before harmonization period")
   toolCheckFertilizer(out[, , "fertilizer"])
 
