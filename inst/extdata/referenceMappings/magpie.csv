@@ -1,10 +1,10 @@
 reference;data
 primf;primforest
 secdf;secdforest
-secdf;forestry_ndc
-secdf;forestry_aff_secdf
-pltns;forestry_aff_pltns
-pltns;forestry_plant
+forestry_ndc;forestry_ndc
+forestry_aff_secdf;forestry_aff_secdf
+forestry_aff_pltns;forestry_aff_pltns
+forestry_plant;forestry_plant
 primn;other
 secdn;other
 pastr;past
