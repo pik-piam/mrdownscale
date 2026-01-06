@@ -36,12 +36,9 @@ calcNonlandInput <- function(input) { # before adding args, consider: many funct
     # land of the correponding type (in the previous timestep)
     land <- calcOutput("LandInput", input = input, aggregate = FALSE)
 
-    # aggregate 4 forestry variables into one
-    # TODO also split forestry wood harvest into 4
-    forestryTypes <- grep("forestry", getItems(land, 3), value = TRUE)
+    # only forestry_plant is harvested, so we can just rename
     land <- add_columns(land, "forestry")
-    land[, , "forestry"] <- dimSums(land[, , forestryTypes], 3)
-    land <- land[, , forestryTypes, invert = TRUE]
+    land[, , "forestry"] <- dimSums(land[, , "forestry_plant"], 3)
 
     stopifnot(identical(getYears(woodHarvestArea), getYears(land)))
     years <- getYears(land, as.integer = TRUE)
