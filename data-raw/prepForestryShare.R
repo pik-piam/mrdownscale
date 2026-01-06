@@ -1,4 +1,4 @@
-withr::with_package("mrcommons", {
+withr::with_package("mrlandcore", {
   x <- calcOutput("LanduseInitialisation", cellular = TRUE, cells = "lpjcell",
                   selectyears = seq(1995, 2015, 5), aggregate = FALSE)
   x <- x[, , c("forestry", "secdforest")]

@@ -128,6 +128,10 @@ calcLandTargetComplete <- function(target) {
     stopifnot(identical(getYears(out), getYears(chinaCrops)))
 
     otherCrop <- out[, , "crop"] - dimSums(chinaCrops, dim = 3)
+    if (any(otherCrop < 0)) {
+      warning("otherCrop is negative, setting to 0")
+      otherCrop[otherCrop < 0] <- 0
+    }
     stopifnot(otherCrop >= 0)
     otherCrop <- magclass::setNames(otherCrop, "other_crop")
 

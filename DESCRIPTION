@@ -21,6 +21,7 @@ Depends:
     mstools (>= 0.8.0),
     R (>= 4.0.0)
 Imports:
+    gdx2,
     luscale (>= 3.1.4),
     magpie4 (>= 2.34.1),
     mip,
@@ -31,7 +32,7 @@ Imports:
 Suggests:
     covr,
     knitr,
-    mrcommons,
+    mrlandcore,
     rmarkdown,
     testthat,
     usethis
