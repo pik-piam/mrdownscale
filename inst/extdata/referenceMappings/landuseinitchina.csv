@@ -1,12 +1,15 @@
 reference;data
 primf;primforest
 secdf;secdforest
+forestry_ndc;forestry
+forestry_aff_secdf;forestry
+forestry_aff_pltns;forestry
+forestry_plant;forestry
 primn;other
 secdn;other
 pastr;past
 range;past
 urban;urban
-pltns;forestry
 alfalfa, irrigated;other_crop
 alfalfa, rainfed;other_crop
 Almonds, with shell, irrigated;other_crop

@@ -1,7 +1,10 @@
 reference;data
 primf;Land_Cover_Forest_Primary
 secdf;Land_Cover_Forest_Secondary
-pltns;Land_Cover_Forest_Planted
+forestry_ndc;Land_Cover_Forest_Secondary
+forestry_aff_secdf;Land_Cover_Forest_Secondary
+forestry_aff_pltns;Land_Cover_Forest_Planted
+forestry_plant;Land_Cover_Forest_Planted
 primn;Land_Cover_Other_Natural
 secdn;Land_Cover_Other_Natural
 pastr;Land_Cover_Pasture
