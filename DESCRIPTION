@@ -1,8 +1,8 @@
 Type: Package
 Package: mrdownscale
 Title: Downscale and harmonize land use data
-Version: 0.48.1
-Date: 2025-12-22
+Version: 0.49.0
+Date: 2026-01-06
 Authors@R: c(
     person("Pascal", "Sauer", , "pascal.sauer@pik-potsdam.de", role = c("aut", "cre"),
            comment = c(affiliation = "Potsdam Institute for Climate Impact Research", ORCID = "0000-0002-6856-8239")),
@@ -21,6 +21,7 @@ Depends:
     mstools (>= 0.8.0),
     R (>= 4.0.0)
 Imports:
+    gdx2,
     luscale (>= 3.1.4),
     magpie4 (>= 2.34.1),
     mip,
@@ -31,7 +32,7 @@ Imports:
 Suggests:
     covr,
     knitr,
-    mrcommons,
+    mrlandcore,
     rmarkdown,
     testthat,
     usethis

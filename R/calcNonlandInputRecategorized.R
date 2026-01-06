@@ -32,9 +32,9 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
   map <- toolLandCategoriesMapping(input, target)
 
   # rename pltns category
-  pltnsInInput <- map[map$dataOutput == "pltns", "dataInput"]
-  stopifnot(length(pltnsInInput) == 1)
-  getItems(x, 3, raw = TRUE) <- sub(pltnsInInput, "pltns", getItems(x, 3))
+  stopifnot(setequal(grep("forestry", getItems(x, 3), value = TRUE),
+                     c("wood_harvest_weight.forestry", "wood_harvest_area.forestry")))
+  getItems(x, 3, raw = TRUE) <- sub("forestry", "pltns", getItems(x, 3))
 
   if (target %in% c("luh2", "luh2mod")) {
     # aggregate secdforest and pltns, because LUH2 does not report wood harvest for pltns
