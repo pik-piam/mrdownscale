@@ -4,20 +4,18 @@
 \alias{toolMaxExpansion}
 \title{toolMaxExpansion}
 \usage{
-toolMaxExpansion(x, variable, removeNA = FALSE)
+toolMaxExpansion(x, removeNA = FALSE)
 }
 \arguments{
 \item{x}{A magclass object}
 
-\item{variable}{A character string indicating the variable to be used}
-
 \item{removeNA}{A logical indicating whether NA values should be ignored}
 }
 \value{
-A numeric value indicating the maximum expansion of the variable
+A numeric value indicating the maximum expansion
 }
 \description{
-Return the maximum expansion of a variable from one timestep to the next.
+Return the maximum expansion from one timestep to the next.
 }
 \author{
 Pascal Sauer

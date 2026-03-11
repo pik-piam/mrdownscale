@@ -16,3 +16,5 @@
 ^Meta$
 ^vignettes/.lintr$
 ^LICENSE\.md$
+^\.claude$
+^_pkgdown\.yml$
