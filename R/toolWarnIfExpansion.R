@@ -9,7 +9,7 @@
 #' @author Pascal Sauer
 toolWarnIfExpansion <- function(x, variable) {
   maxExpansion <- vapply(intersect(variable, getItems(x, 3)),
-                         function(v) toolMaxExpansion(x, v),
+                         function(v) toolMaxExpansion(x[, , v]),
                          numeric(1))
   maxExpansion <- maxExpansion[maxExpansion > 0]
   if (length(maxExpansion) >= 1) {
