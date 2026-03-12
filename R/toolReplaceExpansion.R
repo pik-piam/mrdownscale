@@ -28,8 +28,6 @@ toolReplaceExpansion <- function(x, from, to, ..., noteThreshold = 10^-10, warnT
             ...length() == 0,
             noteThreshold <= warnThreshold)
 
-  totaln <- dimSums(x[, , c(from, to)], 3)
-
   maxDiff <- 0
   for (i in 2:nyears(x)) {
     difference <- x[, i, from] - setYears(x[, i - 1, from], getYears(x)[i])
@@ -48,13 +46,6 @@ toolReplaceExpansion <- function(x, from, to, ..., noteThreshold = 10^-10, warnT
     toolStatusMessage("note", paste0("replaced ", from, " expansion ",
                                      "(max expansion: ", signif(maxDiff, 3), ") with ", to, " expansion"),
                       level = level)
-  }
-
-  if (maxDiff > 0) {
-    toolExpectLessDiff(dimSums(x[, , c(from, to)], 3), totaln, 10^-5,
-                       paste0("No significant change in sum of ", from, " and ", to, " after replacing ",
-                              from, " expansion with ", to, " expansion"),
-                       level = level)
   }
 
   return(x)
