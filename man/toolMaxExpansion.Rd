@@ -4,10 +4,12 @@
 \alias{toolMaxExpansion}
 \title{toolMaxExpansion}
 \usage{
-toolMaxExpansion(x, removeNA = FALSE)
+toolMaxExpansion(x, ..., removeNA = FALSE)
 }
 \arguments{
 \item{x}{A magclass object}
+
+\item{...}{Reserved for future use}
 
 \item{removeNA}{A logical indicating whether NA values should be ignored}
 }
