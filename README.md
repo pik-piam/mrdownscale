@@ -63,3 +63,7 @@ A BibTeX entry for LaTeX users is
   note = {Version: 0.50.0},
 }
 ```
+
+## Funding
+
+This research constitutes a contribution to the project OptimESM, which has received funding from the European Union’s Horizon Europe research and innovation programme under grant agreement No 101081193.
