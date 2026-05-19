@@ -50,8 +50,8 @@ calcManagementNC <- function(outputFormat, input, harmonizationPeriod, yearsSubs
   # account for the time unit written into the nc file by terra: "years since 1970-01-01 0:0:0"
   x <- setYears(x, getYears(x, as.integer = TRUE) - 1970)
 
+  unit <- "1"
   if (outputFormat == "ScenarioMIP") {
-    unit <- "1"
     expectedVariables <- c("irrig_c3ann", "irrig_c3per", "irrig_c4ann", "irrig_c4per", "irrig_c3nfx",
                            "cpbf1_c3ann", "cpbf1_c4ann", "cpbf1_c3per", "cpbf1_c4per", "cpbf1_c3nfx",
                            "cpbf2_c3per", "cpbf2_c4per")
