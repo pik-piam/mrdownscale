@@ -167,8 +167,13 @@ toolSplitSecdf <- function(x) {
 
   names(pltns) <- sub("secdf", "pltns", names(pltns))
   stopifnot(terra::nlyr(x["secdf"]) == terra::nlyr(pltns))
-  secdf <- x["secdf"] - pltns
-  x <- c(x[[!grepl("secdf", names(x))]], pltns, secdf)
+  otherVars <- grep("secdf", names(x), invert = TRUE, value = TRUE)
+  newX <- c(pltns, x["secdf"] - pltns)
+  if (length(otherVars) > 0) {
+    x <- c(newX, x[[otherVars]])
+  } else {
+    x <- newX
+  }
 
   # cannot cache SpatRaster with both in-memory and on-disk/file sources,
   # so write `x` to a tif file to get SpatRaster with a single source (the tif file)

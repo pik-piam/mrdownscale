@@ -36,7 +36,7 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
                      c("wood_harvest_weight.forestry", "wood_harvest_area.forestry")))
   getItems(x, 3, raw = TRUE) <- sub("forestry", "pltns", getItems(x, 3))
 
-  if (target %in% c("luh2", "luh2mod")) {
+  if (target == "luh2") {
     # aggregate secdforest and pltns, because LUH2 does not report wood harvest for pltns
     x[, , "secdforest"] <- add_dimension(dimSums(x[, , c("secdforest", "pltns")], "data"),
                                          3.2, "data", "secdforest")
@@ -123,7 +123,7 @@ calcNonlandInputRecategorized <- function(input, target, youngShareWoodHarvestAr
                                               if (length(omitted) > 0) omittedMessage))
 
   woodland <- c("primf", "primn", "secmf", "secyf", "secnf",
-                if (!target %in% c("luh2", "luh2mod")) "pltns")
+                if (target != "luh2") "pltns")
   toolExpectTrue(setequal(getItems(x, 3),
                           c(paste0("wood_harvest_area.", woodland),
                             paste0("bioh.", woodland),

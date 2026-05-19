@@ -50,6 +50,19 @@ calcNonlandTargetComplete <- function(target) {
       terra::varnames(pltnsWoodHarvestArea) <- "pltns_harv"
       terra::longnames(pltnsWoodHarvestArea) <- "wood harvest area from plantation forest vegetation"
       woodHarvestArea <- c(woodHarvestArea, pltnsWoodHarvestArea)
+    } else if (target == "luh2mod") {
+      # split harvest from secdf
+      totalSecdf <- woodHarvestArea["secyf"] + woodHarvestArea["secmf"]
+      secyfShare <- woodHarvestArea["secyf"] / (totalSecdf + 1e-30)
+      names(totalSecdf) <- sub("secyf", "secdf", names(totalSecdf))
+      pltnsSecdf <- toolSplitSecdf(totalSecdf)
+      secyf <- secyfShare * pltnsSecdf["secdf"]
+      secmf <- pltnsSecdf["secdf"] * (1 - secyfShare)
+      names(secmf) <- sub("secdf", "secmf", names(secmf))
+      woodHarvestArea <- c(woodHarvestArea[[!grepl("sec[ym]f", names(woodHarvestArea))]],
+                           pltnsSecdf["pltns"],
+                           secyf,
+                           secmf)
     }
 
     names(woodHarvestArea) <- paste0(sub("_harv", "", names(woodHarvestArea)), "_wood_harvest_area")
@@ -58,16 +71,6 @@ calcNonlandTargetComplete <- function(target) {
     ### wood harvest weight (bioh) in kg C yr-1
     woodHarvestWeight <- c(transitions["(primf|primn|secmf|secyf|secnf)_bioh"])
 
-    if (target == "luh3") {
-      # LUH3 includes pltns_bioh variable, but it's zero everywhere, so no need to read it
-      pltnsBioh <- woodHarvestWeight["primf_bioh"] * 0
-      names(pltnsBioh) <- sub("primf", "pltns", names(pltnsBioh))
-      terra::varnames(pltnsBioh) <- "pltns_bioh"
-      terra::longnames(pltnsBioh) <- "wood harvest biomass carbon from plantation forest vegetation"
-
-      woodHarvestWeight <- c(woodHarvestWeight, pltnsBioh)
-    }
-
     minWoodHarvestWeight <- min(terra::minmax(woodHarvestWeight, compute = TRUE))
     if (minWoodHarvestWeight < 0) {
       # replace negative weight of wood harvest with 0
@@ -75,6 +78,29 @@ calcNonlandTargetComplete <- function(target) {
                                        round(minWoodHarvestWeight, 3), " kg C yr-1)"))
       woodHarvestWeight <- terra::classify(woodHarvestWeight, cbind(-Inf, 0, 0))
     }
+
+    if (target == "luh3") {
+      # LUH3 includes pltns_bioh variable, but it's zero everywhere (including ocean), so no need to read it
+      pltnsBioh <- woodHarvestWeight["primf_bioh"] * 0
+      names(pltnsBioh) <- sub("primf", "pltns", names(pltnsBioh))
+      terra::varnames(pltnsBioh) <- "pltns_bioh"
+      terra::longnames(pltnsBioh) <- "wood harvest biomass carbon from plantation forest vegetation"
+      woodHarvestWeight <- c(woodHarvestWeight, pltnsBioh)
+    } else if (target == "luh2mod") {
+      # split harvest from secdf
+      totalSecdf <- woodHarvestWeight["secyf"] + woodHarvestWeight["secmf"]
+      secyfShare <- woodHarvestWeight["secyf"] / (totalSecdf + 1e-30)
+      names(totalSecdf) <- sub("secyf", "secdf", names(totalSecdf))
+      pltnsSecdf <- toolSplitSecdf(totalSecdf)
+      secyf <- secyfShare * pltnsSecdf["secdf"]
+      secmf <- pltnsSecdf["secdf"] * (1 - secyfShare)
+      names(secmf) <- sub("secdf", "secmf", names(secmf))
+      woodHarvestWeight <- c(woodHarvestWeight[[!grepl("sec[ym]f", names(woodHarvestWeight))]],
+                             pltnsSecdf["pltns"],
+                             secyf,
+                             secmf)
+    }
+
     terra::units(woodHarvestWeight) <- "kg C yr-1"
 
     ### wood harvest weight type (fuelwood/roundwood) in kg C yr-1
