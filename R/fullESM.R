@@ -35,10 +35,9 @@ fullESM <- function(rev = numeric_version("0"), input = "magpie", fileNamePart =
 
   metadataArgs <- list(revision = revision, missingValue = 1e20, resolution = 0.25,
                        compression = compression, harmonizationPeriod = harmonizationPeriod,
-                       activityId = "RESCUE/OptimESM",
-                       references = paste0("https://github.com/pik-piam/mrdownscale and ",
-                                           "https://rescue-climate.eu/ and https://optimesm-he.eu/"),
-                       targetMIP = "RESCUE/OptimESM",
+                       activityId = "RESCUE",
+                       references = paste0("https://github.com/pik-piam/mrdownscale and https://rescue-climate.eu"),
+                       targetMIP = "RESCUE",
                        ncTitle = "MAgPIE Land-Use Data Harmonized and Downscaled using LUH2 v2h as reference",
                        referenceDataset = "LUH2 v2h Release (10/14/16) from https://luh.umd.edu/data.shtml",
                        furtherInfoUrl = paste0("https://github.com/pik-piam/mrdownscale/blob/",
