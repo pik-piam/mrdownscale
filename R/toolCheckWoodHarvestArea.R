@@ -27,6 +27,9 @@ toolCheckWoodHarvestArea <- function(harvest, land, endOfHistory) {
   stopifnot(identical(getItems(excessHarvestPerYear, 2), getItems(maxHarvestPerYear, 2)))
 
   checkArea <- function(x, notePrefix) {
+    if (nyears(x) == 0) {
+      return()
+    }
     msg <- paste0(" (max yearly excess harvest: ", signif(max(x), 3), " Mha)")
     toolExpectTrue(max(x) <= 10^-10,
                    paste0(notePrefix, "wood harvest area is smaller than land ",
