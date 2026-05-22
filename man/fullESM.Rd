@@ -7,7 +7,7 @@
 fullESM(
   rev = numeric_version("0"),
   input = "magpie",
-  scenario = "",
+  fileNamePart = "",
   harmonizationPeriod = c(2015, 2050),
   yearsSubset = 2015:2100,
   harmonization = "fade",
@@ -22,7 +22,9 @@ When called via madrat::retrieveData rev will be converted to numeric_version.}
 
 \item{input}{name of an input dataset, options: "magpie", "witch"}
 
-\item{scenario}{scenario name to be included in filenames}
+\item{fileNamePart}{scenario nc files will be called
+multiple-[type]_[fileNamePart]-[revision]_gn_[min(yearsSubset)]-[max(yearsSubset)].nc
+where type is one of states/management/transitions}
 
 \item{harmonizationPeriod}{Two integer values, before the first given
 year the target dataset is used, after the second given year the input
@@ -40,7 +42,7 @@ dataset is used, in between harmonize between the two datasets}
 \item{progress}{boolean defining whether progress should be printed}
 }
 \description{
-Run the pipeline to generate harmonized and downscaled data to report for the RESCUE, OptimESM
+Run the pipeline to generate harmonized and downscaled data to report for RESCUE
 and other projects where ESM compatible land use inputs are required.
 Write .nc files, print full report on consistency checks and write it to report.log.
 }
