@@ -103,6 +103,6 @@ calcLandReport <- function(outputFormat, input, harmonizationPeriod, yearsSubset
                 description = paste0("MAgPIE data harmonized and downscaled using landuseinit as reference ",
                                      "for further processing in magpie4")))
   } else {
-    stop("Can only report for outputFormat = ESM/ScenarioMIP")
+    stop("Can only report for outputFormat = ESM/ScenarioMIP/downscaledmagpie")
   }
 }
