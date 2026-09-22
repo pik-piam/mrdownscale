@@ -18,7 +18,7 @@ BugReports: https://github.com/pik-piam/mrdownscale/issues
 Depends:
     madrat (>= 3.27.0),
     magclass (>= 7.0.0),
-    mstools (>= 0.8.0),
+    mstools (>= 0.17.0),
     R (>= 4.0.0)
 Imports:
     gdx2,
@@ -41,4 +41,4 @@ VignetteBuilder:
 Encoding: UTF-8
 LazyData: true
 Config/Needs/website: tidyverse/tidytemplate
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.0
