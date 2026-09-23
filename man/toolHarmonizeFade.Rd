@@ -4,7 +4,7 @@
 \alias{toolHarmonizeFade}
 \title{toolHarmonizeFade}
 \usage{
-toolHarmonizeFade(xInput, xTarget, harmonizationPeriod, level = 3)
+toolHarmonizeFade(xInput, xTarget, harmonizationPeriod)
 }
 \arguments{
 \item{xInput}{input data as magpie object}
@@ -14,8 +14,6 @@ toolHarmonizeFade(xInput, xTarget, harmonizationPeriod, level = 3)
 \item{harmonizationPeriod}{Two integer values, before the first given
 year the target dataset is used, after the second given year the input
 dataset is used, in between harmonize between the two datasets}
-
-\item{level}{passed to toolReplaceExpansion}
 }
 \value{
 harmonized data set as magpie object with data from input for years
