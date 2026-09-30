@@ -3,6 +3,8 @@
 #' Convert the downscaled nonland data to the format required by the given project.
 #'
 #' @param outputFormat options: ESM, ScenarioMIP
+#' @param input name of the input dataset, see \code{\link{calcNonlandInput}};
+#' magpie by default
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets
@@ -18,9 +20,9 @@
 #'              harmonization = "fade", downscaling = "magpieClassic")
 #' }
 #' @author Pascal Sauer
-calcNonlandReport <- function(outputFormat, harmonizationPeriod, yearsSubset, harmonization, downscaling) {
+calcNonlandReport <- function(outputFormat, harmonizationPeriod, yearsSubset, harmonization, downscaling,
+                              input = "magpie") {
   if (outputFormat %in% c("ESM", "ScenarioMIP")) {
-    input <- "magpie"
     if (outputFormat == "ESM") {
       target <- "luh2mod"
       cellAreaKm2 <- readSource("LUH2v2h", subtype = "cellArea", convert = FALSE)
