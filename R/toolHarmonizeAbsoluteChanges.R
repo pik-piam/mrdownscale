@@ -61,8 +61,10 @@ toolHarmonizeAbsoluteChanges <- function(xInput, xTarget, harmonizationPeriod) {
   stopifnot(all(urban >= -10^-5))
   urban[urban < 0] <- 0
   changed[, , "urban"] <- urban
+
   nonUrbanTarget <- targetArea - dimSums(urban, 3)
-  stopifnot(all(nonUrbanTarget >= 0))
+  stopifnot(all(nonUrbanTarget >= -10^-5))
+  nonUrbanTarget[nonUrbanTarget < 0] <- 0
   nonUrban <- setdiff(getItems(changed, 3), "urban")
   changed[, , nonUrban] <- toolHandleNegatives(changed[, , nonUrban], targetArea = nonUrbanTarget)
 
