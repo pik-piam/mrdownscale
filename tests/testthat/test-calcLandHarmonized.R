@@ -1,18 +1,13 @@
 test_that("calcLandHarmonized works with harmonization = absoluteChanges", {
   harmonizationYear <- 2020
 
-  # with this data absolute changes make forest categories negative (noted), so
+  # with this data absolute changes make forest categories negative, so
   # the calculation must actually run and not be loaded from cache
   oldIgnoreCache <- madrat::setConfig(ignorecache = "calcLandHarmonized")
   withr::defer(madrat::setConfig(ignorecache = oldIgnoreCache$ignorecache))
-  expect_message(
-    {
-      x <- calcOutput("LandHarmonized", input = "magpie", target = "luh3",
-                      harmonizationPeriod = harmonizationYear,
-                      harmonization = "absoluteChanges", aggregate = FALSE)
-    },
-    "absolute changes made forest categories negative"
-  )
+  x <- calcOutput("LandHarmonized", input = "magpie", target = "luh3",
+                  harmonizationPeriod = harmonizationYear,
+                  harmonization = "absoluteChanges", aggregate = FALSE)
 
   xInput <- calcOutput("LandInputRecategorized", input = "magpie", target = "luh3", aggregate = FALSE)
   xTarget <- calcOutput("LandTargetLowRes", input = "magpie", target = "luh3",

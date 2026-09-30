@@ -26,12 +26,11 @@ changes of the input data to the target data: up to the harmonization year
 the target data is used, afterwards the difference of the input data to the
 input data of the harmonization year is added to the target data of the
 harmonization year.
-If this makes forest categories (pltns, primf, secdf) negative, the missing
-area is deducted proportionally from the other land categories (primn,
-secdn). Remaining negative values are set to 0 and categories are scaled
-down to keep the total area constant: first everything except
-prim (primf, primn) and urban, then prim only if prim + urban exceed
-total area. Urban is never scaled.
+Negative values are handled within groups of related categories (forest plus
+other land, all cropland types, pasture plus rangeland), so that they are
+compensated by the other categories of the group. Groups with a negative
+total area are set to zero. Afterwards, all categories except urban are
+scaled down to keep the total area constant.
 }
 \author{
 Pascal Sauer
