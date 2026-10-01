@@ -16,14 +16,14 @@
 #' @param harmonization name of harmonization method, see \code{\link{toolGetHarmonizer}}
 #' @author Pascal Sauer, Jan Philipp Dietrich
 calcLandHarmonized <- function(input, target, harmonizationPeriod, harmonization) {
-  xInput <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
-  geometry <- attr(xInput, "geometry")
-  crs <- attr(xInput, "crs")
-
   if ((harmonization == "absoluteChanges") != (length(harmonizationPeriod) == 1)) {
     stop("harmonizationPeriod must be a single year for harmonization = \"absoluteChanges\" ",
          "and a vector of two years for the other harmonization methods")
   }
+
+  xInput <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
+  geometry <- attr(xInput, "geometry")
+  crs <- attr(xInput, "crs")
 
   # absoluteChanges only uses the target data up to the harmonization year,
   # no extrapolation is needed

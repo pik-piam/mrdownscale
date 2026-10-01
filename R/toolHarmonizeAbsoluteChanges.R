@@ -56,6 +56,7 @@ toolHarmonizeAbsoluteChanges <- function(xInput, xTarget, harmonizationPeriod) {
     cropland = grep("rainfed|irrigated", getItems(changed, 3), value = TRUE),
     pastureRangeland = intersect(c("pastr", "range"), getItems(changed, 3))
   )
+  stopifnot(setequal(c(unlist(groups), "urban"), getItems(changed, 3)))
   # set negatives to zero, then scale other variables from that group to achieve target area
   for (group in groups) {
     changed[, , group] <- toolHandleNegatives(changed[, , group], allowNegativeTarget = TRUE)

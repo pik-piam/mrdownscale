@@ -1,42 +1,64 @@
+items <- c("primf", "primn", "secdf", "secdn", "urban", "pltns",
+           "pastr", "range", "c3ann_rainfed", "c4ann_rainfed")
+
 test_that("calcLandHarmonized works with harmonization = absoluteChanges", {
   harmonizationYear <- 2020
 
-  # with this data absolute changes make forest categories negative, so
-  # the calculation must actually run and not be loaded from cache
-  oldIgnoreCache <- madrat::setConfig(ignorecache = "calcLandHarmonized")
-  withr::defer(madrat::setConfig(ignorecache = oldIgnoreCache$ignorecache))
-  x <- calcOutput("LandHarmonized", input = "magpie", target = "luh3",
-                  harmonizationPeriod = harmonizationYear,
-                  harmonization = "absoluteChanges", aggregate = FALSE)
+  # real MAgPIE/LUH3 source data is not available in CI, so the source data
+  # functions are mocked with synthetic data
+  xTarget <- new.magpie(c("reg.one", "reg.two"), years = c(2010, 2020), names = items, fill = 0)
+  for (year in c(2010, 2020)) {
+    xTarget["reg.one", year, ] <- c(40, 10, 10, 5, 5, 0, 30, 0, 0, 0)
+    xTarget["reg.two", year, ] <- c(30, 10, 20, 5, 5, 0, 30, 0, 0, 0)
+  }
 
-  xInput <- calcOutput("LandInputRecategorized", input = "magpie", target = "luh3", aggregate = FALSE)
-  xTarget <- calcOutput("LandTargetLowRes", input = "magpie", target = "luh3",
-                        endOfHistory = harmonizationYear, aggregate = FALSE)
+  xInput <- new.magpie(c("reg.one", "reg.two"), years = c(2020, 2025, 2030), names = items, fill = 0)
+  xInput["reg.one", 2020, ] <- c(20, 10, 20, 5, 10, 0, 35, 0, 0, 0)
+  xInput["reg.one", 2025, ] <- c(20, 10, 22, 5, 10, 0, 33, 0, 0, 0)
+  xInput["reg.one", 2030, ] <- c(19, 10, 24, 5, 10, 0, 32, 0, 0, 0)
+  xInput["reg.two", 2020, ] <- c(30, 8, 10, 7, 5, 0, 40, 0, 0, 0)
+  xInput["reg.two", 2025, ] <- c(32, 8, 11, 7, 5, 0, 37, 0, 0, 0)
+  xInput["reg.two", 2030, ] <- c(33, 8, 12, 7, 5, 0, 35, 0, 0, 0)
+  attr(xInput, "geometry") <- "point"
+  attr(xInput, "crs") <- "EPSG:4326"
+
+  # temporarily replaces calcOutput in the package namespace, so the internal
+  # source data calls return the synthetic data above and anything else errors
+  local_mocked_bindings(
+    calcOutput = function(name, ...) {
+      switch(name,
+             LandInputRecategorized = xInput,
+             LandTargetLowRes = xTarget,
+             stop("unexpected calcOutput call for \"", name, "\""))
+    }
+  )
+
+  x <- calcLandHarmonized(input = "magpie", target = "luh3",
+                          harmonizationPeriod = harmonizationYear,
+                          harmonization = "absoluteChanges")$x
 
   expect_false(is.null(attr(x, "geometry")))
   expect_false(is.null(attr(x, "crs")))
 
-  targetYears <- getYears(xTarget, as.integer = TRUE)
-  inputYears <- getYears(xInput, as.integer = TRUE)
+  targetYears <- c(2010, 2020)
+  inputYears <- c(2020, 2025, 2030)
   expect_equal(getYears(x, as.integer = TRUE),
-               sort(c(targetYears[targetYears <= harmonizationYear],
-                      inputYears[inputYears > harmonizationYear])))
+               sort(c(targetYears, inputYears[inputYears > harmonizationYear])))
 
   # before and in the harmonization year target data is returned
-  expect_true(max(x[, targetYears, ] - xTarget) < 10^-5)
+  expect_true(max(abs(x[, targetYears, ] - xTarget[, targetYears, ])) < 10^-5)
   expect_true(min(x) >= 0)
 
   # total area is constant over time and equal to the total area of the target data
   targetArea <- dimSums(setYears(xTarget[, harmonizationYear, ], NULL), dim = 3)
   expect_true(max(abs(dimSums(x, dim = 3) - targetArea)) < 10^-5)
 
-  # after the harmonization year absolute changes were applied, except in cells
-  # where corrections were needed and for primf/primn/secdf/secdn (prim
-  # expansion is replaced with secd expansion)
-  xInput <- toolEqualizeArea(xInput, xTarget[, harmonizationYear, ])
+  # after the harmonization year absolute changes were applied, except for
+  # primf/primn/secdf/secdn (prim expansion is replaced with secd expansion)
+  xInputEqualized <- toolEqualizeArea(xInput, xTarget[, harmonizationYear, ])
   yearsAfter <- inputYears[inputYears > harmonizationYear]
   raw <- setYears(xTarget[, harmonizationYear, ], NULL) +
-    (xInput[, yearsAfter, ] - setYears(xInput[, harmonizationYear, ], NULL))
+    (xInputEqualized[, yearsAfter, ] - setYears(xInputEqualized[, harmonizationYear, ], NULL))
   difference <- x[, yearsAfter, ] - raw
   # exclude cells where the correction was active, in these all categories are
   # rescaled, not only the ones which became negative
@@ -46,8 +68,19 @@ test_that("calcLandHarmonized works with harmonization = absoluteChanges", {
 })
 
 test_that("calcLandHarmonized errors if absoluteChanges gets a harmonization period", {
-  expect_error(suppressWarnings(calcOutput(
-    "LandHarmonized", input = "magpie", target = "luh3",
-    harmonizationPeriod = c(2020, 2050), harmonization = "absoluteChanges", aggregate = FALSE
-  )))
+  expect_error(
+    calcLandHarmonized(input = "magpie", target = "luh3",
+                       harmonizationPeriod = c(2020, 2050),
+                       harmonization = "absoluteChanges"),
+    regexp = "harmonizationPeriod must be"
+  )
+})
+
+test_that("calcLandHarmonized errors if fade gets a single harmonization year", {
+  expect_error(
+    calcLandHarmonized(input = "magpie", target = "luh3",
+                       harmonizationPeriod = 2020,
+                       harmonization = "fade"),
+    regexp = "harmonizationPeriod must be"
+  )
 })

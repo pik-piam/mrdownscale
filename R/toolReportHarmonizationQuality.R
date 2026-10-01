@@ -15,12 +15,13 @@
 #' @param harmonizationPeriod Single integer value, the harmonization year
 #' @param inputYears integer vector of all years present in the input data
 #' @param groups Named list of character vectors with the category groups to be
-#'   reported separately; categories which are in none of the groups are
-#'   reported in an extra "not in any group" group
+#'   reported separately; every category must be in one of the groups or be
+#'   "urban"
 #'
 #' @author Pascal Sauer
 toolReportHarmonizationQuality <- function(xRaw, xOut, harmonizationPeriod, inputYears, groups) {
   hy <- harmonizationPeriod
+  stopifnot(setequal(c(unlist(groups), "urban"), getItems(xOut, 3)))
   yearsAfter <- inputYears[inputYears > hy]
 
   negativeArea <- -sum(pmin(xRaw, 0))
@@ -96,10 +97,6 @@ toolReportHarmonizationQuality <- function(xRaw, xOut, harmonizationPeriod, inpu
     cropland = groups$cropland,
     "pasture and rangeland" = groups$pastureRangeland
   )
-  notGrouped <- setdiff(getItems(xOut, 3), c(unlist(reportGroups), "urban"))
-  if (length(notGrouped) > 0) {
-    reportGroups[["not in any group"]] <- notGrouped
-  }
   for (groupName in names(reportGroups)) {
     groupItems <- reportGroups[[groupName]]
     if (length(groupItems) == 0) {
