@@ -11,6 +11,9 @@
 #' compensated by the other categories of the group. Groups with a negative
 #' total area are set to zero. Afterwards, if any negatives remain, all
 #' categories except urban are scaled down to keep the total area constant.
+#' These corrections deviate from the absolute changes of the input data, so
+#' their magnitude is reported with status messages by
+#' toolReportHarmonizationQuality.
 #'
 #' @param xInput input data as magpie object
 #' @param xTarget target data as magpie object
@@ -42,7 +45,8 @@ toolHarmonizeAbsoluteChanges <- function(xInput, xTarget, harmonizationPeriod) {
   stopifnot(all(abs(dimSums(xTarget, 3) - targetArea) < 10^-5))
 
   # apply absolute changes of input data to target data of the harmonization year
-  changed <- setYears(xTarget[, hy, ], NULL) + (xInput[, inputYears > hy, ] - setYears(xInput[, hy, ], NULL))
+  raw <- setYears(xTarget[, hy, ], NULL) + (xInput[, inputYears > hy, ] - setYears(xInput[, hy, ], NULL))
+  changed <- raw
   stopifnot(all(abs(dimSums(changed, 3) - targetArea) < 10^-5))
 
   # absolute changes can become negative if the input data loses more area of a
@@ -73,6 +77,8 @@ toolHarmonizeAbsoluteChanges <- function(xInput, xTarget, harmonizationPeriod) {
   # prim expansion is expected after harmonization due to prim differences between input and target dataset
   out <- toolReplaceExpansion(out, "primf", "secdf", warnThreshold = 100)
   out <- toolReplaceExpansion(out, "primn", "secdn", warnThreshold = 100)
+
+  toolReportHarmonizationQuality(raw, out, harmonizationPeriod = hy, inputYears = inputYears, groups = groups)
 
   stopifnot(all(abs(dimSums(out, 3) - targetArea) < 10^-5))
 

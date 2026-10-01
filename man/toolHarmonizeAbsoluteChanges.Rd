@@ -12,13 +12,13 @@ toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod)
 \item{xTarget}{target data as magpie object}
 
 \item{harmonizationPeriod}{Single integer value, the year the absolute
-changes of the input data are applied to, must be present in both input and
-target data}
+changes of the input data are applied to, must be present in both input
+and target data}
 }
 \value{
 harmonized data set as magpie object with data from target for years
-up to and including the harmonization year and absolute changes from input
-relative to the harmonization year afterwards
+  up to and including the harmonization year and absolute changes from input
+  relative to the harmonization year afterwards
 }
 \description{
 Tool function for creating a harmonized data set by applying the absolute
@@ -26,11 +26,16 @@ changes of the input data to the target data: up to the harmonization year
 the target data is used, afterwards the difference of the input data to the
 input data of the harmonization year is added to the target data of the
 harmonization year.
-Negative values are handled within groups of related categories (forest plus
-other land, all cropland types, pasture plus rangeland), so that they are
+}
+\details{
+Negative values are handled within groups of related categories (forest &
+other land; all cropland types; pasture & rangeland), so that they are
 compensated by the other categories of the group. Groups with a negative
-total area are set to zero. Afterwards, all categories except urban are
-scaled down to keep the total area constant.
+total area are set to zero. Afterwards, if any negatives remain, all
+categories except urban are scaled down to keep the total area constant.
+These corrections deviate from the absolute changes of the input data, so
+their magnitude is reported with status messages by
+toolReportHarmonizationQuality.
 }
 \author{
 Pascal Sauer
