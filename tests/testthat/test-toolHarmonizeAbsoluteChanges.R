@@ -38,7 +38,7 @@ test_that("toolHarmonizeAbsoluteChanges works", {
   xInput["reg.two", 2025, ] <- c(32, 8, 11, 7, 5, 0, 37, 0, 0, 0)
   xInput["reg.two", 2030, ] <- c(33, 8, 12, 7, 5, 0, 35, 0, 0, 0)
 
-  run <- captureConditions(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = 2020))
+  run <- captureConditions(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = c(2020, 2020)))
   out <- run$value
 
   # no negative absolute changes, so no value is reset to zero and no trend is altered
@@ -65,9 +65,10 @@ test_that("toolHarmonizeAbsoluteChanges works", {
   expect_equal(as.vector(dimSums(out, dim = 3)), rep(100, 8))
 
   # invalid harmonizationPeriod
-  expect_error(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = 2015),
+  expect_error(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = c(2015, 2015)),
                "hy %in% inputYears is not TRUE")
   expect_error(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = c(2010, 2020)))
+  expect_error(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = 2020))
 })
 
 test_that("toolHarmonizeAbsoluteChanges reports zero deviation when no corrections are needed", {
@@ -82,7 +83,7 @@ test_that("toolHarmonizeAbsoluteChanges reports zero deviation when no correctio
   # reproduced exactly
   xInput["reg.rep", 2025, ] <- c(20, 10, 22, 5, 10, 0, 33, 0, 0, 0)
 
-  run <- captureConditions(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = 2020))
+  run <- captureConditions(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = c(2020, 2020)))
   out <- run$value
 
   expect_equal(as.vector(out["reg.rep", 2025, ]), c(40, 10, 12, 5, 5, 0, 28, 0, 0, 0))
@@ -102,16 +103,29 @@ test_that("toolHarmonizeAbsoluteChanges reports zero deviation when no correctio
   expect_length(forestGroup, 1)
   # CSV table with total in the first row, sorted by abs(1 - factor), ties in
   # group order, n/a last
-  expect_true(grepl("variable, factor, input, actual, diff\ntotal   ,      1,     2,      2,    0\nsecdf   ,      1,     2,      2,    0\npltns   ,    n/a,     0,      0,    0\nprimf   ,    n/a,     0,      0,    0\nprimn   ,    n/a,     0,      0,    0\nsecdn   ,    n/a,     0,      0,    0",
+  expect_true(grepl(paste0("variable, factor, input, actual, diff\n",
+                           "total   ,      1,     2,      2,    0\n",
+                           "secdf   ,      1,     2,      2,    0\n",
+                           "pltns   ,    n/a,     0,      0,    0\n",
+                           "primf   ,    n/a,     0,      0,    0\n",
+                           "primn   ,    n/a,     0,      0,    0\n",
+                           "secdn   ,    n/a,     0,      0,    0"),
                     forestGroup, fixed = TRUE))
   cropGroup <- grep("category group \"cropland\"", run$conditions, value = TRUE)
   expect_length(cropGroup, 1)
-  expect_true(grepl("variable     , factor, input, actual, diff\ntotal        ,    n/a,     0,      0,    0\nc3ann_rainfed,    n/a,     0,      0,    0\nc4ann_rainfed,    n/a,     0,      0,    0",
+  expect_true(grepl(paste0("variable     , factor, input, actual, diff\n",
+                           "total        ,    n/a,     0,      0,    0\n",
+                           "c3ann_rainfed,    n/a,     0,      0,    0\n",
+                           "c4ann_rainfed,    n/a,     0,      0,    0"),
                     cropGroup, fixed = TRUE))
   pastureGroup <- grep("category group \"pasture and rangeland\"", run$conditions, value = TRUE)
   expect_length(pastureGroup, 1)
   # pastr loses the same 2 Mha secdf gains and its trend is reproduced exactly
-  expect_true(grepl("variable, factor, input, actual, diff\ntotal   ,      1,     2,      2,    0\npastr   ,      1,    -2,     -2,    0\nrange   ,    n/a,     0,      0,    0", pastureGroup, fixed = TRUE))
+  expect_true(grepl(paste0("variable, factor, input, actual, diff\n",
+                           "total   ,      1,     2,      2,    0\n",
+                           "pastr   ,      1,    -2,     -2,    0\n",
+                           "range   ,    n/a,     0,      0,    0"),
+                    pastureGroup, fixed = TRUE))
   # urban is never scaled by the corrections and is not reported separately,
   # and there is no ungrouped category anymore (all categories are in a group)
   expect_false(any(grepl("category group \"urban\"", run$conditions, fixed = TRUE)))
@@ -129,7 +143,7 @@ test_that("toolHarmonizeAbsoluteChanges avoids negative values", {
   # input loses 10 Mha primf, but target only has 5 Mha primf in 2020
   xInput["reg.three", 2025, ] <- c(40, 5, 10, 5, 5, 0, 35, 0, 0, 0)
 
-  run <- captureConditions(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = 2020))
+  run <- captureConditions(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = c(2020, 2020)))
   out <- run$value
 
   # 5 Mha primf were clipped to zero (1 of 10 entries, in 100% of cells)
@@ -177,7 +191,7 @@ test_that("toolHarmonizeAbsoluteChanges compensates negative forest area within 
   # input loses 15 Mha secdf, target only has 10 Mha secdf in 2020
   xInput["reg.four", 2025, ] <- c(20, 10, 5, 5, 10, 0, 50, 0, 0, 0)
 
-  run <- captureConditions(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = 2020))
+  run <- captureConditions(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = c(2020, 2020)))
   out <- run$value
 
   expectCondition(run$conditions, "5 Mha per timestep")
@@ -206,7 +220,7 @@ test_that("toolHarmonizeAbsoluteChanges scales all categories except urban", {
   # the forest group after clipping
   xInput["reg.five", 2025, ] <- c(20, 4, 0, 1, 5, 0, 70, 0, 0, 0)
 
-  run <- captureConditions(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = 2020))
+  run <- captureConditions(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = c(2020, 2020)))
   out <- run$value
 
   # 10 Mha secdf were clipped to zero
@@ -233,7 +247,7 @@ test_that("toolHarmonizeAbsoluteChanges scales down excess area and replaces pri
   # categories are clipped to 0
   xInput["reg.seven", 2025, ] <- c(90, 10, 0, 0, 0, 0, 0, 0, 0, 0)
 
-  run <- captureConditions(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = 2020))
+  run <- captureConditions(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = c(2020, 2020)))
   out <- run$value
 
   # secdf (-10 Mha) and pastr (-10 Mha) were clipped to zero
@@ -260,7 +274,7 @@ test_that("toolHarmonizeAbsoluteChanges refuses to scale urban", {
 
   expect_error(
     suppressWarnings(suppressMessages(
-      toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = 2020)
+      toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = c(2020, 2020))
     )),
     "all(nonUrbanTarget >= -10^-5) is not TRUE", fixed = TRUE
   )
@@ -278,7 +292,7 @@ test_that("toolHarmonizeAbsoluteChanges sets a group with a negative total area 
   # the forest group becomes negative and the whole group is set to zero
   xInput["reg.nine", 2025, ] <- c(0, 0, 0, 0, 0, 0, 100, 0, 0, 0)
 
-  run <- captureConditions(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = 2020))
+  run <- captureConditions(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = c(2020, 2020)))
   out <- run$value
 
   expect_equal(as.vector(out["reg.nine", 2025, c("primf", "urban", "pastr")]), c(0, 0, 100))
@@ -297,7 +311,7 @@ test_that("toolHarmonizeAbsoluteChanges compensates negative cropland within the
   # input loses 40 Mha of c3ann_rainfed, more than the 30 Mha in the target
   xInput["reg.crop", 2025, ] <- c(5, 0, 0, 0, 5, 0, 22, 1, 10, 57)
 
-  run <- captureConditions(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = 2020))
+  run <- captureConditions(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = c(2020, 2020)))
   out <- run$value
 
   # raw c3ann_rainfed drops 20 Mha below the 30 Mha of the target in the
@@ -324,17 +338,17 @@ test_that("toolHarmonizeAbsoluteChanges rejects inconsistent or invalid input da
   # total area of input is not constant over time
   brokenInput <- xInput
   brokenInput["reg.six", 2025, "pastr"] <- 30
-  expect_error(toolHarmonizeAbsoluteChanges(brokenInput, xTarget, 2020))
+  expect_error(toolHarmonizeAbsoluteChanges(brokenInput, xTarget, c(2020, 2020)))
 
   # total area of target is not constant over time
   brokenTarget <- xTarget
   brokenTarget["reg.six", 2010, "pastr"] <- 25
-  expect_error(toolHarmonizeAbsoluteChanges(xInput, brokenTarget, 2020))
+  expect_error(toolHarmonizeAbsoluteChanges(xInput, brokenTarget, c(2020, 2020)))
 
   # input data contains NA values
   naInput <- xInput
   naInput["reg.six", 2025, "urban"] <- NA_real_
-  expect_error(toolHarmonizeAbsoluteChanges(naInput, xTarget, 2020))
+  expect_error(toolHarmonizeAbsoluteChanges(naInput, xTarget, c(2020, 2020)))
 })
 
 test_that("toolGetHarmonizer returns the absoluteChanges harmonizer", {

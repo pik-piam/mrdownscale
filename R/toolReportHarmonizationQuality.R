@@ -12,7 +12,8 @@
 #'   years after the harmonization year
 #' @param xOut harmonized data after the corrections, as magpie object,
 #'   including the harmonization year
-#' @param harmonizationPeriod Single integer value, the harmonization year
+#' @param harmonizationPeriod Two identical integer values, the harmonization
+#'   year
 #' @param inputYears integer vector of all years present in the input data
 #' @param groups Named list of character vectors with the category groups to be
 #'   reported separately; every category must be in one of the groups or be
@@ -20,7 +21,7 @@
 #'
 #' @author Pascal Sauer
 toolReportHarmonizationQuality <- function(xRaw, xOut, harmonizationPeriod, inputYears, groups) {
-  hy <- harmonizationPeriod
+  hy <- harmonizationPeriod[1]
   stopifnot(setequal(c(unlist(groups), "urban"), getItems(xOut, 3)))
   yearsAfter <- inputYears[inputYears > hy]
 

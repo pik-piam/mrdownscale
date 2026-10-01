@@ -17,22 +17,24 @@
 #'
 #' @param xInput input data as magpie object
 #' @param xTarget target data as magpie object
-#' @param harmonizationPeriod Single integer value, the year the absolute
-#'   changes of the input data are applied to, must be present in both input
-#'   and target data
+#' @param harmonizationPeriod Two identical integer values, the year the
+#'   absolute changes of the input data are applied to, must be present in both
+#'   input and target data
 #' @return harmonized data set as magpie object with data from target for years
 #'   up to and including the harmonization year and absolute changes from input
 #'   relative to the harmonization year afterwards
 #' @author Pascal Sauer
 toolHarmonizeAbsoluteChanges <- function(xInput, xTarget, harmonizationPeriod) {
-  hy <- harmonizationPeriod
+  hp <- harmonizationPeriod
+  stopifnot(length(hp) == 2,
+            round(hp) == hp,
+            identical(hp[1], hp[2]))
+  hy <- hp[1]
 
   inputYears <- getYears(xInput, as.integer = TRUE)
   targetYears <- getYears(xTarget, as.integer = TRUE)
 
-  stopifnot(length(hy) == 1,
-            round(hy) == hy,
-            !anyNA(xInput),
+  stopifnot(!anyNA(xInput),
             !anyNA(xTarget),
             setequal(getItems(xInput, 1), getItems(xTarget, 1)),
             setequal(getItems(xInput, 3), getItems(xTarget, 3)),
@@ -80,7 +82,7 @@ toolHarmonizeAbsoluteChanges <- function(xInput, xTarget, harmonizationPeriod) {
   out <- toolReplaceExpansion(out, "primf", "secdf", warnThreshold = 100)
   out <- toolReplaceExpansion(out, "primn", "secdn", warnThreshold = 100)
 
-  toolReportHarmonizationQuality(raw, out, harmonizationPeriod = hy, inputYears = inputYears, groups = groups)
+  toolReportHarmonizationQuality(raw, out, harmonizationPeriod = hp, inputYears = inputYears, groups = groups)
 
   stopifnot(all(abs(dimSums(out, 3) - targetArea) < 10^-5))
 

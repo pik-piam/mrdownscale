@@ -10,15 +10,18 @@
 #' @param harmonizationPeriod Two integer values, before the first given
 #' year the target dataset is used, after the second given year the input
 #' dataset is used, in between harmonize between the two datasets.
-#' For harmonization = "absoluteChanges" this must instead be a single
-#' integer value, the harmonization year, which must be present in the target
-#' dataset.
+#' For harmonization = "absoluteChanges" both values must be the same, the
+#' harmonization year, which must be present in the target dataset.
 #' @param harmonization name of harmonization method, see \code{\link{toolGetHarmonizer}}
 #' @author Pascal Sauer, Jan Philipp Dietrich
 calcLandHarmonized <- function(input, target, harmonizationPeriod, harmonization) {
-  if ((harmonization == "absoluteChanges") != (length(harmonizationPeriod) == 1)) {
-    stop("harmonizationPeriod must be a single year for harmonization = \"absoluteChanges\" ",
-         "and a vector of two years for the other harmonization methods")
+  if (length(harmonizationPeriod) != 2 ||
+        anyNA(harmonizationPeriod) || any(round(harmonizationPeriod) != harmonizationPeriod)) {
+    stop("harmonizationPeriod must always be two integer values")
+  }
+  if (harmonization == "absoluteChanges" && harmonizationPeriod[1] != harmonizationPeriod[2]) {
+    stop("harmonizationPeriod must be two equal integer values for ",
+         "harmonization = \"absoluteChanges\"")
   }
 
   xInput <- calcOutput("LandInputRecategorized", input = input, target = target, aggregate = FALSE)
@@ -29,7 +32,7 @@ calcLandHarmonized <- function(input, target, harmonizationPeriod, harmonization
   # no extrapolation is needed
   if (harmonization == "absoluteChanges") {
     xTarget <- calcOutput("LandTargetLowRes", input = input, target = target,
-                          endOfHistory = harmonizationPeriod, aggregate = FALSE)
+                          endOfHistory = harmonizationPeriod[1], aggregate = FALSE)
   } else {
     xTarget <- calcOutput("LandTargetExtrapolated", input = input, target = target,
                           harmonizationPeriod = harmonizationPeriod, aggregate = FALSE)
@@ -67,7 +70,7 @@ calcLandHarmonized <- function(input, target, harmonizationPeriod, harmonization
                      xTarget[, getYears(xTarget, as.integer = TRUE) <= harmonizationPeriod[1], ],
                      10^-5, "Returning reference data before harmonization period")
 
-  if (length(harmonizationPeriod) == 2) {
+  if (harmonization != "absoluteChanges") {
     outAfterHarmonization <- out[, getYears(out, as.integer = TRUE) >= harmonizationPeriod[2], ]
     inputAfterHarmonization <- xInput[, getYears(xInput, as.integer = TRUE) >= harmonizationPeriod[2], ]
     nonprimfix <- setdiff(getItems(out, dim = 3), c("primf", "primn", "secdf", "secdn"))

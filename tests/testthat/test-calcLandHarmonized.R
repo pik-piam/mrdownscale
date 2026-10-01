@@ -34,7 +34,7 @@ test_that("calcLandHarmonized works with harmonization = absoluteChanges", {
   )
 
   x <- calcLandHarmonized(input = "magpie", target = "luh3",
-                          harmonizationPeriod = harmonizationYear,
+                          harmonizationPeriod = c(harmonizationYear, harmonizationYear),
                           harmonization = "absoluteChanges")$x
 
   expect_false(is.null(attr(x, "geometry")))
@@ -67,20 +67,26 @@ test_that("calcLandHarmonized works with harmonization = absoluteChanges", {
   expect_equal(max(abs(difference)), 0)
 })
 
-test_that("calcLandHarmonized errors if absoluteChanges gets a harmonization period", {
+test_that("calcLandHarmonized errors if absoluteChanges gets two different years", {
   expect_error(
     calcLandHarmonized(input = "magpie", target = "luh3",
                        harmonizationPeriod = c(2020, 2050),
                        harmonization = "absoluteChanges"),
-    regexp = "harmonizationPeriod must be"
+    regexp = "harmonizationPeriod must be two equal integer values"
   )
 })
 
-test_that("calcLandHarmonized errors if fade gets a single harmonization year", {
+test_that("calcLandHarmonized errors if harmonizationPeriod is not two integers", {
+  expect_error(
+    calcLandHarmonized(input = "magpie", target = "luh3",
+                       harmonizationPeriod = 2020,
+                       harmonization = "absoluteChanges"),
+    regexp = "harmonizationPeriod must always be two integer values"
+  )
   expect_error(
     calcLandHarmonized(input = "magpie", target = "luh3",
                        harmonizationPeriod = 2020,
                        harmonization = "fade"),
-    regexp = "harmonizationPeriod must be"
+    regexp = "harmonizationPeriod must always be two integer values"
   )
 })
