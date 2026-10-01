@@ -266,6 +266,26 @@ test_that("toolHarmonizeAbsoluteChanges refuses to scale urban", {
   )
 })
 
+test_that("toolHarmonizeAbsoluteChanges sets a group with a negative total area to zero", {
+  xTarget <- new.magpie("reg.nine", years = c(2010, 2020), names = items, fill = 0)
+  for (year in c(2010, 2020)) {
+    xTarget["reg.nine", year, ] <- c(50, 0, 0, 0, 0, 0, 50, 0, 0, 0)
+  }
+
+  xInput <- new.magpie("reg.nine", years = c(2020, 2025), names = items, fill = 0)
+  xInput["reg.nine", 2020, ] <- c(90, 0, 0, 0, 0, 0, 10, 0, 0, 0)
+  # primf loses 90 Mha, more than the 50 Mha of the target, so the total area of
+  # the forest group becomes negative and the whole group is set to zero
+  xInput["reg.nine", 2025, ] <- c(0, 0, 0, 0, 0, 0, 100, 0, 0, 0)
+
+  run <- captureConditions(toolHarmonizeAbsoluteChanges(xInput, xTarget, harmonizationPeriod = 2020))
+  out <- run$value
+
+  expect_equal(as.vector(out["reg.nine", 2025, c("primf", "urban", "pastr")]), c(0, 0, 100))
+  expect_true(all(out >= 0))
+  expect_equal(as.vector(dimSums(out, dim = 3)), rep(100, 3))
+})
+
 test_that("toolHarmonizeAbsoluteChanges compensates negative cropland within the cropland group", {
   xTarget <- new.magpie("reg.crop", years = c(2010, 2020), names = items, fill = 0)
   for (year in c(2010, 2020)) {

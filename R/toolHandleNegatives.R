@@ -10,26 +10,20 @@
 #'
 #' @param x magclass object, may contain negative values
 #' @param targetArea optional target area per cell and year, recycled if it has
-#'   fewer years than x
-#' @param allowNegativeTarget if TRUE, categories of cells with a negative
-#'   target area are set to zero instead of raising an error
+#'   fewer years than x, must not be negative
 #' @return x without negative values, category sums matching the target area
 #'
 #' @author Pascal Sauer
-toolHandleNegatives <- function(x, targetArea = NULL, allowNegativeTarget = FALSE) {
+toolHandleNegatives <- function(x, targetArea = NULL) {
   tolerance <- 10^-5
   if (is.null(targetArea)) {
     targetArea <- dimSums(x, 3)
   }
-  if (allowNegativeTarget) {
-    targetArea[targetArea < 0] <- 0
-  } else {
-    stopifnot(all(targetArea >= 0))
-  }
+  stopifnot(all(targetArea >= 0))
   x[x < 0] <- 0
   currentArea <- dimSums(x, 3)
   fact <- targetArea / (currentArea + (currentArea == 0))
-  stopifnot(all(-tolerance <= fact & fact <= 1 + tolerance))
+  stopifnot(all(fact <= 1 + tolerance))
   fact[fact > 1] <- 1
   x <- fact * x
   stopifnot(all(abs(dimSums(x, 3) - targetArea) < tolerance))

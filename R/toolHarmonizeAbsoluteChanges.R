@@ -59,7 +59,8 @@ toolHarmonizeAbsoluteChanges <- function(xInput, xTarget, harmonizationPeriod) {
   stopifnot(setequal(c(unlist(groups), "urban"), getItems(changed, 3)))
   # set negatives to zero, then scale other variables from that group to achieve target area
   for (group in groups) {
-    changed[, , group] <- toolHandleNegatives(changed[, , group], allowNegativeTarget = TRUE)
+    groupArea <- changed[, , group]
+    changed[, , group] <- toolHandleNegatives(groupArea, targetArea = pmax(dimSums(groupArea, 3), 0))
   }
 
   urban <- changed[, , "urban"]

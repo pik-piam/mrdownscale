@@ -13,11 +13,12 @@ test_that("toolHandleNegatives rescales cells to their target area", {
   # an explicit target area is recycled to all years
   target <- new.magpie(1, names = "target", fill = 0.9)
   expect_equal(as.numeric(dimSums(toolHandleNegatives(x3, targetArea = target), 3)), rep(0.9, 2))
+  # a negative target area is clipped to zero, zeroing the affected cells
   x4 <- new.magpie(1, names = c("a", "b"), fill = c(0.5, -1))
-  expect_equal(as.numeric(toolHandleNegatives(x4, allowNegativeTarget = TRUE)), rep(0, 2))
+  expect_equal(as.numeric(toolHandleNegatives(x4, targetArea = pmax(dimSums(x4, 3), 0))), rep(0, 2))
   # only years with a negative target area are zeroed
   x5 <- new.magpie(1, years = c(1995, 2000), names = c("a", "b"), fill = c(0.5, 0.5, 0, -1))
-  expect_equal(as.numeric(toolHandleNegatives(x5, allowNegativeTarget = TRUE)), c(0.5, 0, 0, 0))
+  expect_equal(as.numeric(toolHandleNegatives(x5, targetArea = pmax(dimSums(x5, 3), 0))), c(0.5, 0, 0, 0))
 })
 
 test_that("toolHandleNegatives errors on invalid input", {
@@ -25,10 +26,12 @@ test_that("toolHandleNegatives errors on invalid input", {
   expect_error(toolHandleNegatives(x), "all(targetArea >= 0) is not TRUE", fixed = TRUE)
   expect_error(toolHandleNegatives(x, targetArea = new.magpie(1, names = "target", fill = -5)),
                "all(targetArea >= 0) is not TRUE", fixed = TRUE)
+  # negative target areas are clipped by the caller, not handled here
+  expect_error(toolHandleNegatives(x, allowNegativeTarget = TRUE), "unused argument")
   # scaling up is not allowed
   x2 <- new.magpie(1, names = c("a", "b"), fill = c(1, 1))
   expect_error(toolHandleNegatives(x2, targetArea = new.magpie(1, names = "target", fill = 3)),
-               "all(-tolerance <= fact & fact <= 1 + tolerance) is not TRUE", fixed = TRUE)
+               "all(fact <= 1 + tolerance) is not TRUE", fixed = TRUE)
   # missing values are rejected, also in later years
   xna <- new.magpie(1, names = c("a", "b"), fill = c(0.5, 1))
   xna[1, 1, 1] <- NA
