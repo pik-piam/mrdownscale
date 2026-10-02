@@ -92,14 +92,8 @@ toolReportHarmonizationQuality <- function(xRaw, xOut, harmonizationPeriod, inpu
                            "% (retained share of the input trend after ", hy,
                            " across all timesteps)"))
 
-  # urban is not reported separately, it is never scaled by the corrections
-  reportGroups <- list(
-    "forest and other land" = groups$forestOther,
-    cropland = groups$cropland,
-    "pasture and rangeland" = groups$pastureRangeland
-  )
-  for (groupName in names(reportGroups)) {
-    groupItems <- reportGroups[[groupName]]
+  for (groupName in names(groups)) {
+    groupItems <- groups[[groupName]]
     if (length(groupItems) == 0) {
       next
     }

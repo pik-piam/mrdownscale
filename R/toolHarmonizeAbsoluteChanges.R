@@ -53,10 +53,11 @@ toolHarmonizeAbsoluteChanges <- function(xInput, xTarget, harmonizationPeriod) {
 
   # absolute changes can become negative if the input data loses more area of a
   # category than the target data has in the harmonization year
+  # urban is not reported separately, it is never scaled by the corrections
   groups <- list(
-    forestOther = intersect(c("pltns", "primf", "secdf", "primn", "secdn"), getItems(changed, 3)),
+    "forest and other land" = intersect(c("pltns", "primf", "secdf", "primn", "secdn"), getItems(changed, 3)),
     cropland = grep("rainfed|irrigated", getItems(changed, 3), value = TRUE),
-    pastureRangeland = intersect(c("pastr", "range"), getItems(changed, 3))
+    "pasture and rangeland" = intersect(c("pastr", "range"), getItems(changed, 3))
   )
   stopifnot(setequal(c(unlist(groups), "urban"), getItems(changed, 3)))
   # set negatives to zero, then scale other variables from that group to achieve target area
@@ -83,6 +84,7 @@ toolHarmonizeAbsoluteChanges <- function(xInput, xTarget, harmonizationPeriod) {
   out <- toolReplaceExpansion(out, "primn", "secdn", warnThreshold = 100)
 
   toolReportHarmonizationQuality(raw, out, harmonizationPeriod = hp, inputYears = inputYears, groups = groups)
+  toolReportAreaDeviation(raw, out, groups = groups)
 
   stopifnot(all(abs(dimSums(out, 3) - targetArea) < 10^-5))
 
