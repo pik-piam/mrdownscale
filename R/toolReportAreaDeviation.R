@@ -2,7 +2,7 @@
 #'
 #' Reports, per category group and per variable, how much the corrected output
 #' deviates from the raw input data: the positive and the negative deviations
-#' (xRaw - xOut) accumulated separately over all cells and timesteps, as mean
+#' (xOut - xRaw) accumulated separately over all cells and timesteps, as mean
 #' per timestep in Mha and as a percentage of the output area accumulated over
 #' the same timesteps, plus the net change as the sum of both columns, in six
 #' columns: =%, +%, -%, =Mha, +Mha, -Mha.
@@ -17,9 +17,9 @@
 #'
 #' @author Pascal Sauer
 toolReportAreaDeviation <- function(xRaw, xOut, groups) {
+  stopifnot(identical(getItems(xRaw, 3), getItems(xOut, 3)))
   yearsAfter <- getYears(xRaw, as.integer = TRUE)
-  deviation <- xRaw - xOut[, yearsAfter, ]
-  stopifnot(identical(getItems(deviation, 3), getItems(xOut, 3)))
+  deviation <- xOut[, yearsAfter, ] - xRaw
   .accumulateByItem <- function(x) {
     result <- as.numeric(dimSums(x, c(1, 2)))
     result[abs(result) < 10^-5] <- 0
