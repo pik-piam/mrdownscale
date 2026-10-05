@@ -99,7 +99,7 @@ toolReportAreaDeviation <- function(xRaw, xOut, groups) {
                              .alignDecimal(tableRows[, 7])),
                        1, paste, collapse = ", ")
     toolStatusMessage("note",
-                      paste0("Deviation of the output from the input data in group \"", groupName,
+                      paste0("Deviation output vs. history plus raw input trend in group \"", groupName,
                              "\" (deviations accumulated over cells and timesteps, as mean per timestep",
                              " in Mha and as % of the output area of the same period):\n",
                              paste(tableText, collapse = "\n")))
