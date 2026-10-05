@@ -8,12 +8,13 @@
 #'
 #' Negative values are handled within groups of related categories (forest &
 #' other land; all cropland types; pasture & rangeland), so that they are
-#' compensated by the other categories of the group. Groups with a negative
-#' total area are set to zero. Afterwards, if any negatives remain, all
-#' categories except urban are scaled down to keep the total area constant.
-#' These corrections deviate from the absolute changes of the input data, so
-#' their magnitude is reported with status messages by
-#' toolReportHarmonizationQuality.
+#' compensated by the other categories of the group. For crops, negative values
+#' are first compensated by the corresponding rainfed/irrigated twin of the
+#' same crop, which keeps that pair's total area, including biofuel types like
+#' c3ann_rainfed_biofuel_1st_gen. Crop categories without their twin are
+#' compensated by the whole group. Groups with a negative total area are set to
+#' zero. Afterwards, if any negatives remain, all categories except urban are
+#' scaled down to keep the total area constant.
 #'
 #' @param xInput input data as magpie object
 #' @param xTarget target data as magpie object
@@ -47,23 +48,35 @@ toolHarmonizeAbsoluteChanges <- function(xInput, xTarget, harmonizationPeriod) {
   stopifnot(all(abs(dimSums(xTarget, 3) - targetArea) < 10^-5))
 
   # apply absolute changes of input data to target data of the harmonization year
+  # negative numbers are possible if input data loses more area of a
+  # category than the target data has in the harmonization year
   raw <- setYears(xTarget[, hy, ], NULL) + (xInput[, inputYears > hy, ] - setYears(xInput[, hy, ], NULL))
   changed <- raw
   stopifnot(all(abs(dimSums(changed, 3) - targetArea) < 10^-5))
 
-  # absolute changes can become negative if the input data loses more area of a
-  # category than the target data has in the harmonization year
-  # urban is not reported separately, it is never scaled by the corrections
+  croplandPattern <- "_rainfed|_irrigated"
   groups <- list(
     "forest and other land" = intersect(c("pltns", "primf", "secdf", "primn", "secdn"), getItems(changed, 3)),
-    cropland = grep("rainfed|irrigated", getItems(changed, 3), value = TRUE),
+    cropland = grep(croplandPattern, getItems(changed, 3), value = TRUE),
     "pasture and rangeland" = intersect(c("pastr", "range"), getItems(changed, 3))
   )
   stopifnot(setequal(c(unlist(groups), "urban"), getItems(changed, 3)))
-  # set negatives to zero, then scale other variables from that group to achieve target area
+  # for crops, negative values are first compensated by scaling
+  # the corresponding rainfed/irrigated twin of the same crop.
+  # Categories without twin (incl. all non-crops) are compensated by scaling the whole group.
   for (group in groups) {
     groupArea <- changed[, , group]
-    changed[, , group] <- toolHandleNegatives(groupArea, targetArea = pmax(dimSums(groupArea, 3), 0))
+    groupTarget <- pmax(dimSums(groupArea, 3), 0)
+
+    cropItems <- grep(croplandPattern, group, value = TRUE)
+    pairKey <- sub(croplandPattern, "", cropItems)
+    pairs <- split(cropItems, pairKey)
+    for (pair in pairs[lengths(pairs) == 2]) {
+      pairArea <- groupArea[, , pair]
+      groupArea[, , pair] <- toolHandleNegatives(pairArea, targetArea = pmax(dimSums(pairArea, 3), 0))
+    }
+
+    changed[, , group] <- toolHandleNegatives(groupArea, targetArea = groupTarget)
   }
 
   urban <- changed[, , "urban"]
