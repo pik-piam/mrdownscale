@@ -14,7 +14,11 @@
 #' c3ann_rainfed_biofuel_1st_gen. Crop categories without their twin are
 #' compensated by the whole group. Groups with a negative total area are set to
 #' zero. Afterwards, if any negatives remain, all categories except urban are
-#' scaled down to keep the total area constant.
+#' scaled down to keep the total area constant. primf and primn cannot regrow,
+#' so if they were scaled down to compensate that would persist in all later
+#' timesteps (toolReplaceExpansion caps prim areas at previous timestep).
+#' Hence they are only scaled down once other variables in their group were
+#' scaled down to zero first.
 #'
 #' @param xInput input data as magpie object
 #' @param xTarget target data as magpie object
@@ -76,7 +80,8 @@ toolHarmonizeAbsoluteChanges <- function(xInput, xTarget, harmonizationPeriod) {
       groupArea[, , pair] <- toolHandleNegatives(pairArea, targetArea = pmax(dimSums(pairArea, 3), 0))
     }
 
-    changed[, , group] <- toolHandleNegatives(groupArea, targetArea = groupTarget)
+    changed[, , group] <- toolHandleNegatives(groupArea, targetArea = groupTarget,
+                                              lastScaled = c("primf", "primn"))
   }
 
   changed[, , "urban"] <- pmax(changed[, , "urban"], 0)
@@ -85,7 +90,8 @@ toolHarmonizeAbsoluteChanges <- function(xInput, xTarget, harmonizationPeriod) {
   stopifnot(all(nonUrbanTarget >= -10^-5))
   nonUrbanTarget[nonUrbanTarget < 0] <- 0
   nonUrban <- setdiff(getItems(changed, 3), "urban")
-  changed[, , nonUrban] <- toolHandleNegatives(changed[, , nonUrban], targetArea = nonUrbanTarget)
+  changed[, , nonUrban] <- toolHandleNegatives(changed[, , nonUrban], targetArea = nonUrbanTarget,
+                                               lastScaled = c("primf", "primn"))
 
   out <- mbind(xTarget[, targetYears <= hy, ], changed)
 
