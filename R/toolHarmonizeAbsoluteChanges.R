@@ -95,9 +95,10 @@ toolHarmonizeAbsoluteChanges <- function(xInput, xTarget, harmonizationPeriod) {
 
   out <- mbind(xTarget[, targetYears <= hy, ], changed)
 
-  # prim expansion is expected after harmonization due to prim differences between input and target dataset
-  out <- toolReplaceExpansion(out, "primf", "secdf", warnThreshold = 100)
-  out <- toolReplaceExpansion(out, "primn", "secdn", warnThreshold = 100)
+  # prim expansion is not expected, because we're applying a non-increasing prim trend, and
+  # prim is protected when handling negatives, so warn for small increases
+  out <- toolReplaceExpansion(out, "primf", "secdf")
+  out <- toolReplaceExpansion(out, "primn", "secdn")
 
   toolReportAreaDeviation(raw, out, groups = groups)
 
