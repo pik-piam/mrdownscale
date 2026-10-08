@@ -10,15 +10,15 @@
 #' other land; all cropland types; pasture & rangeland), so that they are
 #' compensated by the other categories of the group. For crops, negative values
 #' are first compensated by the corresponding rainfed/irrigated twin of the
-#' same crop, which keeps that pair's total area, including biofuel types like
-#' c3ann_rainfed_biofuel_1st_gen. Crop categories without their twin are
+#' same crop. Crop categories without their twin are
 #' compensated by the whole group. Groups with a negative total area are set to
 #' zero. Afterwards, if any negatives remain, all categories except urban are
-#' scaled down to keep the total area constant. primf and primn cannot regrow,
-#' so if they were scaled down to compensate that would persist in all later
-#' timesteps (toolReplaceExpansion caps prim areas at previous timestep).
-#' Hence they are only scaled down once other variables in their group were
-#' scaled down to zero first.
+#' scaled down to keep the total area constant.
+#'
+#' primf and primn cannot regrow, so if they were scaled down to compensate
+#' that would persist in all later timesteps (toolReplaceExpansion caps prim
+#' areas at previous timestep). Hence they are only scaled down once all other
+#' variables in their group were scaled down to zero first.
 #'
 #' @param xInput input data as magpie object
 #' @param xTarget target data as magpie object
@@ -66,7 +66,7 @@ toolHarmonizeAbsoluteChanges <- function(xInput, xTarget, harmonizationPeriod) {
   )
   stopifnot(setequal(c(unlist(groups), "urban"), getItems(changed, 3)))
   # for crops, negative values are first compensated by scaling
-  # the corresponding rainfed/irrigated twin of the same crop.
+  # the corresponding rainfed/irrigated twin of the same crop, then all crops.
   # Categories without twin (incl. all non-crops) are compensated by scaling the whole group.
   for (group in groups) {
     groupArea <- changed[, , group]
