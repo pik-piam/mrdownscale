@@ -58,6 +58,9 @@ calcLandConservationHighRes <- function(input, onLand = FALSE, harmonization = "
     if (length(consvIso) == 0) {
       warning("No countries selected in the land conservation downscaling. Results may be erroneous")
     }
+    # the grid cells of these countries by their full names: selecting by the country part of the names takes
+    # seconds on the 0.5 degree grid
+    consvCells <- cells[getItems(dataHr, dim = 1.3, full = TRUE) %in% consvIso]
 
     # base protection by year as p22_wdpa_baseline, the last year of the data after it
     baseProtect <- cfg$gms$c22_base_protect
@@ -67,10 +70,10 @@ calcLandConservationHighRes <- function(input, onLand = FALSE, harmonization = "
       dataHr[, getYears(wdpaHr), ] <- collapseDim(wdpaHr[, , baseProtectNoselect], dim = 3.1)
     }
     if (baseProtect != "none") {
-      dataHr[consvIso, , ] <- collapseDim(wdpaHr[consvIso, nyears(wdpaHr), baseProtect], dim = 3.1)
-      dataHr[consvIso, getYears(wdpaHr), ] <- collapseDim(wdpaHr[consvIso, , baseProtect], dim = 3.1)
+      dataHr[consvCells, , ] <- collapseDim(wdpaHr[consvCells, nyears(wdpaHr), baseProtect], dim = 3.1)
+      dataHr[consvCells, getYears(wdpaHr), ] <- collapseDim(wdpaHr[consvCells, , baseProtect], dim = 3.1)
     } else {
-      dataHr[consvIso, , ] <- 0
+      dataHr[consvCells, , ] <- 0
     }
 
     # future conservation in the conservation priority areas, with the fader
@@ -85,9 +88,9 @@ calcLandConservationHighRes <- function(input, onLand = FALSE, harmonization = "
           consvPrioHr <- collapseDim(consvPrioAll[, , protectScenarioNoselect], dim = 3.1)
         }
         if (protectScenario != "none") {
-          consvPrioHr[consvIso, , ] <- collapseDim(consvPrioAll[consvIso, , protectScenario], dim = 3.1)
+          consvPrioHr[consvCells, , ] <- collapseDim(consvPrioAll[consvCells, , protectScenario], dim = 3.1)
         } else {
-          consvPrioHr[consvIso, , ] <- 0
+          consvPrioHr[consvCells, , ] <- 0
         }
         # future conservation only pertains to natural vegetation
         consvPrioHr[, , c("crop", "past", "forestry", "urban")] <- 0
@@ -123,9 +126,9 @@ calcLandConservationHighRes <- function(input, onLand = FALSE, harmonization = "
     }
   } else {
     # land conservation achieved on the downscaled land
-    landHr <- calcOutput("LandTransitionsHighRes", input = input, harmonization = harmonization,
-                         aggregate = FALSE)[["landHr"]]
-    landHr <- dimSums(landHr, dim = 3.2)
+    landHr <- calcOutput("LandHighRes", input = input, target = "landuseinit", harmonizationPeriod = c(2015, 2050),
+                         yearsSubset = NULL, downscaling = "transitions", harmonization = harmonization,
+                         aggregate = FALSE)
     stopifnot("the downscaled land lacks grid cells of the mapping" = all(cells %in% getCells(landHr)))
     landHr <- landHr[cells, years, ]
     landGroupHr <- .groupSums(landHr, groups)
@@ -146,5 +149,6 @@ calcLandConservationHighRes <- function(input, onLand = FALSE, harmonization = "
   }
 
   return(list(x = conservationHr, isocountries = FALSE, unit = "Mha", min = 0,
-              description = "Land conservation of the input by grid cell and land type"))
+              description = "Land conservation of the input by grid cell and land type",
+              cache = FALSE))
 }

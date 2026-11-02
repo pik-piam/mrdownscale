@@ -16,8 +16,9 @@
 calcBIIHighRes <- function(input, harmonization = "none") {
   "!# @monitor magpie4:::PrimSecdOtherLand"
 
-  landHr <- dimSums(calcOutput("LandTransitionsHighRes", input = input, harmonization = harmonization,
-                               aggregate = FALSE)[["landHr"]], dim = 3.2)
+  landHr <- calcOutput("LandHighRes", input = input, target = "landuseinit", harmonizationPeriod = c(2015, 2050),
+                       yearsSubset = NULL, downscaling = "transitions", harmonization = harmonization,
+                       aggregate = FALSE)
 
   # BII coefficients (grid cells x classes) and the shares of the classes in the grid cells
   if (input == "magpie") {
@@ -43,5 +44,5 @@ calcBIIHighRes <- function(input, harmonization = "none") {
   }
 
   return(list(x = dimSums(shareHr * coefficientHr, dim = 3, na.rm = TRUE), isocountries = FALSE, unit = "1",
-              description = "BII of each grid cell"))
+              description = "BII of each grid cell", cache = FALSE))
 }

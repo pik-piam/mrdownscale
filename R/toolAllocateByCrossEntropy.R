@@ -66,6 +66,8 @@
 #' gives an error in that case.
 #' @param tol Tolerance for the convergence of the caps (absolute, in the measure of \code{totalLr}).
 #' @param maxIter Maximum number of iterations.
+#' @param backend Implementation of the scaling to the caps: "C++" (default) or "R", the same steps in R; with "R"
+#' the function takes about 2.5 times as long. Both give the same result.
 #' @return List with
 #' \item{flowsHr}{magclass object of grid cell flows with the dimensions of \code{priorHr}}
 #' \item{capFactor}{list with one magclass object per cap block (dimensions of its \code{cap}): the
@@ -81,9 +83,13 @@
 #' source <- list(group = c("crop", "crop"), cap = cap)
 #' mapping <- data.frame(cell = c("c1", "c2", "c3"), cluster = "A")
 #' toolAllocateByCrossEntropy(total, prior, mapping, caps = list(source))[["flowsHr"]]
+#' @useDynLib mrdownscale, .registration = TRUE
+#' @importFrom Rcpp sourceCpp
 #' @export
 toolAllocateByCrossEntropy <- function(totalLr, priorHr, mapping, # nolint: cyclocomp_linter
-                                       caps = list(), fallbackHr = NULL, tol = 1e-8, maxIter = 5000) {
+                                       caps = list(), fallbackHr = NULL, tol = 1e-8, maxIter = 5000,
+                                       backend = c("C++", "R")) {
+  backend <- match.arg(backend)
   # The iteration runs on matrices (grid cells x flows): written in magclass, it takes about 35 times as long,
   # mostly for selecting grid cells and flows by name in every step.
   .asMatrix <- function(x) {
@@ -104,7 +110,8 @@ toolAllocateByCrossEntropy <- function(totalLr, priorHr, mapping, # nolint: cycl
     factor[withPlus] <- (cap[withPlus] + root[withPlus]) / (2 * plus[withPlus])
     # capFactor can reach 0 for hard caps (minFactor 0) where the caps cannot hold
     lower <- if (minFactor > 0) minFactor / capFactor else 0
-    factor <- pmax(pmin(factor, 1 / capFactor), lower)
+    # base functions: magclass masks pmax and pmin with S4 generics, about 9 times slower on plain vectors
+    factor <- base::pmax(base::pmin(factor, 1 / capFactor), lower)
     # groups of hard caps with a zero capFactor whose cap does not bind stay as they are
     factor[is.infinite(factor)] <- 1
     return(factor)
@@ -123,19 +130,13 @@ toolAllocateByCrossEntropy <- function(totalLr, priorHr, mapping, # nolint: cycl
   .checkFlowInput <- function(totalLr, priorHr, hrToLr, caps, fallbackHr) {
     stopifnot(
       "totalLr must be a magclass object with one year" = is.magpie(totalLr) & nyears(totalLr) == 1,
-      "totalLr contains NA" = !anyNA(totalLr),
-      "totalLr contains negative values" = all(totalLr >= 0),
       "priorHr must be a magclass object with the year of totalLr" =
         is.magpie(priorHr) & identical(getYears(priorHr), getYears(totalLr)),
-      "priorHr contains NA" = !anyNA(priorHr),
-      "priorHr contains negative values" = all(priorHr >= 0),
       "priorHr must have the flows of totalLr in the same order" = identical(getNames(priorHr), getNames(totalLr)),
       "priorHr needs the grid cell names of mapping" = !anyNA(hrToLr),
       "mapping contains units that are not in totalLr" = all(hrToLr %in% getCells(totalLr)),
       "every unit of totalLr needs at least one grid cell" = all(getCells(totalLr) %in% hrToLr),
-      "fallbackHr must be a magclass object without NA" =
-        is.null(fallbackHr) | (is.magpie(fallbackHr) & !anyNA(fallbackHr)),
-      "fallbackHr contains negative values" = all(fallbackHr >= 0),
+      "fallbackHr must be a magclass object" = is.null(fallbackHr) | is.magpie(fallbackHr),
       "fallbackHr must have the dimensions and names of priorHr" =
         is.null(fallbackHr) | identical(dimnames(fallbackHr), dimnames(priorHr))
     )
@@ -149,7 +150,7 @@ toolAllocateByCrossEntropy <- function(totalLr, priorHr, mapping, # nolint: cycl
         "cap block: minFactor must be one value in [0, 1)" =
           is.null(minFactor) | isTRUE(length(minFactor) == 1 & all(minFactor >= 0 & minFactor < 1)),
         # caps on net changes can be negative
-        "cap block: cap must be a magclass object without NA" = is.magpie(block[["cap"]]) & !anyNA(block[["cap"]]),
+        "cap block: cap must be a magclass object" = is.magpie(block[["cap"]]),
         "cap block: cap needs the grid cells of priorHr in its order" =
           identical(getCells(block[["cap"]]), getCells(priorHr)),
         "cap block: every group needs an item in cap" =
@@ -170,7 +171,7 @@ toolAllocateByCrossEntropy <- function(totalLr, priorHr, mapping, # nolint: cycl
   # for each cap block: the caps, the groups (cap column, flows with sign 1 and -1) and the lowest factor
   capMatrix <- list()
   capGroups <- list()
-  minFactor <- list()
+  minFactor <- numeric(length(caps))
   for (b in seq_along(caps)) {
     block <- caps[[b]]
     capMatrix[[b]] <- .asMatrix(block[["cap"]])
@@ -180,18 +181,24 @@ toolAllocateByCrossEntropy <- function(totalLr, priorHr, mapping, # nolint: cycl
     capGroups[[b]] <- lapply(groupColumns, function(g) {
       list(column = g, plus = which(column == g & sign > 0), minus = which(column == g & sign < 0))
     })
-    minFactor[[b]] <- if (is.null(block[["minFactor"]])) 0 else block[["minFactor"]]
+    minFactor[b] <- if (is.null(block[["minFactor"]])) 0 else block[["minFactor"]]
   }
 
   # start values: the prior, and the fallback for each unit and flow whose prior is zero in all
   # grid cells although the total is positive
   flows <- .asMatrix(priorHr)
+  # values checked on the matrices
+  stopifnot("totalLr contains NA" = !anyNA(total), "totalLr contains negative values" = all(total >= 0),
+            "priorHr contains NA" = !anyNA(flows), "priorHr contains negative values" = all(flows >= 0),
+            "cap block: cap contains NA" = !any(vapply(capMatrix, anyNA, logical(1))))
   priorSumLr <- rowsum(flows, lrIndex)
   noPrior <- (priorSumLr == 0 & total > 0)[lrIndex, , drop = FALSE]
   stopifnot("priorHr is zero in all grid cells of a unit for a flow with positive total and no fallbackHr is given" =
               !any(noPrior) | !is.null(fallbackHr))
   if (any(noPrior)) {
-    flows[noPrior] <- .asMatrix(fallbackHr)[noPrior]
+    fallback <- .asMatrix(fallbackHr)
+    stopifnot("fallbackHr contains NA" = !anyNA(fallback), "fallbackHr contains negative values" = all(fallback >= 0))
+    flows[noPrior] <- fallback[noPrior]
   }
 
   # ---- repeat: scale to the caps, then to the unit totals ------------------------------------
@@ -209,42 +216,61 @@ toolAllocateByCrossEntropy <- function(totalLr, priorHr, mapping, # nolint: cycl
     active <- rep(length(caps) > 0, length(set))
     iter <- 0
 
+    cells <- which(active[setIndex])
+    activeIndex <- match(setIndex[cells], which(active))
+    activeTotal <- setTotal[active, , drop = FALSE]
+    activeFlows <- setFlows[cells, , drop = FALSE]
     while (iter < maxIter && any(active)) {
       iter <- iter + 1
-      cells <- which(active[setIndex])
-      activeIndex <- match(setIndex[cells], which(active))
-      activeTotal <- setTotal[active, , drop = FALSE]
-      activeFlows <- setFlows[cells, , drop = FALSE]
 
-      # the groups of a block share no flows, so they are scaled one after another, each only in the grid
-      # cells with flows of the group and a factor other than 1 (most caps bind in few grid cells)
-      for (b in seq_along(caps)) {
-        for (group in capGroups[[b]]) {
-          g <- group[["column"]]
-          plus <- rowSums(activeFlows[, group[["plus"]], drop = FALSE])
-          minus <- rowSums(activeFlows[, group[["minus"]], drop = FALSE])
-          withFlows <- which(plus + minus > 0)
-          factor <- .capScale(plus[withFlows], minus[withFlows], setCap[[b]][cells[withFlows], g],
-                              setCapFactor[[b]][cells[withFlows], g], minFactor[[b]])
-          rows <- withFlows[factor != 1]
-          factor <- factor[factor != 1]
-          if (length(rows) > 0) {
-            activeFlows[rows, group[["plus"]]] <- activeFlows[rows, group[["plus"]], drop = FALSE] * factor
-            # a zero factor occurs only where the flows with sign -1 are zero
-            inverse <- 1 / factor
-            inverse[factor == 0] <- 1
-            activeFlows[rows, group[["minus"]]] <- activeFlows[rows, group[["minus"]], drop = FALSE] * inverse
-            setCapFactor[[b]][cells[rows], g] <- setCapFactor[[b]][cells[rows], g] * factor
+      # scaling to the caps, block by block and group by group; the groups of a block share no flows, so they
+      # are scaled one after another, each only in the grid cells with flows of the group and a factor other
+      # than 1 (most caps bind in few grid cells)
+      if (backend == "C++") {
+        # src/capStep.cpp changes activeFlows and setCapFactor in place, both are local copies of this function
+        capStep(activeFlows, cells, setCap, setCapFactor, capGroups, minFactor)
+      } else {
+        for (b in seq_along(caps)) {
+          for (group in capGroups[[b]]) {
+            g <- group[["column"]]
+            plus <- rowSums(activeFlows[, group[["plus"]], drop = FALSE])
+            minus <- rowSums(activeFlows[, group[["minus"]], drop = FALSE])
+            cap <- setCap[[b]][cells, g]
+            factorSoFar <- setCapFactor[[b]][cells, g]
+            # only grid cells at or above the cap, or scaled down before, can get a factor other than 1
+            check <- which(plus + minus > 0 & (plus - minus >= cap | factorSoFar < 1))
+            factor <- .capScale(plus[check], minus[check], cap[check], factorSoFar[check], minFactor[b])
+            rows <- check[factor != 1]
+            factor <- factor[factor != 1]
+            if (length(rows) > 0) {
+              activeFlows[rows, group[["plus"]]] <- activeFlows[rows, group[["plus"]], drop = FALSE] * factor
+              # a zero factor occurs only where the flows with sign -1 are zero
+              inverse <- 1 / factor
+              inverse[factor == 0] <- 1
+              activeFlows[rows, group[["minus"]]] <- activeFlows[rows, group[["minus"]], drop = FALSE] * inverse
+              setCapFactor[[b]][cells[rows], g] <- setCapFactor[[b]][cells[rows], g] * factor
+            }
           }
         }
       }
 
       # deviation of the unit sums from the totals after scaling to the caps
-      deviation <- abs(rowsum(activeFlows, activeIndex) - activeTotal)
-      residual[active] <- apply(deviation, 1, max)
-      setFlows[cells, ] <- .scaleToTotalsLr(activeFlows, activeTotal, activeIndex)
-      active[residual < tol] <- FALSE
+      sumLr <- rowsum(activeFlows, activeIndex)
+      residual[active] <- apply(abs(sumLr - activeTotal), 1, max)
+      scale <- activeTotal / sumLr
+      scale[sumLr == 0] <- 0
+      activeFlows <- activeFlows * scale[activeIndex, , drop = FALSE]
+      # units that converged leave the active grid cells
+      if (any(residual[active] < tol)) {
+        setFlows[cells, ] <- activeFlows
+        active[residual < tol] <- FALSE
+        cells <- which(active[setIndex])
+        activeIndex <- match(setIndex[cells], which(active))
+        activeTotal <- setTotal[active, , drop = FALSE]
+        activeFlows <- setFlows[cells, , drop = FALSE]
+      }
     }
+    setFlows[cells, ] <- activeFlows
     return(list(cells = setCells, flows = setFlows, capFactor = setCapFactor, residual = residual,
                 iterations = iter))
   }

@@ -147,9 +147,7 @@ toolAllocateTransitions <- function(startHr, mapping, statesLr, transitionsLr, s
   # magclass at the interfaces: in magclass, the kernel iteration takes about 35 times as long (see
   # toolAllocateByCrossEntropy).
   .asMagpie <- function(x, year = NULL) {
-    out <- new.magpie(rownames(x), year, colnames(x))
-    out[] <- x
-    return(out)
+    return(new.magpie(rownames(x), year, colnames(x), fill = x))
   }
   .asMatrix <- function(x) {
     return(matrix(x, nrow = dim(x)[1], dimnames = list(getCells(x), getNames(x))))
@@ -283,6 +281,9 @@ toolAllocateTransitions <- function(startHr, mapping, statesLr, transitionsLr, s
       n <- which(from == type)
       outflow <- rowSums(flows[, n, drop = FALSE])
       over <- outflow > state[, type]
+      if (!any(over)) {
+        next
+      }
       # outflow above the area of the type
       removed <- flows[, n, drop = FALSE] * (1 - pmin(state[, type] / outflow, 1))
       removed[!over, ] <- 0

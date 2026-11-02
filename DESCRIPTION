@@ -28,10 +28,13 @@ Imports:
     mip,
     ncdf4,
     parallel,
+    Rcpp,
     stats,
     terra,
     utils,
     withr
+LinkingTo:
+    Rcpp
 Suggests:
     covr,
     knitr,

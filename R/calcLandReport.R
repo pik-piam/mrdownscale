@@ -114,7 +114,7 @@ calcLandReport <- function(outputFormat, input, harmonizationPeriod, yearsSubset
                 min = 0,
                 max = 1,
                 description = paste0("MAgPIE data harmonized and downscaled using landuseinit as reference ",
-                                     "for further processing in magpie4")))
+                                     "for further processing in magpie4"), cache = FALSE))
   } else if (outputFormat %in% c("downscaledmagpieSplit", "downscaledmagpieCroparea")) {
     if (!(downscaling == "transitions" && harmonization == "none")) {
       stop("outputFormat = \"", outputFormat, "\" needs downscaling = \"transitions\" and harmonization = \"none\"")
@@ -131,7 +131,8 @@ calcLandReport <- function(outputFormat, input, harmonizationPeriod, yearsSubset
       x <- x[, getYears(x)[-1], ]
       getSets(x, fulldim = FALSE) <- c("x.y.iso", "year", "kcr.w")
       return(list(x = x, isocountries = FALSE, unit = "1", min = 0,
-                  description = "MAgPIE crop area by crop and water supply as share of the grid cell area"))
+                  description = "MAgPIE crop area by crop and water supply as share of the grid cell area",
+                  cache = FALSE))
     }
 
     # crop area of food and feed crops (kfo) and of bioenergy crops (kbe, betr and begr), each rainfed and
@@ -153,7 +154,7 @@ calcLandReport <- function(outputFormat, input, harmonizationPeriod, yearsSubset
     toolExpectLessDiff(dimSums(x, dim = 3), dimSums(landHr, dim = 3), 1e-6,
                        "The land split covers all land of the grid cells")
     return(list(x = x, isocountries = FALSE, unit = "Mha", min = 0,
-                description = "MAgPIE land by grid cell, land type, sub-type and water supply"))
+                description = "MAgPIE land by grid cell, land type, sub-type and water supply", cache = FALSE))
   } else {
     stop("Can only report for outputFormat = ESM/ScenarioMIP/downscaledmagpie/downscaledmagpieSplit/",
          "downscaledmagpieCroparea")

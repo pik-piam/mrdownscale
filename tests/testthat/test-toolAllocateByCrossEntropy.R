@@ -33,6 +33,11 @@ makeCappedFlows <- function(seed = 2) {
        dstBlock = list(group = flows[["to"]], cap = dstCap))
 }
 
+# the caps of the blocks (names in tr) in this order, with the grid cells permuted
+permuteCaps <- function(tr, perm, blocks) {
+  return(lapply(blocks, function(block) list(group = tr[[block]][["group"]], cap = tr[[block]][["cap"]][perm, , ])))
+}
+
 # valid small problem for the input checks
 makeSmall <- function() {
   flows <- c("f1", "f2")
@@ -141,8 +146,7 @@ test_that("result does not depend on the order of blocks and cells", {
                                      list(tr[["srcBlock"]], tr[["dstBlock"]]), tol = 1e-12)
   set.seed(2)
   perm <- sample(ncells(tr[["prior"]]))
-  capsPermuted <- list(list(group = tr[["dstBlock"]][["group"]], cap = tr[["dstBlock"]][["cap"]][perm, , ]),
-                       list(group = tr[["srcBlock"]][["group"]], cap = tr[["srcBlock"]][["cap"]][perm, , ]))
+  capsPermuted <- permuteCaps(tr, perm, c("dstBlock", "srcBlock"))
   res2 <- toolAllocateByCrossEntropy(tr[["total"]], tr[["prior"]][perm, , ], cellMapping(tr[["cluster"]]),
                                      capsPermuted, tol = 1e-12)
   expect_equal(res2[["flowsHr"]][getCells(res1[["flowsHr"]]), , ], res1[["flowsHr"]], tolerance = 1e-10)
@@ -155,14 +159,34 @@ test_that("result does not depend on the number of processes", {
   # grid cells of the clusters interleaved, so that the sets of units are not blocks of grid cells
   set.seed(3)
   perm <- sample(ncells(tr[["prior"]]))
-  caps <- list(list(group = tr[["srcBlock"]][["group"]], cap = tr[["srcBlock"]][["cap"]][perm, , ]),
-               list(group = tr[["dstBlock"]][["group"]], cap = tr[["dstBlock"]][["cap"]][perm, , ]))
+  caps <- permuteCaps(tr, perm, c("srcBlock", "dstBlock"))
   .allocate <- function() {
     return(toolAllocateByCrossEntropy(tr[["total"]], tr[["prior"]][perm, , ], cellMapping(tr[["cluster"]]), caps))
   }
   res1 <- .allocate()
   withr::local_options(mrdownscale.cores = 2)
   expect_identical(.allocate(), res1)
+})
+
+test_that("the backends R and C++ give the same result", {
+  tr <- makeCappedFlows()
+  # hard source and destination caps, a soft cap and a cap on a net change, which binds in some grid cells
+  soft <- list(group = tr[["flows"]][["to"]], cap = tr[["dstBlock"]][["cap"]] * 0.5, minFactor = 1e-6)
+  net <- list(group = ifelse(tr[["flows"]][["from"]] == "a" | tr[["flows"]][["to"]] == "a", "a", NA),
+              sign = ifelse(tr[["flows"]][["to"]] == "a", 1, -1),
+              cap = cellValues(-0.05, ncells(tr[["prior"]]), "a"))
+  # maxIter = 300 on purpose: the soft block is exceeded and not all units converge, so the warnings are expected
+  .allocate <- function(backend) {
+    return(suppressWarnings(toolAllocateByCrossEntropy(tr[["total"]], tr[["prior"]], cellMapping(tr[["cluster"]]),
+                                                       list(tr[["srcBlock"]], tr[["dstBlock"]], soft, net),
+                                                       maxIter = 300, backend = backend)))
+  }
+  resR <- .allocate("R")
+  # every one of the 4 cap blocks binds
+  for (block in 1:4) {
+    expect_lt(min(resR[["capFactor"]][[block]]), 1)
+  }
+  expect_identical(.allocate("C++"), resR)
 })
 
 test_that("the option mrdownscale.cores is checked", {

@@ -11,7 +11,8 @@ toolAllocateByCrossEntropy(
   caps = list(),
   fallbackHr = NULL,
   tol = 1e-08,
-  maxIter = 5000
+  maxIter = 5000,
+  backend = c("C++", "R")
 )
 }
 \arguments{
@@ -40,6 +41,9 @@ gives an error in that case.}
 \item{tol}{Tolerance for the convergence of the caps (absolute, in the measure of \code{totalLr}).}
 
 \item{maxIter}{Maximum number of iterations.}
+
+\item{backend}{Implementation of the scaling to the caps: "C++" (default) or "R", the same steps in R; with "R"
+the function takes about 2.5 times as long. Both give the same result.}
 }
 \value{
 List with
