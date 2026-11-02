@@ -58,6 +58,10 @@
 - [`toolAddMetadataNC()`](toolAddMetadataNC.md) : toolAddMetadataNC
 - [`toolAggregateCropland()`](toolAggregateCropland.md) :
   toolAggregateCropland
+- [`toolAllocateRegionTotals()`](toolAllocateRegionTotals.md) :
+  toolAllocateRegionTotals
+- [`toolCapFertilizerKgPerHa()`](toolCapFertilizerKgPerHa.md) :
+  toolCapFertilizerKgPerHa
 - [`toolCheckWoodHarvestArea()`](toolCheckWoodHarvestArea.md) :
   toolCheckWoodHarvestArea
 - [`toolCropData()`](toolCropData.md) : toolCropData
@@ -82,12 +86,22 @@
 - [`toolMaxExpansion()`](toolMaxExpansion.md) : toolMaxExpansion
 - [`toolMaxHarvestPerYear()`](toolMaxHarvestPerYear.md) :
   toolMaxHarvestPerYear
+- [`toolParallelBiohCoverTotals()`](toolParallelBiohCoverTotals.md) :
+  toolParallelBiohCoverTotals
+- [`toolParallelCoverTargets()`](toolParallelCoverTargets.md) :
+  toolParallelCoverTargets
+- [`toolParallelHarvestCoverTotals()`](toolParallelHarvestCoverTotals.md)
+  : toolParallelHarvestCoverTotals
 - [`toolPrimExpansionCheck()`](toolPrimExpansionCheck.md) :
   toolPrimExpansionCheck
+- [`toolProjectFertilizerTg()`](toolProjectFertilizerTg.md) :
+  toolProjectFertilizerTg
+- [`toolRedistributeBioh()`](toolRedistributeBioh.md) :
+  toolRedistributeBioh
 - [`toolReplaceExpansion()`](toolReplaceExpansion.md) :
   toolReplaceExpansion
-- [`toolReportAreaDeviation()`](toolReportAreaDeviation.md) :
-  toolReportAreaDeviation
+- [`toolReportDeviation()`](toolReportDeviation.md) :
+  toolReportDeviation
 - [`toolResolutionMapping()`](toolResolutionMapping.md) :
   toolResolutionMapping
 - [`toolScaleConstantArea()`](toolScaleConstantArea.md) :
