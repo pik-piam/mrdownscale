@@ -1,6 +1,6 @@
 # Downscale and harmonize land use data
 
-R package **mrdownscale**, version **0.52.1.9002**
+R package **mrdownscale**, version **0.54.1**
 
   [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11244475.svg)](https://doi.org/10.5281/zenodo.11244475) [![R build status](https://github.com/pik-piam/mrdownscale/workflows/check/badge.svg)](https://github.com/pik-piam/mrdownscale/actions) [![codecov](https://codecov.io/gh/pik-piam/mrdownscale/branch/master/graph/badge.svg)](https://app.codecov.io/gh/pik-piam/mrdownscale) [![r-universe](https://pik-piam.r-universe.dev/badges/mrdownscale)](https://pik-piam.r-universe.dev/builds)
 
@@ -48,7 +48,11 @@ In case of questions / problems please contact Pascal Sauer <pascal.sauer@pik-po
 
 To cite package **mrdownscale** in publications use:
 
+<<<<<<< HEAD
 Sauer P, Dietrich J (2026). "mrdownscale: Downscale and harmonize land use data." doi:10.5281/zenodo.11244475 <https://doi.org/10.5281/zenodo.11244475>. Version: 0.52.1.9002, <https://github.com/pik-piam/mrdownscale>.
+=======
+Sauer P, Dietrich J (2026). "mrdownscale: Downscale and harmonize land use data." doi:10.5281/zenodo.11244475 <https://doi.org/10.5281/zenodo.11244475>. Version: 0.54.1, <https://github.com/pik-piam/mrdownscale>.
+>>>>>>> 2718b6aff4868ecf12c2859ce689b99dddc4c4bd
 
 A BibTeX entry for LaTeX users is
 
@@ -57,9 +61,16 @@ A BibTeX entry for LaTeX users is
   title = {mrdownscale: Downscale and harmonize land use data},
   author = {Pascal Sauer and Jan Philipp Dietrich},
   doi = {10.5281/zenodo.11244475},
+<<<<<<< HEAD
   date = {2026-10-27},
   year = {2026},
   url = {https://github.com/pik-piam/mrdownscale},
   note = {Version: 0.52.1.9002},
+=======
+  date = {2026-11-02},
+  year = {2026},
+  url = {https://github.com/pik-piam/mrdownscale},
+  note = {Version: 0.54.1},
+>>>>>>> 2718b6aff4868ecf12c2859ce689b99dddc4c4bd
 }
 ```
