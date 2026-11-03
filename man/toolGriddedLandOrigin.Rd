@@ -50,10 +50,11 @@ proportion (\code{"proportional"}).
 \examples{
 initial <- new.magpie("A.1", "y2000", c("crop", "other"), c(2, 1))
 transitions <- new.magpie("A.1", c("y2010", "y2020"),
-                                    c("change.crop.other", "change.other.crop"), c(0.5, 0, 0, 0.7))
+                          c("change.crop.other", "change.other.crop"), c(0.5, 0, 0, 0.7))
 getSets(transitions, fulldim = FALSE)[3] <- "stage.from.to"
 toolGriddedLandOrigin(transitions, initial, "other")
-toolGriddedLandOrigin(transitions, initial, "other", order = c(default = "newest", other.crop = "oldest"))
+toolGriddedLandOrigin(transitions, initial, "other",
+                      order = c(default = "newest", other.crop = "oldest"))
 }
 \seealso{
 \code{\link{calcLandTransitionsHighRes}}

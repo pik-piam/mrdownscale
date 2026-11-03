@@ -59,9 +59,9 @@ Distributes totals of coarse units (Lr, for example the clusters of a model) to 
 (Hr), for any quantities given as columns ("flows"), for example land-use transitions or the area
 of peatland categories. The grid cell values
 \itemize{
-  \item add up exactly to the unit totals,
-  \item stay below upper bounds (caps) on sums of groups of flows in each grid cell, and
-  \item are as close as possible to a prior distribution (minimum cross-entropy).
+\item add up exactly to the unit totals,
+\item stay below upper bounds (caps) on sums of groups of flows in each grid cell, and
+\item are as close as possible to a prior distribution (minimum cross-entropy).
 }
 The solution is found by iterative proportional fitting extended to upper bounds (see details).
 For one cap per grid cell and flow, \code{\link{toolAllocateByFilling}} gives the same solution in
@@ -76,11 +76,11 @@ subject to the unit totals and the caps.
 The solution is the prior multiplied by one factor per unit and total and by one factor per
 grid cell and cap group. The function finds these factors by repeating two scaling steps:
 \enumerate{
-  \item For each cap block, groups of flows above their cap are scaled to the cap: flows with
-  sign 1 by a factor below 1, flows with sign -1 by its inverse. For groups below their cap,
-  earlier scaling is reversed up to the cap. The accumulated factor of each grid cell and group
-  (\code{capFactor}) therefore stays between \code{minFactor} and 1.
-  \item The flows are scaled to the unit totals.
+\item For each cap block, groups of flows above their cap are scaled to the cap: flows with
+sign 1 by a factor below 1, flows with sign -1 by its inverse. For groups below their cap,
+earlier scaling is reversed up to the cap. The accumulated factor of each grid cell and group
+(\code{capFactor}) therefore stays between \code{minFactor} and 1.
+\item The flows are scaled to the unit totals.
 }
 The repetition stops when step 1 no longer changes the unit sums by more than \code{tol}.
 Because the last step is always the scaling to the unit totals, these hold exactly (unless

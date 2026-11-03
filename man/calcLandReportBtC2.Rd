@@ -21,12 +21,12 @@ downscaled land (\code{cell.land_0.5.mz}); the land itself is not changed.
 Classes of the state of the land, from the land split (\code{\link{calcLandReport}} with
 \code{outputFormat = "downscaledmagpieSplit"}):
 \itemize{
-  \item cropland_other and cropland_2Gbioen: cropland without and with the crop area of bioenergy crops;
-  \item grassland: pasture and rangeland;
-  \item nat_regen_forest: primary and secondary forest, NDC forest, and afforestation if it is not
-  established as plantation (\code{s32_aff_plantation});
-  \item forest_planted: timber plantations, other planted forest, and afforestation as plantation;
-  \item built_up_areas: urban land.
+\item cropland_other and cropland_2Gbioen: cropland without and with the crop area of bioenergy crops;
+\item grassland: pasture and rangeland;
+\item nat_regen_forest: primary and secondary forest, NDC forest, and afforestation if it is not
+established as plantation (\code{s32_aff_plantation});
+\item forest_planted: timber plantations, other planted forest, and afforestation as plantation;
+\item built_up_areas: urban land.
 }
 Classes of the history of other land (othernat and youngsecdf), along the grid cell transitions from the
 first year on (\code{\link{toolGriddedLandOrigin}}): area that came from cropland (rest_abn_crop), pasture

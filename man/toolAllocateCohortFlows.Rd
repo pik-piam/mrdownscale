@@ -48,9 +48,9 @@ sum of the grid cell totals of the unit (where they are all zero, the cohort com
 stock in the grid cells with a total is used). Starting from the grid cell stock, two steps are repeated (iterative
 proportional fitting):
 \enumerate{
-  \item the flows of each cohort are scaled to its unit flow;
-  \item the flows of each grid cell are scaled to its total, with each flow at most the stock of its
-  cohort (flows at the stock stay there, the others take the rest in proportion).
+\item the flows of each cohort are scaled to its unit flow;
+\item the flows of each grid cell are scaled to its total, with each flow at most the stock of its
+cohort (flows at the stock stay there, the others take the rest in proportion).
 }
 The repetition stops when the unit flows of the cohorts hold up to \code{tol} or no longer
 improve. Because the grid cell step is the last, the grid cell totals and stocks hold exactly; where the

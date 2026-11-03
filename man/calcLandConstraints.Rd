@@ -23,15 +23,15 @@ priority is exceeded first (see \code{\link{toolAllocateTransitions}}).
 \details{
 input = "magpie": the constraints of the model, which apply in all stages:
 \itemize{
-  \item potentialForest: forest establishment within the potential forest area
-  (\code{q35_max_forest_establishment}), potential forest by \code{c35_pot_forest_correction} and
-  \code{c35_pot_forest_scenario} as in modules/35_natveg/pot_forest_may24/input.gms, if the run has the
-  potential forest area at 0.5 degree in its output folder;
-  \item crop: cropland within the available cropland (\code{c29_marginal_land}, \code{c30_marginal_land}
-  in runs before the cropland module) reduced by the SNV share and its fader (\code{q29_avl_cropland});
-  \item natveg and past: protected natural vegetation (as a whole, because the land types of the
-  protected-area data need not match those of the start map) and pasture (\code{vm_land.lo}) from
-  \code{\link{calcLandConservationHighRes}}, if the run has land conservation data.
+\item potentialForest: forest establishment within the potential forest area
+(\code{q35_max_forest_establishment}), potential forest by \code{c35_pot_forest_correction} and
+\code{c35_pot_forest_scenario} as in modules/35_natveg/pot_forest_may24/input.gms, if the run has the
+potential forest area at 0.5 degree in its output folder;
+\item crop: cropland within the available cropland (\code{c29_marginal_land}, \code{c30_marginal_land}
+in runs before the cropland module) reduced by the SNV share and its fader (\code{q29_avl_cropland});
+\item natveg and past: protected natural vegetation (as a whole, because the land types of the
+protected-area data need not match those of the start map) and pasture (\code{vm_land.lo}) from
+\code{\link{calcLandConservationHighRes}}, if the run has land conservation data.
 }
 Priorities: protection 1, potentialForest 2, crop 3 (protection is exceeded first).
 }

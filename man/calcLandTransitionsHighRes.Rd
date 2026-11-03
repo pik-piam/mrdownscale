@@ -44,17 +44,17 @@ unit states.
 \details{
 The input declares the rules that place a stage, at most one per stage:
 \itemize{
-  \item previousInflow: the outflow of \code{type} in proportion to its inflow in the previous year
-  (from the stages \code{fromStages}, and only from \code{fromTypes} if given) per area of the type;
-  \item depletingTarget: the outflow of \code{type} in proportion to the part of the grid cell target
-  \code{targetHr} not yet taken by this stage in earlier years, per area of the type;
-  \item peatland: the outflow of the land types with drained peat (\code{onTypes}) in proportion to
-  the drained peat of the previous year per area of the land type; the peat (start \code{startHr},
-  unit values \code{lowRes}) follows the land year by year with \code{\link{toolDownscalePeatland}}, its
-  decline on the land types taken from the stage of the rule;
-  \item targetArea: the grid cell distribution of a type at the end of the stage (\code{targetHr},
-  grid cells x years), with the transitions that the compensation may add
-  (\code{allowedTransitions}), see \code{\link{toolAllocateTransitions}}.
+\item previousInflow: the outflow of \code{type} in proportion to its inflow in the previous year
+(from the stages \code{fromStages}, and only from \code{fromTypes} if given) per area of the type;
+\item depletingTarget: the outflow of \code{type} in proportion to the part of the grid cell target
+\code{targetHr} not yet taken by this stage in earlier years, per area of the type;
+\item peatland: the outflow of the land types with drained peat (\code{onTypes}) in proportion to
+the drained peat of the previous year per area of the land type; the peat (start \code{startHr},
+unit values \code{lowRes}) follows the land year by year with \code{\link{toolDownscalePeatland}}, its
+decline on the land types taken from the stage of the rule;
+\item targetArea: the grid cell distribution of a type at the end of the stage (\code{targetHr},
+grid cells x years), with the transitions that the compensation may add
+(\code{allowedTransitions}), see \code{\link{toolAllocateTransitions}}.
 }
 Grid cells without inflow, target or peat take the rest (weight 1e-6) in proportion to the area of
 the type. Items without transitions
