@@ -38,12 +38,12 @@ details.}
 
 \item{constraints}{Optional named list of constraints. Each is a list with
 \itemize{
-  \item \code{types}: the types whose summed grid cell area is bounded;
-  \item \code{upper} or \code{lower}: the bound, a magclass object (grid cells x years, one item; matched by
-  grid cell). A year uses the latest year of the bound at or before it, earlier years the first. A lower
-  bound (for example protected land) acts as an upper bound on all other types: the grid cell area of
-  \code{startHr} minus the bound;
-  \item \code{priority}: a number, default 1; constraints with a lower priority are exceeded first.
+\item \code{types}: the types whose summed grid cell area is bounded;
+\item \code{upper} or \code{lower}: the bound, a magclass object (grid cells x years, one item; matched by
+grid cell). A year uses the latest year of the bound at or before it, earlier years the first. A lower
+bound (for example protected land) acts as an upper bound on all other types: the grid cell area of
+\code{startHr} minus the bound;
+\item \code{priority}: a number, default 1; constraints with a lower priority are exceeded first.
 }}
 
 \item{layer}{Optional start value of a layer, see details.}
@@ -81,16 +81,16 @@ Each year consists of stages in the order in which the model applies them (for M
 example, the shifts before the optimisation and the transitions of the optimisation). Each
 stage is allocated with \code{\link{toolAllocateByCrossEntropy}}:
 \itemize{
-  \item the prior of a transition from type f to type k in grid cell c is
-  \code{state[c, f] * fromWeight[c, f] * toWeight[c, k]}, so by default the transitions out of a
-  type are proportional to its area in the grid cell;
-  \item the area that leaves a type in a grid cell cannot exceed the area of the type in the grid cell;
-  \item optional \code{constraints} bound, per grid cell, the area of a group of types at the end of
-  each stage (for example cropland within the suitable area, or protected land). Transitions
-  into the group count positive, transitions out of it negative, so a grid cell beyond its bound loses
-  area first. Where the constraints cannot hold together with the unit transitions, they are
-  exceeded in the grid cells where the objective increases least, constraints with a lower priority
-  first, and the area that the transitions add beyond them is reported.
+\item the prior of a transition from type f to type k in grid cell c is
+\code{state[c, f] * fromWeight[c, f] * toWeight[c, k]}, so by default the transitions out of a
+type are proportional to its area in the grid cell;
+\item the area that leaves a type in a grid cell cannot exceed the area of the type in the grid cell;
+\item optional \code{constraints} bound, per grid cell, the area of a group of types at the end of
+each stage (for example cropland within the suitable area, or protected land). Transitions
+into the group count positive, transitions out of it negative, so a grid cell beyond its bound loses
+area first. Where the constraints cannot hold together with the unit transitions, they are
+exceeded in the grid cells where the objective increases least, constraints with a lower priority
+first, and the area that the transitions add beyond them is reported.
 }
 Constraints are soft (\code{minFactor} in \code{\link{toolAllocateByCrossEntropy}}): area beyond a constraint
 enters the objective like a flow with a prior smaller by 1e-6 for the lowest priority, 1e-12 for

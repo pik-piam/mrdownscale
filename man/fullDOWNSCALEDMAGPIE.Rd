@@ -49,16 +49,16 @@ With \code{downscaling = "transitions"} (the default), the transitions of the ru
 the grid cells (\code{\link{calcLandTransitionsHighRes}}) without harmonisation (\code{harmonization =
 "none"}, the model starts from landuseinit). The products are selected with \code{product}:
 \itemize{
-  \item land: \code{cell.land_0.5.mz}, \code{cell.land_split_0.5.mz} (and their shares),
-  \code{cell.croparea_0.5_share.mz}, \code{cell.land_transitions_0.5.mz}, \code{cell.peatland_0.5.mz}
-  (and its share of the geometric grid cell area; from \code{s58_fix_peatland}),
-  \code{cell.land_diagnostics.csv},
-  \code{cell.land_constraint_excess.csv}, \code{cell.land_transition_change.csv},
-  \code{cell.peatland_excess.csv};
-  \item BII: \code{cell.bii_0.5.mz};
-  \item landConservation: \code{cell.conservation_land_0.5.mz};
-  \item ageClasses: \code{cell.ageclass_<type>_0.5_share.mz} for secdforest, forestry and other land, and
-  \code{cell.ageclass_diagnostics.csv}.
+\item land: \code{cell.land_0.5.mz}, \code{cell.land_split_0.5.mz} (and their shares),
+\code{cell.croparea_0.5_share.mz}, \code{cell.land_transitions_0.5.mz}, \code{cell.peatland_0.5.mz}
+(and its share of the geometric grid cell area; from \code{s58_fix_peatland}),
+\code{cell.land_diagnostics.csv},
+\code{cell.land_constraint_excess.csv}, \code{cell.land_transition_change.csv},
+\code{cell.peatland_excess.csv};
+\item BII: \code{cell.bii_0.5.mz};
+\item landConservation: \code{cell.conservation_land_0.5.mz};
+\item ageClasses: \code{cell.ageclass_<type>_0.5_share.mz} for secdforest, forestry and other land, and
+\code{cell.ageclass_diagnostics.csv}.
 }
 }
 \author{

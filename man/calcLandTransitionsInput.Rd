@@ -37,17 +37,17 @@ equal parts of their sub-types (\code{\link{toolAllocateTransitions}} fits them 
 
 Rules (see \code{\link{calcLandTransitionsHighRes}}):
 \itemize{
-  \item recovery is placed on the othernat inflow of the previous year (snvRelocation, peatRewetting
-  and optimisation), recoveryForestry on the inflow from forestry;
-  \item the SNV relocation in proportion to the relocation target (\code{SNVTargetCropland_0.5.mz},
-  interpolated for the SNV share of the run as \code{i29_snv_relocation_target}) not relocated in
-  earlier years, if the run has the target in its output folder;
-  \item the land reduction on drained peat in proportion to the drained peat of the grid cells
-  (peatland, updated each year by \code{\link{toolDownscalePeatland}});
-  \item in the optimisation, urban land follows the 0.5 degree data of the run
-  (\code{c34_urban_scenario}); the other transitions are changed within the rules of the land module
-  and without new inflow to secondary forest (only harvest regrowth and restoration), youngsecdf and
-  primary forest.
+\item recovery is placed on the othernat inflow of the previous year (snvRelocation, peatRewetting
+and optimisation), recoveryForestry on the inflow from forestry;
+\item the SNV relocation in proportion to the relocation target (\code{SNVTargetCropland_0.5.mz},
+interpolated for the SNV share of the run as \code{i29_snv_relocation_target}) not relocated in
+earlier years, if the run has the target in its output folder;
+\item the land reduction on drained peat in proportion to the drained peat of the grid cells
+(peatland, updated each year by \code{\link{toolDownscalePeatland}});
+\item in the optimisation, urban land follows the 0.5 degree data of the run
+(\code{c34_urban_scenario}); the other transitions are changed within the rules of the land module
+and without new inflow to secondary forest (only harvest regrowth and restoration), youngsecdf and
+primary forest.
 }
 }
 \seealso{

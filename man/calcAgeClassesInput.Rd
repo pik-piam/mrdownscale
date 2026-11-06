@@ -26,14 +26,14 @@ as operations in the order of the model.
 \details{
 Operations, each a list with \code{kind}:
 \itemize{
-  \item within: the unit flow \code{flowLr} of \code{pool} returns to the entry age classes, with the
-  grid cell inflow of the land stages \code{inflowStages};
-  \item transfer: the unit flow from \code{from} to \code{to} keeps its age; grid cell totals from the
-  land stages \code{stages};
-  \item shift: ageing by the length of the time step;
-  \item exchange: the unit outflow \code{outflowLr} of \code{pool}, with grid cell totals from the land
-  transitions outside \code{excludeStages}, the regrowth \code{regrowthLr} to the entry age classes, and
-  the grid cell inflow to the entry age classes.
+\item within: the unit flow \code{flowLr} of \code{pool} returns to the entry age classes, with the
+grid cell inflow of the land stages \code{inflowStages};
+\item transfer: the unit flow from \code{from} to \code{to} keeps its age; grid cell totals from the
+land stages \code{stages};
+\item shift: ageing by the length of the time step;
+\item exchange: the unit outflow \code{outflowLr} of \code{pool}, with grid cell totals from the land
+transitions outside \code{excludeStages}, the regrowth \code{regrowthLr} to the entry age classes, and
+the grid cell inflow to the entry age classes.
 }
 input = "magpie": the age classes of modules 32 and 35 (\code{magpie4::ageClasses},
 \code{magpie4::ageClassTransitions}); per time step disturbance, recovery, ageing, maturation and the
